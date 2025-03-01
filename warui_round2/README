@@ -1,0 +1,88 @@
+====================================== 
+ _   _          __   __    _          
+| | | | ___  _ _\ \ / /_ _| | ___   _ 
+| |_| |/ _ \| '_ \ V / _` | |/ / | | |
+|  _  | (_) | | | | | (_| |   <| |_| |
+|_| |_|\___/|_| |_|_|\__,_|_|\_\\__,_|
+======================================
+
+It's time for the boss battle.
+
+This assignment will take all of what you have learned thus far and put it
+into one assignment that has two different parts - a TDD part where you will
+write test cases for your code before you code it (these will be screenshotted
+and uploaded onto Canvas), and a coding part where you write a word-for-word
+English-to-Japanese and Japanese-to-English translator.
+
+Here are the topics covered:
+Variables
+Conditionals
+Loops
+Functions + function parameters
+File I/O
+Data Structures (Vectors and Hash Tables/Maps)
+TDD
+
+Follow these instructions and you'll do fine on this assignment.
+
+===============PART ONE================= (10 Points)
+Part One of this assignment is to use Test Driven Development to write 7 tests
+per function listed here to make sure you implemented them correctly. Don't
+worry, if they don't pass immediately as you will be implementing these tests
+later on. This will net you a total of 10 points.
+
+The functions you will need to write tests for:
+English_to_Japanese()
+Japanese_to_English()
+Autodetect_language()
+Number_to_Japanese() (aka Warui Part One)
+
+You will need to revisit Warui Part One and re-implement it as a function
+rather than just what we did originally. If you successfully were able to
+complete this assignment, you should be able to do this part fairly quickly.
+However, if you did not implement it back when it was due, then you get a
+special offer: if you successfully implement Warui Part 1 right now and
+message me, I'll give you the points for Part 1!
+
+===============PART TWO=============== (10 Points)
+Part Two of this assignment is to use your knowledge of file I/O to read a
+file that will be given by the user and parse the file to determine the words
+to insert into the dictionary. Here is the catch though, you will need to
+save all words currently in your hash map to a different file for the auto
+grader.
+
+If the user types in an input file that does not exist, you will print "BAD
+INPUT" to the screen. In any other case, you will read from the file, add all
+words to the database and output it to the output file.
+
+One curveball: You will be required to vet that a word is valid in English
+before adding it to your database. You will use "/usr/share/dict/words" for
+your dictionary.  Be sure to create a good data structure or your code will be
+slow and might not pass the input tester.
+
+Once you've loaded the files into a hashumappu then you can use them to
+generate translations from English to Japanese and vice versa.
+
+This should be easy to do since you will just be using the data structure you
+loaded from disk to do all the heavy lifting.
+
+You will still have to ensure Part One and Part Two comply and some of the
+final tests will be testing the whole program so make sure you are 100%
+certain everything works.  HINT: Use your TDD test suite to test to make sure
+you're outputting everything right.  You will be required to vet all input,
+test all functions, etc.
+
+Completion of this will be auto graded using the input_tester.
+
+TIPS:
+1. Start slow. Implement a little at a time and don't get overwhelmed by the entire assignment
+immediately. I don't expect you to get it all done right away. Write 3-5 lines of code, compile,
+test it, and do it again.
+2. Make sure you vet all inputs. You need to ensure that you are receiving the correct input format
+at all times.
+3. Choose the correct data structure for the job. You have plenty at your disposal.
+4. Ask for help early and often. This is going to be a difficult assignment. Don't fall behind because
+if you do, you may be too far behind. 
+5. Once during the assignment, you may message your professor with "GONDOR
+CALLS FOR AID" and describe your problem. I will respond with 1-5 actual lines
+of code that will help you.
