@@ -1,4 +1,5 @@
 #include "/public/read.h"
+#include <gtest/gtest.h>
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -67,8 +68,25 @@ cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbe
                  }
     return sum;
 }
+/*
+TEST(zeta, GoodTests) {
+	EXPECT_EQ(isPrime(2), "1");
+}
+*/
 
-int main() {
+int main(int argc, char** argv) {
+	testing::InitGoogleTest(&argc, argv);
+
+	int user = 0;
+	cout << "1) For GTest" << endl;
+	cout << "Else for Zeta" << endl; 
+	cin >> user;
+
+	if (user == 1) {
+		cout << RUN_ALL_TESTS() << endl;
+		return 0;
+	}
+
 	cpp_int primeAmount = 0;
 	int min = 2;
 
