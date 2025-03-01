@@ -46,27 +46,7 @@ bool isPrime(cpp_int x) {
 		return false;
 	}
 	return miller_rabin_test(x, 1);
-	/*
-	bool isprime = true;
-	for (cpp_int i = 2; i <= sqrt(x); i++) {
-		if (x % i == 0) {
-			isprime = false;
-			break;
-		}
-	}
-	return isprime;
-	*/
 }
-/*
-int primeStore(cpp_int x, vector<cpp_int> &primeN) {
-	if (x <= 1) return 0;
-	if (primeN.at(x) != 0) return primeN.at(x);
-	if (isPrime(x)) {
-		primeN.at(x) = primeStore(x, primeN);
-	}
-	return primeN.at(x);
-}*/
-
 int main() {
 	cpp_int primeAmount = 0;
 	int min = 2;
