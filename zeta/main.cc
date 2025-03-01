@@ -57,7 +57,7 @@ cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbe
                          primeAmount += 0;
                    } else {
                          primeAmount++;
-                   }
+                  }
                    if (i >= minOfUser and i <= max) {
                          sum += primeAmount;
                          if (printOrNot <= 10) {
@@ -77,8 +77,7 @@ int main() {
 	cpp_int minOfUser = read("Please enter i:\n");
 	cpp_int max = read("Please enter j:\n");
 	cpp_int printOrNot = max - minOfUser;
-	// const cpp_int Size = max - minOfUser;
-	// vector<cpp_int> primeN(Size);
+	
 	vector<cpp_int> primeNumbers;
 
 	if (minOfUser < 2 or max < 2) {
@@ -96,27 +95,10 @@ int main() {
 	for (cpp_int i = minOfUser; i <= max; i++) {
 		if (isPrime(i) == true) {
 			primeNumbers.push_back(i);
-			// cout << i << " " << boolalpha << isPrime(i) << endl;
+			
 		}
-		//cout << "pi(" << i << ") = " << primeCount(i) << endl;
 	}
-/*
-	cpp_int sum = 0;
 
-	for (cpp_int i = min; i <= max; i++) {
-		auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
-		if (it == primeNumbers.end()) {
-			primeAmount += 0;
-		} else {
-			primeAmount++;
-		}
-		if (i >= minOfUser and i <= max) {
-			sum += primeAmount;
-			if (printOrNot <= 10) {
-				cout << "pi(" << i << ") = " << primeAmount << endl			}
-		}
-	}
-*/
   cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
 	cout << "The answer is: " << sum << endl;
 	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
