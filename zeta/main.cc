@@ -50,76 +50,77 @@ bool isPrime(cpp_int x) {
 }
 
 cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, cpp_int primeAmount, cpp_int printOrNot){
-  cpp_int sum = 0;
+	cpp_int sum = 0;
 
-      for (cpp_int i = min; i <= max; i++) {
-                   auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
-                   if (it == primeNumbers.end()) {
-                         primeAmount += 0;
-                   } else {
-                         primeAmount++;
-                  }
-                   if (i >= minOfUser and i <= max) {
-                         sum += primeAmount;
-                         if (printOrNot <= 10) {
-                           cout << "pi(" << i << ") = " << primeAmount << endl;
-                         }
-                       }
-                 }
-    return sum;
+	for (cpp_int i = min; i <= max; i++) {
+		auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
+		if (it == primeNumbers.end()) {
+			primeAmount += 0;
+		} else {
+			primeAmount++;
+		}
+		if (i >= minOfUser and i <= max) {
+			sum += primeAmount;
+			if (printOrNot <= 10) {
+				cout << "pi(" << i << ") = " << primeAmount << endl;
+			}
+		}
+	}
+	return sum;
 }
 /*
-TEST(zeta, GoodTests) {
-	EXPECT_EQ(isPrime(2), "1");
-}
-*/
+   TEST(zeta, GoodTests) {
+   EXPECT_EQ(isPrime(2), "1");
+   }
+   */
 
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
 
 	int user = 0;
 	cout << "1) For GTest" << endl;
-	cout << "Else for Zeta" << endl; 
+	cout << "2) For Zeta" << endl; 
 	cin >> user;
 
 	if (user == 1) {
 		cout << RUN_ALL_TESTS() << endl;
-		return 0;
-	}
+	} 
+	else if (user == 2) {
 
-	cpp_int primeAmount = 0;
-	int min = 2;
+		cpp_int primeAmount = 0;
+		int min = 2;
 
-	cout << "Welcome to Zeta World!\nWe will compute the sum of all pi(x) from x = i to j\n";
+		cout << "Welcome to Zeta World!\nWe will compute the sum of all pi(x) from x = i to j\n";
 
-	cpp_int minOfUser = read("Please enter i:\n");
-	cpp_int max = read("Please enter j:\n");
-	cpp_int printOrNot = max - minOfUser;
-	
-	vector<cpp_int> primeNumbers;
+		cpp_int minOfUser = read("Please enter i:\n");
+		cpp_int max = read("Please enter j:\n");
+		cpp_int printOrNot = max - minOfUser;
 
-	if (minOfUser < 2 or max < 2) {
-		die();
-	} else if (max < minOfUser) {
-		die();
-	}
-	clock_t start_time = clock();
-	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
-		if (isPrime(i) == true) {
-			primeNumbers.push_back(i);
+		vector<cpp_int> primeNumbers;
+
+		if (minOfUser < 2 or max < 2) {
+			die();
+		} else if (max < minOfUser) {
+			die();
 		}
-	}
-
-	for (cpp_int i = minOfUser; i <= max; i++) {
-		if (isPrime(i) == true) {
-			primeNumbers.push_back(i);
-			
+		clock_t start_time = clock();
+		for (cpp_int i = minOfUser - 1; i >= 2; i--) {
+			if (isPrime(i) == true) {
+				primeNumbers.push_back(i);
+			}
 		}
-	}
 
-  cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
-	cout << "The answer is: " << sum << endl;
-	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
+		for (cpp_int i = minOfUser; i <= max; i++) {
+			if (isPrime(i) == true) {
+				primeNumbers.push_back(i);
+
+			}
+		}
+
+		cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
+		cout << "The answer is: " << sum << endl;
+		cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
+	}
 }
 
 
