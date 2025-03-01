@@ -68,11 +68,28 @@ cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbe
 	}
 	return sum;
 }
-/*
-   TEST(zeta, GoodTests) {
-   EXPECT_EQ(isPrime(2), "1");
-   }
-   */
+
+TEST(Prime, GoodTests) {
+	EXPECT_EQ(isPrime(2), true);
+	EXPECT_EQ(isPrime(1231), true);
+	EXPECT_EQ(isPrime(97), true);
+	EXPECT_EQ(isPrime(401), true);
+	EXPECT_EQ(isPrime(859), true);
+}
+TEST(Prime, BadTests) {
+	EXPECT_EQ(isPrime(12), false);
+	EXPECT_EQ(isPrime(126), false);
+	EXPECT_EQ(isPrime(-256), false);
+	EXPECT_EQ(isPrime(-1231231), false);
+	EXPECT_EQ(isPrime(10000000), false);
+}
+TEST(Prime, EdgeTests) {
+	EXPECT_EQ(isPrime(1), false);
+	EXPECT_EQ(isPrime(0), false);
+	EXPECT_EQ(isPrime(2), true);
+	EXPECT_EQ(isPrime(3), true);
+	EXPECT_EQ(isPrime(4), false);
+}
 
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
