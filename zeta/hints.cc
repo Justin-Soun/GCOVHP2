@@ -1,5 +1,16 @@
-#include <array>
+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#include <array>
+#include "/public/read.h"
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/miller_rabin.hpp>
+#include <time.h>
+using namespace boost::multiprecision;
 using namespace std;
+
+#include "main.cc"
+
 
 //Boost Multiprecision gives you access to the "cpp_int" type which is an infinite precision integer
 //cpp_int x = 10000000;
@@ -35,4 +46,4 @@ const array<cpp_int,21> cache = {
 	24'739'954'287'740'860,
 	234'057'667'276'344'607,
 	2'220'819'602'560'918'840
-};
+};840
