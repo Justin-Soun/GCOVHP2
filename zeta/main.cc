@@ -4,6 +4,7 @@
 #include <cmath>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/miller_rabin.hpp>
+#include <time.h>
 using namespace boost::multiprecision;
 using namespace std;
 
@@ -84,7 +85,7 @@ int main() {
 	} else if (max < minOfUser) {
 		die();
 	}
-
+	clock_t start_time = clock();
 	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
 		if (isPrime(i) == true) {
 			primeNumbers.push_back(i);
@@ -117,5 +118,5 @@ int main() {
 	}
 
 	cout << "The answer is: " << sum << endl;
-
+	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 }
