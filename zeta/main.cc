@@ -83,7 +83,8 @@ cpp_int calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, 
 	return sum;
 }
 
-
+TEST(Calc, GoodTests) {
+}
 
 
 
@@ -112,8 +113,6 @@ TEST(Prime, EdgeTests) {
 
 int main(int argc, char** argv) {
 	testing::InitGoogleTest(&argc, argv);
-	cpp_int primeAmount = 0;
-	int min = 2;
 
 	int user = 0;
 	cout << "1) For GTest" << endl;
@@ -134,8 +133,6 @@ int main(int argc, char** argv) {
 		cpp_int minOfUser = read("Please enter i:\n");
 		cpp_int max = read("Please enter j:\n");
 		cpp_int printOrNot = max - minOfUser;
-
-		vector<cpp_int> pNumbers;
 
 		if (minOfUser < 2 or max < 2) {
 			die();
