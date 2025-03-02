@@ -72,7 +72,6 @@ string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, i
 		}
 	}
 
-
 	for (cpp_int i = min; i <= max; i++) {
 		auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
 		if (it == primeNumbers.end()) {
