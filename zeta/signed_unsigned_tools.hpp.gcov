@@ -1,0 +1,93 @@
+        -:    0:Source:/usr/include/boost/random/detail/signed_unsigned_tools.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:/* boost random/detail/signed_unsigned_tools.hpp header file
+        -:    2: *
+        -:    3: * Copyright Jens Maurer 2006
+        -:    4: * Distributed under the Boost Software License, Version 1.0. (See
+        -:    5: * accompanying file LICENSE_1_0.txt or copy at
+        -:    6: * http://www.boost.org/LICENSE_1_0.txt)
+        -:    7: *
+        -:    8: * See http://www.boost.org for most recent version including documentation.
+        -:    9: */
+        -:   10:
+        -:   11:#ifndef BOOST_RANDOM_DETAIL_SIGNED_UNSIGNED_TOOLS
+        -:   12:#define BOOST_RANDOM_DETAIL_SIGNED_UNSIGNED_TOOLS
+        -:   13:
+        -:   14:#include <boost/limits.hpp>
+        -:   15:#include <boost/config.hpp>
+        -:   16:#include <boost/random/traits.hpp>
+        -:   17:
+        -:   18:namespace boost {
+        -:   19:namespace random {
+        -:   20:namespace detail {
+        -:   21:
+        -:   22:
+        -:   23:/*
+        -:   24: * Compute x - y, we know that x >= y, return an unsigned value.
+        -:   25: */
+        -:   26:
+        -:   27:template<class T, bool sgn = std::numeric_limits<T>::is_signed && std::numeric_limits<T>::is_bounded>
+        -:   28:struct subtract { };
+        -:   29:
+        -:   30:template<class T>
+        -:   31:struct subtract<T, /* signed */ false>
+        -:   32:{
+        -:   33:  typedef T result_type;
+     5813:   34:  result_type operator()(T x, T y) { return x - y; }
+        -:   35:};
+        -:   36:
+        -:   37:template<class T>
+        -:   38:struct subtract<T, /* signed */ true>
+        -:   39:{
+        -:   40:  typedef typename boost::random::traits::make_unsigned_or_unbounded<T>::type result_type;
+        -:   41:  result_type operator()(T x, T y)
+        -:   42:  {
+        -:   43:    if (y >= 0)   // because x >= y, it follows that x >= 0, too
+        -:   44:      return result_type(x) - result_type(y);
+        -:   45:    if (x >= 0)   // y < 0
+        -:   46:      // avoid the nasty two's complement case for y == min()
+        -:   47:      return result_type(x) + result_type(-(y+1)) + 1;
+        -:   48:    // both x and y are negative: no signed overflow
+        -:   49:    return result_type(x - y);
+        -:   50:  }
+        -:   51:};
+        -:   52:
+        -:   53:/*
+        -:   54: * Compute x + y, x is unsigned, result fits in type of "y".
+        -:   55: */
+        -:   56:
+        -:   57:template<class T1, class T2, bool sgn = (std::numeric_limits<T2>::is_signed && (std::numeric_limits<T1>::digits >= std::numeric_limits<T2>::digits))>
+        -:   58:struct add { };
+        -:   59:
+        -:   60:template<class T1, class T2>
+        -:   61:struct add<T1, T2, /* signed or else T2 has more digits than T1 so the cast always works - needed when T2 is a multiprecision type and T1 is a native integer */ false>
+        -:   62:{
+        -:   63:  typedef T2 result_type;
+     5813:   64:  result_type operator()(T1 x, T2 y) { return T2(x) + y; }
+        -:   65:};
+        -:   66:
+        -:   67:template<class T1, class T2>
+        -:   68:struct add<T1, T2, /* signed */ true>
+        -:   69:{
+        -:   70:  typedef T2 result_type;
+    #####:   71:  result_type operator()(T1 x, T2 y)
+        -:   72:  {
+    #####:   73:    if (y >= 0)
+    #####:   74:      return T2(x) + y;
+        -:   75:    // y < 0
+    #####:   76:    if (x > T1(-(y+1)))  // result >= 0 after subtraction
+        -:   77:      // avoid the nasty two's complement edge case for y == min()
+    #####:   78:      return T2(x - T1(-(y+1)) - 1);
+        -:   79:    // abs(x) < abs(y), thus T2 able to represent x
+    #####:   80:    return T2(x) + y;
+        -:   81:  }
+        -:   82:};
+        -:   83:
+        -:   84:} // namespace detail
+        -:   85:} // namespace random
+        -:   86:} // namespace boost
+        -:   87:
+        -:   88:#endif // BOOST_RANDOM_DETAIL_SIGNED_UNSIGNED_TOOLS
+        -:   89:

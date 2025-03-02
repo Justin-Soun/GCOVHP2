@@ -1,0 +1,488 @@
+        -:    0:Source:/usr/include/boost/multiprecision/detail/integer_ops.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:///////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
+        -:    5:
+        -:    6:#ifndef BOOST_MP_INT_FUNC_HPP
+        -:    7:#define BOOST_MP_INT_FUNC_HPP
+        -:    8:
+        -:    9:#include <boost/multiprecision/number.hpp>
+        -:   10:
+        -:   11:namespace boost { namespace multiprecision {
+        -:   12:
+        -:   13:namespace default_ops {
+        -:   14:
+        -:   15:template <class Backend>
+        -:   16:inline BOOST_MP_CXX14_CONSTEXPR void eval_qr(const Backend& x, const Backend& y, Backend& q, Backend& r)
+        -:   17:{
+        -:   18:   eval_divide(q, x, y);
+        -:   19:   eval_modulus(r, x, y);
+        -:   20:}
+        -:   21:
+        -:   22:template <class Backend, class Integer>
+        -:   23:inline BOOST_MP_CXX14_CONSTEXPR Integer eval_integer_modulus(const Backend& x, Integer val)
+        -:   24:{
+        -:   25:   BOOST_MP_USING_ABS
+        -:   26:   using default_ops::eval_convert_to;
+        -:   27:   using default_ops::eval_modulus;
+        -:   28:   typedef typename boost::multiprecision::detail::canonical<Integer, Backend>::type int_type;
+        -:   29:   Backend                                                                           t;
+        -:   30:   eval_modulus(t, x, static_cast<int_type>(val));
+        -:   31:   Integer result(0);
+        -:   32:   eval_convert_to(&result, t);
+        -:   33:   return abs(result);
+        -:   34:}
+        -:   35:
+        -:   36:#ifdef BOOST_MSVC
+        -:   37:#pragma warning(push)
+        -:   38:#pragma warning(disable : 4127)
+        -:   39:#endif
+        -:   40:
+        -:   41:template <class B>
+        -:   42:inline BOOST_MP_CXX14_CONSTEXPR void eval_gcd(B& result, const B& a, const B& b)
+        -:   43:{
+        -:   44:   using default_ops::eval_get_sign;
+        -:   45:   using default_ops::eval_is_zero;
+        -:   46:   using default_ops::eval_lsb;
+        -:   47:
+        -:   48:   int shift(0);
+        -:   49:
+        -:   50:   B u(a), v(b);
+        -:   51:
+        -:   52:   int s = eval_get_sign(u);
+        -:   53:
+        -:   54:   /* GCD(0,x) := x */
+        -:   55:   if (s < 0)
+        -:   56:   {
+        -:   57:      u.negate();
+        -:   58:   }
+        -:   59:   else if (s == 0)
+        -:   60:   {
+        -:   61:      result = v;
+        -:   62:      return;
+        -:   63:   }
+        -:   64:   s = eval_get_sign(v);
+        -:   65:   if (s < 0)
+        -:   66:   {
+        -:   67:      v.negate();
+        -:   68:   }
+        -:   69:   else if (s == 0)
+        -:   70:   {
+        -:   71:      result = u;
+        -:   72:      return;
+        -:   73:   }
+        -:   74:
+        -:   75:   /* Let shift := lg K, where K is the greatest power of 2
+        -:   76:   dividing both u and v. */
+        -:   77:
+        -:   78:   unsigned us = eval_lsb(u);
+        -:   79:   unsigned vs = eval_lsb(v);
+        -:   80:   shift       = (std::min)(us, vs);
+        -:   81:   eval_right_shift(u, us);
+        -:   82:   eval_right_shift(v, vs);
+        -:   83:
+        -:   84:   do
+        -:   85:   {
+        -:   86:      /* Now u and v are both odd, so diff(u, v) is even.
+        -:   87:      Let u = min(u, v), v = diff(u, v)/2. */
+        -:   88:      s = u.compare(v);
+        -:   89:      if (s > 0)
+        -:   90:         u.swap(v);
+        -:   91:      if (s == 0)
+        -:   92:         break;
+        -:   93:      eval_subtract(v, u);
+        -:   94:      vs = eval_lsb(v);
+        -:   95:      eval_right_shift(v, vs);
+        -:   96:   } while (true);
+        -:   97:
+        -:   98:   result = u;
+        -:   99:   eval_left_shift(result, shift);
+        -:  100:}
+        -:  101:
+        -:  102:#ifdef BOOST_MSVC
+        -:  103:#pragma warning(pop)
+        -:  104:#endif
+        -:  105:
+        -:  106:template <class B>
+        -:  107:inline BOOST_MP_CXX14_CONSTEXPR void eval_lcm(B& result, const B& a, const B& b)
+        -:  108:{
+        -:  109:   typedef typename mpl::front<typename B::unsigned_types>::type ui_type;
+        -:  110:   B                                                             t;
+        -:  111:   eval_gcd(t, a, b);
+        -:  112:
+        -:  113:   if (eval_is_zero(t))
+        -:  114:   {
+        -:  115:      result = static_cast<ui_type>(0);
+        -:  116:   }
+        -:  117:   else
+        -:  118:   {
+        -:  119:      eval_divide(result, a, t);
+        -:  120:      eval_multiply(result, b);
+        -:  121:   }
+        -:  122:   if (eval_get_sign(result) < 0)
+        -:  123:      result.negate();
+        -:  124:}
+        -:  125:
+        -:  126:} // namespace default_ops
+        -:  127:
+        -:  128:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  129:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer>::type
+        -:  130:divide_qr(const number<Backend, ExpressionTemplates>& x, const number<Backend, ExpressionTemplates>& y,
+        -:  131:          number<Backend, ExpressionTemplates>& q, number<Backend, ExpressionTemplates>& r)
+        -:  132:{
+        -:  133:   using default_ops::eval_qr;
+        -:  134:   eval_qr(x.backend(), y.backend(), q.backend(), r.backend());
+        -:  135:}
+        -:  136:
+        -:  137:template <class Backend, expression_template_option ExpressionTemplates, class tag, class A1, class A2, class A3, class A4>
+        -:  138:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer>::type
+        -:  139:divide_qr(const number<Backend, ExpressionTemplates>& x, const multiprecision::detail::expression<tag, A1, A2, A3, A4>& y,
+        -:  140:          number<Backend, ExpressionTemplates>& q, number<Backend, ExpressionTemplates>& r)
+        -:  141:{
+        -:  142:   divide_qr(x, number<Backend, ExpressionTemplates>(y), q, r);
+        -:  143:}
+        -:  144:
+        -:  145:template <class tag, class A1, class A2, class A3, class A4, class Backend, expression_template_option ExpressionTemplates>
+        -:  146:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer>::type
+        -:  147:divide_qr(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x, const number<Backend, ExpressionTemplates>& y,
+        -:  148:          number<Backend, ExpressionTemplates>& q, number<Backend, ExpressionTemplates>& r)
+        -:  149:{
+        -:  150:   divide_qr(number<Backend, ExpressionTemplates>(x), y, q, r);
+        -:  151:}
+        -:  152:
+        -:  153:template <class tag, class A1, class A2, class A3, class A4, class tagb, class A1b, class A2b, class A3b, class A4b, class Backend, expression_template_option ExpressionTemplates>
+        -:  154:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer>::type
+        -:  155:divide_qr(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x, const multiprecision::detail::expression<tagb, A1b, A2b, A3b, A4b>& y,
+        -:  156:          number<Backend, ExpressionTemplates>& q, number<Backend, ExpressionTemplates>& r)
+        -:  157:{
+        -:  158:   divide_qr(number<Backend, ExpressionTemplates>(x), number<Backend, ExpressionTemplates>(y), q, r);
+        -:  159:}
+        -:  160:
+        -:  161:template <class Backend, expression_template_option ExpressionTemplates, class Integer>
+        -:  162:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<mpl::and_<is_integral<Integer>, mpl::bool_<number_category<Backend>::value == number_kind_integer> >, Integer>::type
+    26989:  163:integer_modulus(const number<Backend, ExpressionTemplates>& x, Integer val)
+        -:  164:{
+        -:  165:   using default_ops::eval_integer_modulus;
+    86156:  166:   return eval_integer_modulus(x.backend(), val);
+        -:  167:}
+        -:  168:
+        -:  169:template <class tag, class A1, class A2, class A3, class A4, class Integer>
+        -:  170:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<mpl::and_<is_integral<Integer>, mpl::bool_<number_category<typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type>::value == number_kind_integer> >, Integer>::type
+        -:  171:integer_modulus(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x, Integer val)
+        -:  172:{
+        -:  173:   typedef typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type result_type;
+        -:  174:   return integer_modulus(result_type(x), val);
+        -:  175:}
+        -:  176:
+        -:  177:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  178:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, unsigned>::type
+     5813:  179:lsb(const number<Backend, ExpressionTemplates>& x)
+        -:  180:{
+        -:  181:   using default_ops::eval_lsb;
+     5813:  182:   return eval_lsb(x.backend());
+        -:  183:}
+        -:  184:
+        -:  185:template <class tag, class A1, class A2, class A3, class A4>
+        -:  186:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type>::value == number_kind_integer, unsigned>::type
+        -:  187:lsb(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x)
+        -:  188:{
+        -:  189:   typedef typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type number_type;
+        -:  190:   number_type                                                                           n(x);
+        -:  191:   using default_ops::eval_lsb;
+        -:  192:   return eval_lsb(n.backend());
+        -:  193:}
+        -:  194:
+        -:  195:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  196:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, unsigned>::type
+        -:  197:msb(const number<Backend, ExpressionTemplates>& x)
+        -:  198:{
+        -:  199:   using default_ops::eval_msb;
+        -:  200:   return eval_msb(x.backend());
+        -:  201:}
+        -:  202:
+        -:  203:template <class tag, class A1, class A2, class A3, class A4>
+        -:  204:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type>::value == number_kind_integer, unsigned>::type
+        -:  205:msb(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x)
+        -:  206:{
+        -:  207:   typedef typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type number_type;
+        -:  208:   number_type                                                                           n(x);
+        -:  209:   using default_ops::eval_msb;
+        -:  210:   return eval_msb(n.backend());
+        -:  211:}
+        -:  212:
+        -:  213:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  214:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, bool>::type
+    54881:  215:bit_test(const number<Backend, ExpressionTemplates>& x, unsigned index)
+        -:  216:{
+        -:  217:   using default_ops::eval_bit_test;
+    54881:  218:   return eval_bit_test(x.backend(), index);
+        -:  219:}
+        -:  220:
+        -:  221:template <class tag, class A1, class A2, class A3, class A4>
+        -:  222:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type>::value == number_kind_integer, bool>::type
+        -:  223:bit_test(const multiprecision::detail::expression<tag, A1, A2, A3, A4>& x, unsigned index)
+        -:  224:{
+        -:  225:   typedef typename multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type number_type;
+        -:  226:   number_type                                                                           n(x);
+        -:  227:   using default_ops::eval_bit_test;
+        -:  228:   return eval_bit_test(n.backend(), index);
+        -:  229:}
+        -:  230:
+        -:  231:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  232:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, number<Backend, ExpressionTemplates>&>::type
+        -:  233:bit_set(number<Backend, ExpressionTemplates>& x, unsigned index)
+        -:  234:{
+        -:  235:   using default_ops::eval_bit_set;
+        -:  236:   eval_bit_set(x.backend(), index);
+        -:  237:   return x;
+        -:  238:}
+        -:  239:
+        -:  240:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  241:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, number<Backend, ExpressionTemplates>&>::type
+        -:  242:bit_unset(number<Backend, ExpressionTemplates>& x, unsigned index)
+        -:  243:{
+        -:  244:   using default_ops::eval_bit_unset;
+        -:  245:   eval_bit_unset(x.backend(), index);
+        -:  246:   return x;
+        -:  247:}
+        -:  248:
+        -:  249:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  250:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<Backend>::value == number_kind_integer, number<Backend, ExpressionTemplates>&>::type
+        -:  251:bit_flip(number<Backend, ExpressionTemplates>& x, unsigned index)
+        -:  252:{
+        -:  253:   using default_ops::eval_bit_flip;
+        -:  254:   eval_bit_flip(x.backend(), index);
+        -:  255:   return x;
+        -:  256:}
+        -:  257:
+        -:  258:namespace default_ops {
+        -:  259:
+        -:  260://
+        -:  261:// Within powm, we need a type with twice as many digits as the argument type, define
+        -:  262:// a traits class to obtain that type:
+        -:  263://
+        -:  264:template <class Backend>
+        -:  265:struct double_precision_type
+        -:  266:{
+        -:  267:   typedef Backend type;
+        -:  268:};
+        -:  269:
+        -:  270://
+        -:  271:// If the exponent is a signed integer type, then we need to
+        -:  272:// check the value is positive:
+        -:  273://
+        -:  274:template <class Backend>
+    11626:  275:inline BOOST_MP_CXX14_CONSTEXPR void check_sign_of_backend(const Backend& v, const mpl::true_)
+        -:  276:{
+    11626:  277:   if (eval_get_sign(v) < 0)
+        -:  278:   {
+    #####:  279:      BOOST_THROW_EXCEPTION(std::runtime_error("powm requires a positive exponent."));
+        -:  280:   }
+    11626:  281:}
+        -:  282:template <class Backend>
+        -:  283:inline BOOST_MP_CXX14_CONSTEXPR void check_sign_of_backend(const Backend&, const mpl::false_) {}
+        -:  284://
+        -:  285:// Calculate (a^p)%c:
+        -:  286://
+        -:  287:template <class Backend>
+    11626:  288:BOOST_MP_CXX14_CONSTEXPR void eval_powm(Backend& result, const Backend& a, const Backend& p, const Backend& c)
+        -:  289:{
+        -:  290:   using default_ops::eval_bit_test;
+        -:  291:   using default_ops::eval_get_sign;
+        -:  292:   using default_ops::eval_modulus;
+        -:  293:   using default_ops::eval_multiply;
+        -:  294:   using default_ops::eval_right_shift;
+        -:  295:
+        -:  296:   typedef typename double_precision_type<Backend>::type                                       double_type;
+        -:  297:   typedef typename boost::multiprecision::detail::canonical<unsigned char, double_type>::type ui_type;
+        -:  298:
+    11626:  299:   check_sign_of_backend(p, mpl::bool_<std::numeric_limits<number<Backend> >::is_signed>());
+        -:  300:
+    11626:  301:   double_type x, y(a), b(p), t;
+   161096:  302:   x = ui_type(1u);
+        -:  303:
+   161096:  304:   while (eval_get_sign(b) > 0)
+        -:  305:   {
+   149470:  306:      if (eval_bit_test(b, 0))
+        -:  307:      {
+    77830:  308:         eval_multiply(t, x, y);
+    77830:  309:         eval_modulus(x, t, c);
+        -:  310:      }
+   149470:  311:      eval_multiply(t, y, y);
+   149470:  312:      eval_modulus(y, t, c);
+   149470:  313:      eval_right_shift(b, ui_type(1));
+        -:  314:   }
+    11626:  315:   Backend x2(x);
+    11626:  316:   eval_modulus(result, x2, c);
+    11626:  317:}
+        -:  318:
+        -:  319:template <class Backend, class Integer>
+        -:  320:BOOST_MP_CXX14_CONSTEXPR void eval_powm(Backend& result, const Backend& a, const Backend& p, Integer c)
+        -:  321:{
+        -:  322:   typedef typename double_precision_type<Backend>::type                                       double_type;
+        -:  323:   typedef typename boost::multiprecision::detail::canonical<unsigned char, double_type>::type ui_type;
+        -:  324:   typedef typename boost::multiprecision::detail::canonical<Integer, double_type>::type       i1_type;
+        -:  325:   typedef typename boost::multiprecision::detail::canonical<Integer, Backend>::type           i2_type;
+        -:  326:
+        -:  327:   using default_ops::eval_bit_test;
+        -:  328:   using default_ops::eval_get_sign;
+        -:  329:   using default_ops::eval_modulus;
+        -:  330:   using default_ops::eval_multiply;
+        -:  331:   using default_ops::eval_right_shift;
+        -:  332:
+        -:  333:   check_sign_of_backend(p, mpl::bool_<std::numeric_limits<number<Backend> >::is_signed>());
+        -:  334:
+        -:  335:   if (eval_get_sign(p) < 0)
+        -:  336:   {
+        -:  337:      BOOST_THROW_EXCEPTION(std::runtime_error("powm requires a positive exponent."));
+        -:  338:   }
+        -:  339:
+        -:  340:   double_type x, y(a), b(p), t;
+        -:  341:   x = ui_type(1u);
+        -:  342:
+        -:  343:   while (eval_get_sign(b) > 0)
+        -:  344:   {
+        -:  345:      if (eval_bit_test(b, 0))
+        -:  346:      {
+        -:  347:         eval_multiply(t, x, y);
+        -:  348:         eval_modulus(x, t, static_cast<i1_type>(c));
+        -:  349:      }
+        -:  350:      eval_multiply(t, y, y);
+        -:  351:      eval_modulus(y, t, static_cast<i1_type>(c));
+        -:  352:      eval_right_shift(b, ui_type(1));
+        -:  353:   }
+        -:  354:   Backend x2(x);
+        -:  355:   eval_modulus(result, x2, static_cast<i2_type>(c));
+        -:  356:}
+        -:  357:
+        -:  358:template <class Backend, class Integer>
+     3863:  359:BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_unsigned<Integer> >::type eval_powm(Backend& result, const Backend& a, Integer b, const Backend& c)
+        -:  360:{
+        -:  361:   typedef typename double_precision_type<Backend>::type                                       double_type;
+        -:  362:   typedef typename boost::multiprecision::detail::canonical<unsigned char, double_type>::type ui_type;
+        -:  363:
+        -:  364:   using default_ops::eval_bit_test;
+        -:  365:   using default_ops::eval_get_sign;
+        -:  366:   using default_ops::eval_modulus;
+        -:  367:   using default_ops::eval_multiply;
+        -:  368:   using default_ops::eval_right_shift;
+        -:  369:
+     3863:  370:   double_type x, y(a), t;
+    11589:  371:   x = ui_type(1u);
+        -:  372:
+    11589:  373:   while (b > 0)
+        -:  374:   {
+     7726:  375:      if (b & 1)
+        -:  376:      {
+     3863:  377:         eval_multiply(t, x, y);
+     3863:  378:         eval_modulus(x, t, c);
+        -:  379:      }
+     7726:  380:      eval_multiply(t, y, y);
+     7726:  381:      eval_modulus(y, t, c);
+     7726:  382:      b >>= 1;
+        -:  383:   }
+     3863:  384:   Backend x2(x);
+     3863:  385:   eval_modulus(result, x2, c);
+     3863:  386:}
+        -:  387:
+        -:  388:template <class Backend, class Integer>
+     3863:  389:BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_signed<Integer> >::type eval_powm(Backend& result, const Backend& a, Integer b, const Backend& c)
+        -:  390:{
+     3863:  391:   if (b < 0)
+        -:  392:   {
+    #####:  393:      BOOST_THROW_EXCEPTION(std::runtime_error("powm requires a positive exponent."));
+        -:  394:   }
+     3863:  395:   eval_powm(result, a, static_cast<typename make_unsigned<Integer>::type>(b), c);
+     3863:  396:}
+        -:  397:
+        -:  398:template <class Backend, class Integer1, class Integer2>
+        -:  399:BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_unsigned<Integer1> >::type eval_powm(Backend& result, const Backend& a, Integer1 b, Integer2 c)
+        -:  400:{
+        -:  401:   typedef typename double_precision_type<Backend>::type                                       double_type;
+        -:  402:   typedef typename boost::multiprecision::detail::canonical<unsigned char, double_type>::type ui_type;
+        -:  403:   typedef typename boost::multiprecision::detail::canonical<Integer1, double_type>::type      i1_type;
+        -:  404:   typedef typename boost::multiprecision::detail::canonical<Integer2, Backend>::type          i2_type;
+        -:  405:
+        -:  406:   using default_ops::eval_bit_test;
+        -:  407:   using default_ops::eval_get_sign;
+        -:  408:   using default_ops::eval_modulus;
+        -:  409:   using default_ops::eval_multiply;
+        -:  410:   using default_ops::eval_right_shift;
+        -:  411:
+        -:  412:   double_type x, y(a), t;
+        -:  413:   x = ui_type(1u);
+        -:  414:
+        -:  415:   while (b > 0)
+        -:  416:   {
+        -:  417:      if (b & 1)
+        -:  418:      {
+        -:  419:         eval_multiply(t, x, y);
+        -:  420:         eval_modulus(x, t, static_cast<i1_type>(c));
+        -:  421:      }
+        -:  422:      eval_multiply(t, y, y);
+        -:  423:      eval_modulus(y, t, static_cast<i1_type>(c));
+        -:  424:      b >>= 1;
+        -:  425:   }
+        -:  426:   Backend x2(x);
+        -:  427:   eval_modulus(result, x2, static_cast<i2_type>(c));
+        -:  428:}
+        -:  429:
+        -:  430:template <class Backend, class Integer1, class Integer2>
+        -:  431:BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_signed<Integer1> >::type eval_powm(Backend& result, const Backend& a, Integer1 b, Integer2 c)
+        -:  432:{
+        -:  433:   if (b < 0)
+        -:  434:   {
+        -:  435:      BOOST_THROW_EXCEPTION(std::runtime_error("powm requires a positive exponent."));
+        -:  436:   }
+        -:  437:   eval_powm(result, a, static_cast<typename make_unsigned<Integer1>::type>(b), c);
+        -:  438:}
+        -:  439:
+        -:  440:struct powm_func
+        -:  441:{
+        -:  442:   template <class T, class U, class V>
+    15489:  443:   BOOST_MP_CXX14_CONSTEXPR void operator()(T& result, const T& b, const U& p, const V& m) const
+        -:  444:   {
+    15489:  445:      eval_powm(result, b, p, m);
+        -:  446:   }
+        -:  447:};
+        -:  448:
+        -:  449:} // namespace default_ops
+        -:  450:
+        -:  451:template <class T, class U, class V>
+        -:  452:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<
+        -:  453:    mpl::and_<
+        -:  454:        mpl::bool_<number_category<T>::value == number_kind_integer>,
+        -:  455:        mpl::or_<
+        -:  456:            is_number<T>,
+        -:  457:            is_number_expression<T> >,
+        -:  458:        mpl::or_<
+        -:  459:            is_number<U>,
+        -:  460:            is_number_expression<U>,
+        -:  461:            is_integral<U> >,
+        -:  462:        mpl::or_<
+        -:  463:            is_number<V>,
+        -:  464:            is_number_expression<V>,
+        -:  465:            is_integral<V> > >,
+        -:  466:    typename mpl::if_<
+        -:  467:        is_no_et_number<T>,
+        -:  468:        T,
+        -:  469:        typename mpl::if_<
+        -:  470:            is_no_et_number<U>,
+        -:  471:            U,
+        -:  472:            typename mpl::if_<
+        -:  473:                is_no_et_number<V>,
+        -:  474:                V,
+        -:  475:                detail::expression<detail::function, default_ops::powm_func, T, U, V> >::type>::type>::type>::type
+    15489:  476:powm(const T& b, const U& p, const V& mod)
+        -:  477:{
+        -:  478:   return detail::expression<detail::function, default_ops::powm_func, T, U, V>(
+    15489:  479:       default_ops::powm_func(), b, p, mod);
+        -:  480:}
+        -:  481:
+        -:  482:}} // namespace boost::multiprecision
+        -:  483:
+        -:  484:#endif

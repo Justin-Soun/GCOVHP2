@@ -1,0 +1,1810 @@
+        -:    0:Source:/usr/include/boost/multiprecision/detail/number_base.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:///////////////////////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2011 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+        -:    5:
+        -:    6:#ifndef BOOST_MATH_BIG_NUM_BASE_HPP
+        -:    7:#define BOOST_MATH_BIG_NUM_BASE_HPP
+        -:    8:
+        -:    9:#include <limits>
+        -:   10:#include <boost/utility/enable_if.hpp>
+        -:   11:#include <boost/core/nvp.hpp>
+        -:   12:#include <boost/type_traits/is_convertible.hpp>
+        -:   13:#include <boost/type_traits/is_constructible.hpp>
+        -:   14:#include <boost/type_traits/decay.hpp>
+        -:   15:#include <boost/math/tools/complex.hpp>
+        -:   16:#ifdef BOOST_MSVC
+        -:   17:#pragma warning(push)
+        -:   18:#pragma warning(disable : 4307)
+        -:   19:#endif
+        -:   20:#include <boost/lexical_cast.hpp>
+        -:   21:#ifdef BOOST_MSVC
+        -:   22:#pragma warning(pop)
+        -:   23:#endif
+        -:   24:
+        -:   25:#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_NO_CXX11_TEMPLATE_ALIASES) || defined(BOOST_NO_CXX11_HDR_ARRAY)\
+        -:   26:      || defined(BOOST_NO_CXX11_ALLOCATOR) || defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) || defined(BOOST_NO_CXX11_CONSTEXPR)\
+        -:   27:      || defined(BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS) || defined(BOOST_NO_CXX11_REF_QUALIFIERS) || defined(BOOST_NO_CXX11_HDR_FUNCTIONAL)\
+        -:   28:      || defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_NO_CXX11_USER_DEFINED_LITERALS) || defined(BOOST_NO_CXX11_THREAD_LOCAL)\
+        -:   29:      || defined(BOOST_NO_CXX11_DECLTYPE) || defined(BOOST_NO_CXX11_STATIC_ASSERT) || defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)\
+        -:   30:      || defined(BOOST_NO_CXX11_NOEXCEPT) || defined(BOOST_NO_CXX11_REF_QUALIFIERS)
+        -:   31://
+        -:   32:// The above list includes everything we use, plus a few we're likely to use soon.
+        -:   33:// As from March 2020, C++03 support is deprecated, and as from March 2021 will be removed,
+        -:   34:// so mark up as such:
+        -:   35://
+        -:   36:#if (defined(_MSC_VER) || defined(__GNUC__)) && !defined(BOOST_MP_DISABLE_DEPRECATE_03_WARNING)
+        -:   37:#pragma message("CAUTION: One or more C++11 features were found to be unavailable")
+        -:   38:#pragma message("CAUTION: Compiling Boost.Multiprecision in non-C++11 or later conformance modes is now deprecated and will be removed from March 2021.")
+        -:   39:#pragma message("CAUTION: Define BOOST_MP_DISABLE_DEPRECATE_03_WARNING to suppress this message.")
+        -:   40:#endif
+        -:   41:#endif
+        -:   42:
+        -:   43:#if defined(NDEBUG) && !defined(_DEBUG)
+        -:   44:#define BOOST_MP_FORCEINLINE BOOST_FORCEINLINE
+        -:   45:#else
+        -:   46:#define BOOST_MP_FORCEINLINE inline
+        -:   47:#endif
+        -:   48:
+        -:   49:#if (defined(BOOST_GCC) && (BOOST_GCC <= 40700)) || BOOST_WORKAROUND(__SUNPRO_CC, < 0x5140) || (defined(__clang_major__) && (__clang_major__ == 3) && (__clang_minor__ < 5))
+        -:   50:#define BOOST_MP_NOEXCEPT_IF(x)
+        -:   51:#else
+        -:   52:#define BOOST_MP_NOEXCEPT_IF(x) BOOST_NOEXCEPT_IF(x)
+        -:   53:#endif
+        -:   54:
+        -:   55:#if defined(BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS) || BOOST_WORKAROUND(__SUNPRO_CC, < 0x5140)
+        -:   56:#define BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -:   57:#endif
+        -:   58:
+        -:   59://
+        -:   60:// Thread local storage:
+        -:   61:// Note fails on Mingw, see https://sourceforge.net/p/mingw-w64/bugs/527/
+        -:   62://
+        -:   63:#if !defined(BOOST_NO_CXX11_THREAD_LOCAL) && !defined(BOOST_INTEL) && !defined(__MINGW32__)
+        -:   64:#define BOOST_MP_THREAD_LOCAL thread_local
+        -:   65:#define BOOST_MP_USING_THREAD_LOCAL
+        -:   66:#else
+        -:   67:#define BOOST_MP_THREAD_LOCAL
+        -:   68:#endif
+        -:   69:
+        -:   70:#ifdef __has_include
+        -:   71:# if __has_include(<version>)
+        -:   72:#  include <version>
+        -:   73:#  ifdef __cpp_lib_is_constant_evaluated
+        -:   74:#   include <type_traits>
+        -:   75:#   define BOOST_MP_HAS_IS_CONSTANT_EVALUATED
+        -:   76:#  endif
+        -:   77:# endif
+        -:   78:#endif
+        -:   79:
+        -:   80:#ifdef __has_builtin
+        -:   81:#if __has_builtin(__builtin_is_constant_evaluated) && !defined(BOOST_NO_CXX14_CONSTEXPR) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
+        -:   82:#define BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+        -:   83:#endif
+        -:   84:#endif
+        -:   85://
+        -:   86:// MSVC also supports __builtin_is_constant_evaluated if it's recent enough:
+        -:   87://
+        -:   88:#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192528326)
+        -:   89:#  define BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+        -:   90:#endif
+        -:   91://
+        -:   92:// As does GCC-9:
+        -:   93://
+        -:   94:#if defined(BOOST_GCC) && !defined(BOOST_NO_CXX14_CONSTEXPR) && (__GNUC__ >= 9) && !defined(BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED)
+        -:   95:#  define BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+        -:   96:#endif
+        -:   97:
+        -:   98:#if defined(BOOST_MP_HAS_IS_CONSTANT_EVALUATED) && !defined(BOOST_NO_CXX14_CONSTEXPR)
+        -:   99:#  define BOOST_MP_IS_CONST_EVALUATED(x) std::is_constant_evaluated()
+        -:  100:#elif defined(BOOST_MP_HAS_BUILTIN_IS_CONSTANT_EVALUATED)
+        -:  101:#  define BOOST_MP_IS_CONST_EVALUATED(x) __builtin_is_constant_evaluated()
+        -:  102:#elif !defined(BOOST_NO_CXX14_CONSTEXPR) && defined(BOOST_GCC) && (__GNUC__ >= 6)
+        -:  103:#  define BOOST_MP_IS_CONST_EVALUATED(x) __builtin_constant_p(x)
+        -:  104:#else
+        -:  105:#  define BOOST_MP_NO_CONSTEXPR_DETECTION
+        -:  106:#endif
+        -:  107:
+        -:  108:#define BOOST_MP_CXX14_CONSTEXPR BOOST_CXX14_CONSTEXPR
+        -:  109://
+        -:  110:// Early compiler versions trip over the constexpr code:
+        -:  111://
+        -:  112:#if defined(__clang__) && (__clang_major__ < 5)
+        -:  113:#undef BOOST_MP_CXX14_CONSTEXPR
+        -:  114:#define BOOST_MP_CXX14_CONSTEXPR
+        -:  115:#endif
+        -:  116:#if defined(__apple_build_version__) && (__clang_major__ < 9)
+        -:  117:#undef BOOST_MP_CXX14_CONSTEXPR
+        -:  118:#define BOOST_MP_CXX14_CONSTEXPR
+        -:  119:#endif
+        -:  120:#if defined(BOOST_GCC) && (__GNUC__ < 6)
+        -:  121:#undef BOOST_MP_CXX14_CONSTEXPR
+        -:  122:#define BOOST_MP_CXX14_CONSTEXPR
+        -:  123:#endif
+        -:  124:#if defined(BOOST_INTEL)
+        -:  125:#undef BOOST_MP_CXX14_CONSTEXPR
+        -:  126:#define BOOST_MP_CXX14_CONSTEXPR
+        -:  127:#define BOOST_MP_NO_CONSTEXPR_DETECTION
+        -:  128:#endif
+        -:  129:
+        -:  130:#ifdef BOOST_MP_NO_CONSTEXPR_DETECTION
+        -:  131:#  define BOOST_CXX14_CONSTEXPR_IF_DETECTION
+        -:  132:#else
+        -:  133:#  define BOOST_CXX14_CONSTEXPR_IF_DETECTION constexpr
+        -:  134:#endif
+        -:  135:
+        -:  136:#ifdef BOOST_MSVC
+        -:  137:#pragma warning(push)
+        -:  138:#pragma warning(disable : 6326)
+        -:  139:#endif
+        -:  140:
+        -:  141:namespace boost {
+        -:  142:namespace multiprecision {
+        -:  143:
+        -:  144:enum expression_template_option
+        -:  145:{
+        -:  146:   et_off = 0,
+        -:  147:   et_on  = 1
+        -:  148:};
+        -:  149:
+        -:  150:template <class Backend>
+        -:  151:struct expression_template_default
+        -:  152:{
+        -:  153:   static const expression_template_option value = et_on;
+        -:  154:};
+        -:  155:
+        -:  156:template <class Backend, expression_template_option ExpressionTemplates = expression_template_default<Backend>::value>
+        -:  157:class number;
+        -:  158:
+        -:  159:template <class T>
+        -:  160:struct is_number : public mpl::false_
+        -:  161:{};
+        -:  162:
+        -:  163:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  164:struct is_number<number<Backend, ExpressionTemplates> > : public mpl::true_
+        -:  165:{};
+        -:  166:
+        -:  167:template <class T>
+        -:  168:struct is_et_number : public mpl::false_
+        -:  169:{};
+        -:  170:
+        -:  171:template <class Backend>
+        -:  172:struct is_et_number<number<Backend, et_on> > : public mpl::true_
+        -:  173:{};
+        -:  174:
+        -:  175:template <class T>
+        -:  176:struct is_no_et_number : public mpl::false_
+        -:  177:{};
+        -:  178:
+        -:  179:template <class Backend>
+        -:  180:struct is_no_et_number<number<Backend, et_off> > : public mpl::true_
+        -:  181:{};
+        -:  182:
+        -:  183:namespace detail {
+        -:  184:
+        -:  185:// Forward-declare an expression wrapper
+        -:  186:template <class tag, class Arg1 = void, class Arg2 = void, class Arg3 = void, class Arg4 = void>
+        -:  187:struct expression;
+        -:  188:
+        -:  189:} // namespace detail
+        -:  190:
+        -:  191:template <class T>
+        -:  192:struct is_number_expression : public mpl::false_
+        -:  193:{};
+        -:  194:
+        -:  195:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  196:struct is_number_expression<detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > : public mpl::true_
+        -:  197:{};
+        -:  198:
+        -:  199:template <class T, class Num>
+        -:  200:struct is_compatible_arithmetic_type
+        -:  201:    : public mpl::bool_<
+        -:  202:          is_convertible<T, Num>::value && !is_same<T, Num>::value && !is_number_expression<T>::value>
+        -:  203:{};
+        -:  204:
+        -:  205:namespace detail {
+        -:  206://
+        -:  207:// Workaround for missing abs(boost::long_long_type) and abs(__int128) on some compilers:
+        -:  208://
+        -:  209:template <class T>
+        -:  210:BOOST_CONSTEXPR typename enable_if_c<(is_signed<T>::value || is_floating_point<T>::value), T>::type abs(T t) BOOST_NOEXCEPT
+        -:  211:{
+        -:  212:   // This strange expression avoids a hardware trap in the corner case
+        -:  213:   // that val is the most negative value permitted in boost::long_long_type.
+        -:  214:   // See https://svn.boost.org/trac/boost/ticket/9740.
+        -:  215:   return t < 0 ? T(1u) + T(-(t + 1)) : t;
+        -:  216:}
+        -:  217:template <class T>
+        -:  218:BOOST_CONSTEXPR typename enable_if_c<(is_unsigned<T>::value), T>::type abs(T t) BOOST_NOEXCEPT
+        -:  219:{
+        -:  220:   return t;
+        -:  221:}
+        -:  222:
+        -:  223:#define BOOST_MP_USING_ABS using boost::multiprecision::detail::abs;
+        -:  224:
+        -:  225:template <class T>
+  203769*:  226:BOOST_CONSTEXPR typename enable_if_c<(is_signed<T>::value || is_floating_point<T>::value), typename make_unsigned<T>::type>::type unsigned_abs(T t) BOOST_NOEXCEPT
+        -:  227:{
+        -:  228:   // This strange expression avoids a hardware trap in the corner case
+        -:  229:   // that val is the most negative value permitted in boost::long_long_type.
+        -:  230:   // See https://svn.boost.org/trac/boost/ticket/9740.
+  203769*:  231:   return t < 0 ? static_cast<typename make_unsigned<T>::type>(1u) + static_cast<typename make_unsigned<T>::type>(-(t + 1)) : static_cast<typename make_unsigned<T>::type>(t);
+        -:  232:}
+        -:  233:template <class T>
+        -:  234:BOOST_CONSTEXPR typename enable_if_c<(is_unsigned<T>::value), T>::type unsigned_abs(T t) BOOST_NOEXCEPT
+        -:  235:{
+        -:  236:   return t;
+        -:  237:}
+        -:  238:
+        -:  239://
+        -:  240:// Move support:
+        -:  241://
+        -:  242:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  243:#define BOOST_MP_MOVE(x) std::move(x)
+        -:  244:#else
+        -:  245:#define BOOST_MP_MOVE(x) x
+        -:  246:#endif
+        -:  247:
+        -:  248:template <class T>
+        -:  249:struct bits_of
+        -:  250:{
+        -:  251:   BOOST_STATIC_ASSERT(is_integral<T>::value || is_enum<T>::value || std::numeric_limits<T>::is_specialized);
+        -:  252:   static const unsigned value =
+        -:  253:       std::numeric_limits<T>::is_specialized ? std::numeric_limits<T>::digits
+        -:  254:                                              : sizeof(T) * CHAR_BIT - (is_signed<T>::value ? 1 : 0);
+        -:  255:};
+        -:  256:
+        -:  257:#if defined(_GLIBCXX_USE_FLOAT128) && defined(BOOST_GCC) && !defined(__STRICT_ANSI__)
+        -:  258:#define BOOST_MP_BITS_OF_FLOAT128_DEFINED
+        -:  259:template <>
+        -:  260:struct bits_of<__float128>
+        -:  261:{
+        -:  262:   static const unsigned value = 113;
+        -:  263:};
+        -:  264:#endif
+        -:  265:
+        -:  266:template <int b>
+        -:  267:struct has_enough_bits
+        -:  268:{
+        -:  269:   template <class T>
+        -:  270:   struct type : public mpl::bool_<bits_of<T>::value >= b>
+        -:  271:   {};
+        -:  272:};
+        -:  273:
+        -:  274:template <class Val, class Backend, class Tag>
+        -:  275:struct canonical_imp
+        -:  276:{
+        -:  277:   typedef typename remove_cv<typename decay<const Val>::type>::type type;
+        -:  278:};
+        -:  279:template <class B, class Backend, class Tag>
+        -:  280:struct canonical_imp<number<B, et_on>, Backend, Tag>
+        -:  281:{
+        -:  282:   typedef B type;
+        -:  283:};
+        -:  284:template <class B, class Backend, class Tag>
+        -:  285:struct canonical_imp<number<B, et_off>, Backend, Tag>
+        -:  286:{
+        -:  287:   typedef B type;
+        -:  288:};
+        -:  289:#ifdef __SUNPRO_CC
+        -:  290:template <class B, class Backend>
+        -:  291:struct canonical_imp<number<B, et_on>, Backend, mpl::int_<3> >
+        -:  292:{
+        -:  293:   typedef B type;
+        -:  294:};
+        -:  295:template <class B, class Backend>
+        -:  296:struct canonical_imp<number<B, et_off>, Backend, mpl::int_<3> >
+        -:  297:{
+        -:  298:   typedef B type;
+        -:  299:};
+        -:  300:#endif
+        -:  301:template <class Val, class Backend>
+        -:  302:struct canonical_imp<Val, Backend, mpl::int_<0> >
+        -:  303:{
+        -:  304:   typedef typename has_enough_bits<bits_of<Val>::value>::template type<mpl::_> pred_type;
+        -:  305:   typedef typename mpl::find_if<
+        -:  306:       typename Backend::signed_types,
+        -:  307:       pred_type>::type                                                                                                 iter_type;
+        -:  308:   typedef typename mpl::end<typename Backend::signed_types>::type                                                      end_type;
+        -:  309:   typedef typename mpl::eval_if<boost::is_same<iter_type, end_type>, mpl::identity<Val>, mpl::deref<iter_type> >::type type;
+        -:  310:};
+        -:  311:template <class Val, class Backend>
+        -:  312:struct canonical_imp<Val, Backend, mpl::int_<1> >
+        -:  313:{
+        -:  314:   typedef typename has_enough_bits<bits_of<Val>::value>::template type<mpl::_> pred_type;
+        -:  315:   typedef typename mpl::find_if<
+        -:  316:       typename Backend::unsigned_types,
+        -:  317:       pred_type>::type                                                                                                 iter_type;
+        -:  318:   typedef typename mpl::end<typename Backend::unsigned_types>::type                                                    end_type;
+        -:  319:   typedef typename mpl::eval_if<boost::is_same<iter_type, end_type>, mpl::identity<Val>, mpl::deref<iter_type> >::type type;
+        -:  320:};
+        -:  321:template <class Val, class Backend>
+        -:  322:struct canonical_imp<Val, Backend, mpl::int_<2> >
+        -:  323:{
+        -:  324:   typedef typename has_enough_bits<bits_of<Val>::value>::template type<mpl::_> pred_type;
+        -:  325:   typedef typename mpl::find_if<
+        -:  326:       typename Backend::float_types,
+        -:  327:       pred_type>::type                                                                                                 iter_type;
+        -:  328:   typedef typename mpl::end<typename Backend::float_types>::type                                                       end_type;
+        -:  329:   typedef typename mpl::eval_if<boost::is_same<iter_type, end_type>, mpl::identity<Val>, mpl::deref<iter_type> >::type type;
+        -:  330:};
+        -:  331:template <class Val, class Backend>
+        -:  332:struct canonical_imp<Val, Backend, mpl::int_<3> >
+        -:  333:{
+        -:  334:   typedef const char* type;
+        -:  335:};
+        -:  336:
+        -:  337:template <class Val, class Backend>
+        -:  338:struct canonical
+        -:  339:{
+        -:  340:   typedef typename mpl::if_<
+        -:  341:       is_signed<Val>,
+        -:  342:       mpl::int_<0>,
+        -:  343:       typename mpl::if_<
+        -:  344:           is_unsigned<Val>,
+        -:  345:           mpl::int_<1>,
+        -:  346:           typename mpl::if_<
+        -:  347:               is_floating_point<Val>,
+        -:  348:               mpl::int_<2>,
+        -:  349:               typename mpl::if_<
+        -:  350:                   mpl::or_<
+        -:  351:                       is_convertible<Val, const char*>,
+        -:  352:                       is_same<Val, std::string> >,
+        -:  353:                   mpl::int_<3>,
+        -:  354:                   mpl::int_<4> >::type>::type>::type>::type tag_type;
+        -:  355:
+        -:  356:   typedef typename canonical_imp<Val, Backend, tag_type>::type type;
+        -:  357:};
+        -:  358:
+        -:  359:struct terminal
+        -:  360:{};
+        -:  361:struct negate
+        -:  362:{};
+        -:  363:struct plus
+        -:  364:{};
+        -:  365:struct minus
+        -:  366:{};
+        -:  367:struct multiplies
+        -:  368:{};
+        -:  369:struct divides
+        -:  370:{};
+        -:  371:struct modulus
+        -:  372:{};
+        -:  373:struct shift_left
+        -:  374:{};
+        -:  375:struct shift_right
+        -:  376:{};
+        -:  377:struct bitwise_and
+        -:  378:{};
+        -:  379:struct bitwise_or
+        -:  380:{};
+        -:  381:struct bitwise_xor
+        -:  382:{};
+        -:  383:struct bitwise_complement
+        -:  384:{};
+        -:  385:struct add_immediates
+        -:  386:{};
+        -:  387:struct subtract_immediates
+        -:  388:{};
+        -:  389:struct multiply_immediates
+        -:  390:{};
+        -:  391:struct divide_immediates
+        -:  392:{};
+        -:  393:struct modulus_immediates
+        -:  394:{};
+        -:  395:struct bitwise_and_immediates
+        -:  396:{};
+        -:  397:struct bitwise_or_immediates
+        -:  398:{};
+        -:  399:struct bitwise_xor_immediates
+        -:  400:{};
+        -:  401:struct complement_immediates
+        -:  402:{};
+        -:  403:struct function
+        -:  404:{};
+        -:  405:struct multiply_add
+        -:  406:{};
+        -:  407:struct multiply_subtract
+        -:  408:{};
+        -:  409:
+        -:  410:template <class T>
+        -:  411:struct backend_type;
+        -:  412:
+        -:  413:template <class T, expression_template_option ExpressionTemplates>
+        -:  414:struct backend_type<number<T, ExpressionTemplates> >
+        -:  415:{
+        -:  416:   typedef T type;
+        -:  417:};
+        -:  418:
+        -:  419:template <class tag, class A1, class A2, class A3, class A4>
+        -:  420:struct backend_type<expression<tag, A1, A2, A3, A4> >
+        -:  421:{
+        -:  422:   typedef typename backend_type<typename expression<tag, A1, A2, A3, A4>::result_type>::type type;
+        -:  423:};
+        -:  424:
+        -:  425:template <class T1, class T2>
+        -:  426:struct combine_expression
+        -:  427:{
+        -:  428:#ifdef BOOST_NO_CXX11_DECLTYPE
+        -:  429:   typedef typename mpl::if_c<(sizeof(T1() + T2()) == sizeof(T1)), T1, T2>::type type;
+        -:  430:#else
+        -:  431:   typedef decltype(T1() + T2()) type;
+        -:  432:#endif
+        -:  433:};
+        -:  434:
+        -:  435:template <class T1, expression_template_option ExpressionTemplates, class T2>
+        -:  436:struct combine_expression<number<T1, ExpressionTemplates>, T2>
+        -:  437:{
+        -:  438:   typedef number<T1, ExpressionTemplates> type;
+        -:  439:};
+        -:  440:
+        -:  441:template <class T1, class T2, expression_template_option ExpressionTemplates>
+        -:  442:struct combine_expression<T1, number<T2, ExpressionTemplates> >
+        -:  443:{
+        -:  444:   typedef number<T2, ExpressionTemplates> type;
+        -:  445:};
+        -:  446:
+        -:  447:template <class T, expression_template_option ExpressionTemplates>
+        -:  448:struct combine_expression<number<T, ExpressionTemplates>, number<T, ExpressionTemplates> >
+        -:  449:{
+        -:  450:   typedef number<T, ExpressionTemplates> type;
+        -:  451:};
+        -:  452:
+        -:  453:template <class T1, expression_template_option ExpressionTemplates1, class T2, expression_template_option ExpressionTemplates2>
+        -:  454:struct combine_expression<number<T1, ExpressionTemplates1>, number<T2, ExpressionTemplates2> >
+        -:  455:{
+        -:  456:   typedef typename mpl::if_c<
+        -:  457:       is_convertible<number<T2, ExpressionTemplates2>, number<T1, ExpressionTemplates2> >::value,
+        -:  458:       number<T1, ExpressionTemplates1>,
+        -:  459:       number<T2, ExpressionTemplates2> >::type type;
+        -:  460:};
+        -:  461:
+        -:  462:template <class T>
+        -:  463:struct arg_type
+        -:  464:{
+        -:  465:   typedef expression<terminal, T> type;
+        -:  466:};
+        -:  467:
+        -:  468:template <class Tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  469:struct arg_type<expression<Tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  470:{
+        -:  471:   typedef expression<Tag, Arg1, Arg2, Arg3, Arg4> type;
+        -:  472:};
+        -:  473:
+        -:  474:struct unmentionable
+        -:  475:{
+        -:  476:   unmentionable* proc() { return 0; }
+        -:  477:};
+        -:  478:
+        -:  479:typedef unmentionable* (unmentionable::*unmentionable_type)();
+        -:  480:
+        -:  481:template <class T, bool b>
+        -:  482:struct expression_storage_base
+        -:  483:{
+        -:  484:   typedef const T& type;
+        -:  485:};
+        -:  486:
+        -:  487:template <class T>
+        -:  488:struct expression_storage_base<T, true>
+        -:  489:{
+        -:  490:   typedef T type;
+        -:  491:};
+        -:  492:
+        -:  493:template <class T>
+        -:  494:struct expression_storage : public expression_storage_base<T, boost::is_arithmetic<T>::value>
+        -:  495:{};
+        -:  496:
+        -:  497:template <class T>
+        -:  498:struct expression_storage<T*>
+        -:  499:{
+        -:  500:   typedef T* type;
+        -:  501:};
+        -:  502:
+        -:  503:template <class T>
+        -:  504:struct expression_storage<const T*>
+        -:  505:{
+        -:  506:   typedef const T* type;
+        -:  507:};
+        -:  508:
+        -:  509:template <class tag, class A1, class A2, class A3, class A4>
+        -:  510:struct expression_storage<expression<tag, A1, A2, A3, A4> >
+        -:  511:{
+        -:  512:   typedef expression<tag, A1, A2, A3, A4> type;
+        -:  513:};
+        -:  514:
+        -:  515:template <class tag, class Arg1>
+        -:  516:struct expression<tag, Arg1, void, void, void>
+        -:  517:{
+        -:  518:   typedef mpl::int_<1>                    arity;
+        -:  519:   typedef typename arg_type<Arg1>::type   left_type;
+        -:  520:   typedef typename left_type::result_type left_result_type;
+        -:  521:   typedef typename left_type::result_type result_type;
+        -:  522:   typedef tag                             tag_type;
+        -:  523:
+    #####:  524:   explicit BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a) : arg(a) {}
+        -:  525:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg(e.arg) {}
+        -:  526:
+        -:  527:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+        -:  528:   //
+        -:  529:   // If we have static_assert we can give a more useful error message
+        -:  530:   // than if we simply have no operator defined at all:
+        -:  531:   //
+        -:  532:   template <class Other>
+        -:  533:   BOOST_MP_CXX14_CONSTEXPR expression& operator=(const Other&)
+        -:  534:   {
+        -:  535:      // This should always fail:
+        -:  536:      static_assert(sizeof(Other) == INT_MAX, "You can not assign to a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  537:      return *this;
+        -:  538:   }
+        -:  539:   BOOST_MP_CXX14_CONSTEXPR expression& operator++()
+        -:  540:   {
+        -:  541:      // This should always fail:
+        -:  542:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  543:      return *this;
+        -:  544:   }
+        -:  545:   BOOST_MP_CXX14_CONSTEXPR expression& operator++(int)
+        -:  546:   {
+        -:  547:      // This should always fail:
+        -:  548:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  549:      return *this;
+        -:  550:   }
+        -:  551:   BOOST_MP_CXX14_CONSTEXPR expression& operator--()
+        -:  552:   {
+        -:  553:      // This should always fail:
+        -:  554:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  555:      return *this;
+        -:  556:   }
+        -:  557:   BOOST_MP_CXX14_CONSTEXPR expression& operator--(int)
+        -:  558:   {
+        -:  559:      // This should always fail:
+        -:  560:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  561:      return *this;
+        -:  562:   }
+        -:  563:   template <class Other>
+        -:  564:   BOOST_MP_CXX14_CONSTEXPR expression& operator+=(const Other&)
+        -:  565:   {
+        -:  566:      // This should always fail:
+        -:  567:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator+= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  568:      return *this;
+        -:  569:   }
+        -:  570:   template <class Other>
+        -:  571:   BOOST_MP_CXX14_CONSTEXPR expression& operator-=(const Other&)
+        -:  572:   {
+        -:  573:      // This should always fail:
+        -:  574:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator-= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  575:      return *this;
+        -:  576:   }
+        -:  577:   template <class Other>
+        -:  578:   BOOST_MP_CXX14_CONSTEXPR expression& operator*=(const Other&)
+        -:  579:   {
+        -:  580:      // This should always fail:
+        -:  581:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator*= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  582:      return *this;
+        -:  583:   }
+        -:  584:   template <class Other>
+        -:  585:   BOOST_MP_CXX14_CONSTEXPR expression& operator/=(const Other&)
+        -:  586:   {
+        -:  587:      // This should always fail:
+        -:  588:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator/= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  589:      return *this;
+        -:  590:   }
+        -:  591:   template <class Other>
+        -:  592:   BOOST_MP_CXX14_CONSTEXPR expression& operator%=(const Other&)
+        -:  593:   {
+        -:  594:      // This should always fail:
+        -:  595:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator%= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  596:      return *this;
+        -:  597:   }
+        -:  598:   template <class Other>
+        -:  599:   BOOST_MP_CXX14_CONSTEXPR expression& operator|=(const Other&)
+        -:  600:   {
+        -:  601:      // This should always fail:
+        -:  602:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator|= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  603:      return *this;
+        -:  604:   }
+        -:  605:   template <class Other>
+        -:  606:   BOOST_MP_CXX14_CONSTEXPR expression& operator&=(const Other&)
+        -:  607:   {
+        -:  608:      // This should always fail:
+        -:  609:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator&= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  610:      return *this;
+        -:  611:   }
+        -:  612:   template <class Other>
+        -:  613:   BOOST_MP_CXX14_CONSTEXPR expression& operator^=(const Other&)
+        -:  614:   {
+        -:  615:      // This should always fail:
+        -:  616:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator^= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  617:      return *this;
+        -:  618:   }
+        -:  619:   template <class Other>
+        -:  620:   BOOST_MP_CXX14_CONSTEXPR expression& operator<<=(const Other&)
+        -:  621:   {
+        -:  622:      // This should always fail:
+        -:  623:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator<<= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  624:      return *this;
+        -:  625:   }
+        -:  626:   template <class Other>
+        -:  627:   BOOST_MP_CXX14_CONSTEXPR expression& operator>>=(const Other&)
+        -:  628:   {
+        -:  629:      // This should always fail:
+        -:  630:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator>>= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  631:      return *this;
+        -:  632:   }
+        -:  633:#endif
+        -:  634:
+    #####:  635:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -:  636:   {
+    #####:  637:      return left_type(arg);
+        -:  638:   }
+        -:  639:
+        -:  640:   BOOST_MP_CXX14_CONSTEXPR const Arg1& left_ref() const BOOST_NOEXCEPT { return arg; }
+        -:  641:
+        -:  642:   static const unsigned depth = left_type::depth + 1;
+        -:  643:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -:  644:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))
+        -:  645:   //
+        -:  646:   // Horrible workaround for gcc-4.6.x which always prefers the template
+        -:  647:   // operator bool() rather than the non-template operator when converting to
+        -:  648:   // an arithmetic type:
+        -:  649:   //
+        -:  650:   template <class T, typename boost::enable_if<is_same<T, bool>, int>::type = 0>
+        -:  651:   explicit operator T() const
+        -:  652:   {
+        -:  653:      result_type r(*this);
+        -:  654:      return static_cast<bool>(r);
+        -:  655:   }
+        -:  656:   template <class T, typename boost::disable_if_c<is_same<T, bool>::value || is_void<T>::value || is_number<T>::value, int>::type = 0>
+        -:  657:   explicit operator T() const
+        -:  658:   {
+        -:  659:      return static_cast<T>(static_cast<result_type>(*this));
+        -:  660:   }
+        -:  661:#else
+        -:  662:   template <class T
+        -:  663:#ifndef __SUNPRO_CC
+        -:  664:             ,
+        -:  665:             typename boost::disable_if_c<is_number<T>::value || is_constructible<T const&, result_type>::value || !is_constructible<T, result_type>::value, int>::type = 0
+        -:  666:#endif
+        -:  667:             >
+        -:  668:   explicit BOOST_MP_CXX14_CONSTEXPR operator T() const
+        -:  669:   {
+        -:  670:      return static_cast<T>(static_cast<result_type>(*this));
+        -:  671:   }
+        -:  672:   BOOST_MP_FORCEINLINE explicit BOOST_MP_CXX14_CONSTEXPR operator bool() const
+        -:  673:   {
+        -:  674:      result_type r(*this);
+        -:  675:      return static_cast<bool>(r);
+        -:  676:   }
+        -:  677:#if BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40800)
+        -:  678:   BOOST_MP_FORCEINLINE explicit operator void() const
+        -:  679:   {}
+        -:  680:#endif
+        -:  681:#endif
+        -:  682:#else
+        -:  683:   operator unmentionable_type() const
+        -:  684:   {
+        -:  685:      result_type r(*this);
+        -:  686:      return r ? &unmentionable::proc : 0;
+        -:  687:   }
+        -:  688:#endif
+        -:  689:
+        -:  690:   template <class T>
+        -:  691:   BOOST_MP_CXX14_CONSTEXPR T convert_to()
+        -:  692:   {
+        -:  693:      result_type r(*this);
+        -:  694:      return r.template convert_to<T>();
+        -:  695:   }
+        -:  696:
+        -:  697: private:
+        -:  698:   typename expression_storage<Arg1>::type arg;
+        -:  699:   expression&                             operator=(const expression&);
+        -:  700:};
+        -:  701:
+        -:  702:template <class Arg1>
+        -:  703:struct expression<terminal, Arg1, void, void, void>
+        -:  704:{
+        -:  705:   typedef mpl::int_<0> arity;
+        -:  706:   typedef Arg1         result_type;
+        -:  707:   typedef terminal     tag_type;
+        -:  708:
+   20001*:  709:   explicit BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a) : arg(a) {}
+        -:  710:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg(e.arg) {}
+        -:  711:
+        -:  712:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+        -:  713:   //
+        -:  714:   // If we have static_assert we can give a more useful error message
+        -:  715:   // than if we simply have no operator defined at all:
+        -:  716:   //
+        -:  717:   template <class Other>
+        -:  718:   BOOST_MP_CXX14_CONSTEXPR expression& operator=(const Other&)
+        -:  719:   {
+        -:  720:      // This should always fail:
+        -:  721:      static_assert(sizeof(Other) == INT_MAX, "You can not assign to a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  722:      return *this;
+        -:  723:   }
+        -:  724:   BOOST_MP_CXX14_CONSTEXPR expression& operator++()
+        -:  725:   {
+        -:  726:      // This should always fail:
+        -:  727:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  728:      return *this;
+        -:  729:   }
+        -:  730:   BOOST_MP_CXX14_CONSTEXPR expression& operator++(int)
+        -:  731:   {
+        -:  732:      // This should always fail:
+        -:  733:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  734:      return *this;
+        -:  735:   }
+        -:  736:   BOOST_MP_CXX14_CONSTEXPR expression& operator--()
+        -:  737:   {
+        -:  738:      // This should always fail:
+        -:  739:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  740:      return *this;
+        -:  741:   }
+        -:  742:   BOOST_MP_CXX14_CONSTEXPR expression& operator--(int)
+        -:  743:   {
+        -:  744:      // This should always fail:
+        -:  745:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  746:      return *this;
+        -:  747:   }
+        -:  748:   template <class Other>
+        -:  749:   BOOST_MP_CXX14_CONSTEXPR expression& operator+=(const Other&)
+        -:  750:   {
+        -:  751:      // This should always fail:
+        -:  752:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator+= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  753:      return *this;
+        -:  754:   }
+        -:  755:   template <class Other>
+        -:  756:   BOOST_MP_CXX14_CONSTEXPR expression& operator-=(const Other&)
+        -:  757:   {
+        -:  758:      // This should always fail:
+        -:  759:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator-= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  760:      return *this;
+        -:  761:   }
+        -:  762:   template <class Other>
+        -:  763:   BOOST_MP_CXX14_CONSTEXPR expression& operator*=(const Other&)
+        -:  764:   {
+        -:  765:      // This should always fail:
+        -:  766:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator*= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  767:      return *this;
+        -:  768:   }
+        -:  769:   template <class Other>
+        -:  770:   BOOST_MP_CXX14_CONSTEXPR expression& operator/=(const Other&)
+        -:  771:   {
+        -:  772:      // This should always fail:
+        -:  773:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator/= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  774:      return *this;
+        -:  775:   }
+        -:  776:   template <class Other>
+        -:  777:   BOOST_MP_CXX14_CONSTEXPR expression& operator%=(const Other&)
+        -:  778:   {
+        -:  779:      // This should always fail:
+        -:  780:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator%= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  781:      return *this;
+        -:  782:   }
+        -:  783:   template <class Other>
+        -:  784:   BOOST_MP_CXX14_CONSTEXPR expression& operator|=(const Other&)
+        -:  785:   {
+        -:  786:      // This should always fail:
+        -:  787:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator|= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  788:      return *this;
+        -:  789:   }
+        -:  790:   template <class Other>
+        -:  791:   BOOST_MP_CXX14_CONSTEXPR expression& operator&=(const Other&)
+        -:  792:   {
+        -:  793:      // This should always fail:
+        -:  794:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator&= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  795:      return *this;
+        -:  796:   }
+        -:  797:   template <class Other>
+        -:  798:   BOOST_MP_CXX14_CONSTEXPR expression& operator^=(const Other&)
+        -:  799:   {
+        -:  800:      // This should always fail:
+        -:  801:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator^= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  802:      return *this;
+        -:  803:   }
+        -:  804:   template <class Other>
+        -:  805:   BOOST_MP_CXX14_CONSTEXPR expression& operator<<=(const Other&)
+        -:  806:   {
+        -:  807:      // This should always fail:
+        -:  808:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator<<= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  809:      return *this;
+        -:  810:   }
+        -:  811:   template <class Other>
+        -:  812:   BOOST_MP_CXX14_CONSTEXPR expression& operator>>=(const Other&)
+        -:  813:   {
+        -:  814:      // This should always fail:
+        -:  815:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator>>= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  816:      return *this;
+        -:  817:   }
+        -:  818:#endif
+        -:  819:
+        -:  820:   BOOST_MP_CXX14_CONSTEXPR const Arg1& value() const BOOST_NOEXCEPT
+        -:  821:   {
+    #####:  822:      return arg;
+        -:  823:   }
+        -:  824:
+        -:  825:   static const unsigned depth = 0;
+        -:  826:
+        -:  827:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -:  828:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))
+        -:  829:   //
+        -:  830:   // Horrible workaround for gcc-4.6.x which always prefers the template
+        -:  831:   // operator bool() rather than the non-template operator when converting to
+        -:  832:   // an arithmetic type:
+        -:  833:   //
+        -:  834:   template <class T, typename boost::enable_if<is_same<T, bool>, int>::type = 0>
+        -:  835:   explicit operator T() const
+        -:  836:   {
+        -:  837:      result_type r(*this);
+        -:  838:      return static_cast<bool>(r);
+        -:  839:   }
+        -:  840:   template <class T, typename boost::disable_if_c<is_same<T, bool>::value || is_void<T>::value || is_number<T>::value, int>::type = 0>
+        -:  841:   explicit operator T() const
+        -:  842:   {
+        -:  843:      return static_cast<T>(static_cast<result_type>(*this));
+        -:  844:   }
+        -:  845:#else
+        -:  846:   template <class T
+        -:  847:#ifndef __SUNPRO_CC
+        -:  848:             ,
+        -:  849:             typename boost::disable_if_c<is_number<T>::value || is_constructible<T const&, result_type>::value || !is_constructible<T, result_type>::value, int>::type = 0
+        -:  850:#endif
+        -:  851:             >
+        -:  852:   explicit BOOST_MP_CXX14_CONSTEXPR operator T() const
+        -:  853:   {
+        -:  854:      return static_cast<T>(static_cast<result_type>(*this));
+        -:  855:   }
+        -:  856:   BOOST_MP_FORCEINLINE explicit BOOST_MP_CXX14_CONSTEXPR operator bool() const
+        -:  857:   {
+        -:  858:      result_type r(*this);
+        -:  859:      return static_cast<bool>(r);
+        -:  860:   }
+        -:  861:#if BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40800)
+        -:  862:   BOOST_MP_FORCEINLINE explicit operator void() const
+        -:  863:   {}
+        -:  864:#endif
+        -:  865:#endif
+        -:  866:#else
+        -:  867:   operator unmentionable_type() const
+        -:  868:   {
+        -:  869:      return arg ? &unmentionable::proc : 0;
+        -:  870:   }
+        -:  871:#endif
+        -:  872:
+        -:  873:   template <class T>
+        -:  874:   BOOST_MP_CXX14_CONSTEXPR T convert_to()
+        -:  875:   {
+        -:  876:      result_type r(*this);
+        -:  877:      return r.template convert_to<T>();
+        -:  878:   }
+        -:  879:
+        -:  880: private:
+        -:  881:   typename expression_storage<Arg1>::type arg;
+        -:  882:   expression&                             operator=(const expression&);
+        -:  883:};
+        -:  884:
+        -:  885:template <class tag, class Arg1, class Arg2>
+        -:  886:struct expression<tag, Arg1, Arg2, void, void>
+        -:  887:{
+        -:  888:   typedef mpl::int_<2>                                                           arity;
+        -:  889:   typedef typename arg_type<Arg1>::type                                          left_type;
+        -:  890:   typedef typename arg_type<Arg2>::type                                          right_type;
+        -:  891:   typedef typename left_type::result_type                                        left_result_type;
+        -:  892:   typedef typename right_type::result_type                                       right_result_type;
+        -:  893:   typedef typename combine_expression<left_result_type, right_result_type>::type result_type;
+        -:  894:   typedef tag                                                                    tag_type;
+        -:  895:
+   29073*:  896:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2) : arg1(a1), arg2(a2) {}
+    #####:  897:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg1(e.arg1), arg2(e.arg2) {}
+        -:  898:
+        -:  899:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+        -:  900:   //
+        -:  901:   // If we have static_assert we can give a more useful error message
+        -:  902:   // than if we simply have no operator defined at all:
+        -:  903:   //
+        -:  904:   template <class Other>
+        -:  905:   BOOST_MP_CXX14_CONSTEXPR expression& operator=(const Other&)
+        -:  906:   {
+        -:  907:      // This should always fail:
+        -:  908:      static_assert(sizeof(Other) == INT_MAX, "You can not assign to a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  909:      return *this;
+        -:  910:   }
+        -:  911:   BOOST_MP_CXX14_CONSTEXPR expression& operator++()
+        -:  912:   {
+        -:  913:      // This should always fail:
+        -:  914:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  915:      return *this;
+        -:  916:   }
+        -:  917:   BOOST_MP_CXX14_CONSTEXPR expression& operator++(int)
+        -:  918:   {
+        -:  919:      // This should always fail:
+        -:  920:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  921:      return *this;
+        -:  922:   }
+        -:  923:   BOOST_MP_CXX14_CONSTEXPR expression& operator--()
+        -:  924:   {
+        -:  925:      // This should always fail:
+        -:  926:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  927:      return *this;
+        -:  928:   }
+        -:  929:   BOOST_MP_CXX14_CONSTEXPR expression& operator--(int)
+        -:  930:   {
+        -:  931:      // This should always fail:
+        -:  932:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  933:      return *this;
+        -:  934:   }
+        -:  935:   template <class Other>
+        -:  936:   BOOST_MP_CXX14_CONSTEXPR expression& operator+=(const Other&)
+        -:  937:   {
+        -:  938:      // This should always fail:
+        -:  939:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator+= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  940:      return *this;
+        -:  941:   }
+        -:  942:   template <class Other>
+        -:  943:   BOOST_MP_CXX14_CONSTEXPR expression& operator-=(const Other&)
+        -:  944:   {
+        -:  945:      // This should always fail:
+        -:  946:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator-= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  947:      return *this;
+        -:  948:   }
+        -:  949:   template <class Other>
+        -:  950:   BOOST_MP_CXX14_CONSTEXPR expression& operator*=(const Other&)
+        -:  951:   {
+        -:  952:      // This should always fail:
+        -:  953:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator*= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  954:      return *this;
+        -:  955:   }
+        -:  956:   template <class Other>
+        -:  957:   BOOST_MP_CXX14_CONSTEXPR expression& operator/=(const Other&)
+        -:  958:   {
+        -:  959:      // This should always fail:
+        -:  960:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator/= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  961:      return *this;
+        -:  962:   }
+        -:  963:   template <class Other>
+        -:  964:   BOOST_MP_CXX14_CONSTEXPR expression& operator%=(const Other&)
+        -:  965:   {
+        -:  966:      // This should always fail:
+        -:  967:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator%= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  968:      return *this;
+        -:  969:   }
+        -:  970:   template <class Other>
+        -:  971:   BOOST_MP_CXX14_CONSTEXPR expression& operator|=(const Other&)
+        -:  972:   {
+        -:  973:      // This should always fail:
+        -:  974:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator|= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  975:      return *this;
+        -:  976:   }
+        -:  977:   template <class Other>
+        -:  978:   BOOST_MP_CXX14_CONSTEXPR expression& operator&=(const Other&)
+        -:  979:   {
+        -:  980:      // This should always fail:
+        -:  981:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator&= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  982:      return *this;
+        -:  983:   }
+        -:  984:   template <class Other>
+        -:  985:   BOOST_MP_CXX14_CONSTEXPR expression& operator^=(const Other&)
+        -:  986:   {
+        -:  987:      // This should always fail:
+        -:  988:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator^= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  989:      return *this;
+        -:  990:   }
+        -:  991:   template <class Other>
+        -:  992:   BOOST_MP_CXX14_CONSTEXPR expression& operator<<=(const Other&)
+        -:  993:   {
+        -:  994:      // This should always fail:
+        -:  995:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator<<= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -:  996:      return *this;
+        -:  997:   }
+        -:  998:   template <class Other>
+        -:  999:   BOOST_MP_CXX14_CONSTEXPR expression& operator>>=(const Other&)
+        -: 1000:   {
+        -: 1001:      // This should always fail:
+        -: 1002:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator>>= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1003:      return *this;
+        -: 1004:   }
+        -: 1005:#endif
+        -: 1006:
+   29073*: 1007:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -: 1008:   {
+   23260*: 1009:      return left_type(arg1);
+        -: 1010:   }
+   29073*: 1011:   BOOST_MP_CXX14_CONSTEXPR right_type  right() const { return right_type(arg2); }
+        -: 1012:   BOOST_MP_CXX14_CONSTEXPR const Arg1& left_ref() const BOOST_NOEXCEPT { return arg1; }
+        -: 1013:   BOOST_MP_CXX14_CONSTEXPR const Arg2& right_ref() const BOOST_NOEXCEPT { return arg2; }
+        -: 1014:
+        -: 1015:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -: 1016:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))
+        -: 1017:   //
+        -: 1018:   // Horrible workaround for gcc-4.6.x which always prefers the template
+        -: 1019:   // operator bool() rather than the non-template operator when converting to
+        -: 1020:   // an arithmetic type:
+        -: 1021:   //
+        -: 1022:   template <class T, typename boost::enable_if<is_same<T, bool>, int>::type = 0>
+        -: 1023:   explicit operator T() const
+        -: 1024:   {
+        -: 1025:      result_type r(*this);
+        -: 1026:      return static_cast<bool>(r);
+        -: 1027:   }
+        -: 1028:   template <class T, typename boost::disable_if_c<is_same<T, bool>::value || is_void<T>::value || is_number<T>::value, int>::type = 0>
+        -: 1029:   explicit operator T() const
+        -: 1030:   {
+        -: 1031:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1032:   }
+        -: 1033:#else
+        -: 1034:   template <class T
+        -: 1035:#ifndef __SUNPRO_CC
+        -: 1036:             ,
+        -: 1037:             typename boost::disable_if_c<is_number<T>::value || is_constructible<T const&, result_type>::value || !is_constructible<T, result_type>::value, int>::type = 0
+        -: 1038:#endif
+        -: 1039:             >
+        -: 1040:   explicit BOOST_MP_CXX14_CONSTEXPR operator T() const
+        -: 1041:   {
+        -: 1042:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1043:   }
+        -: 1044:   BOOST_MP_FORCEINLINE explicit BOOST_MP_CXX14_CONSTEXPR operator bool() const
+        -: 1045:   {
+        -: 1046:      result_type r(*this);
+        -: 1047:      return static_cast<bool>(r);
+        -: 1048:   }
+        -: 1049:#if BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40800)
+        -: 1050:   BOOST_MP_FORCEINLINE explicit operator void() const
+        -: 1051:   {}
+        -: 1052:#endif
+        -: 1053:#endif
+        -: 1054:#else
+        -: 1055:   operator unmentionable_type() const
+        -: 1056:   {
+        -: 1057:      result_type r(*this);
+        -: 1058:      return r ? &unmentionable::proc : 0;
+        -: 1059:   }
+        -: 1060:#endif
+        -: 1061:   template <class T>
+        -: 1062:   BOOST_MP_CXX14_CONSTEXPR T convert_to()
+        -: 1063:   {
+        -: 1064:      result_type r(*this);
+        -: 1065:      return r.template convert_to<T>();
+        -: 1066:   }
+        -: 1067:
+        -: 1068:   static const BOOST_MP_CXX14_CONSTEXPR unsigned left_depth  = left_type::depth + 1;
+        -: 1069:   static const BOOST_MP_CXX14_CONSTEXPR unsigned right_depth = right_type::depth + 1;
+        -: 1070:   static const BOOST_MP_CXX14_CONSTEXPR unsigned depth       = left_depth > right_depth ? left_depth : right_depth;
+        -: 1071:
+        -: 1072: private:
+        -: 1073:   typename expression_storage<Arg1>::type arg1;
+        -: 1074:   typename expression_storage<Arg2>::type arg2;
+        -: 1075:   expression&                             operator=(const expression&);
+        -: 1076:};
+        -: 1077:
+        -: 1078:template <class tag, class Arg1, class Arg2, class Arg3>
+        -: 1079:struct expression<tag, Arg1, Arg2, Arg3, void>
+        -: 1080:{
+        -: 1081:   typedef mpl::int_<3>                      arity;
+        -: 1082:   typedef typename arg_type<Arg1>::type     left_type;
+        -: 1083:   typedef typename arg_type<Arg2>::type     middle_type;
+        -: 1084:   typedef typename arg_type<Arg3>::type     right_type;
+        -: 1085:   typedef typename left_type::result_type   left_result_type;
+        -: 1086:   typedef typename middle_type::result_type middle_result_type;
+        -: 1087:   typedef typename right_type::result_type  right_result_type;
+        -: 1088:   typedef typename combine_expression<
+        -: 1089:       left_result_type,
+        -: 1090:       typename combine_expression<right_result_type, middle_result_type>::type>::type result_type;
+        -: 1091:   typedef tag                                                                         tag_type;
+        -: 1092:
+        -: 1093:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2, const Arg3& a3) : arg1(a1), arg2(a2), arg3(a3) {}
+        -: 1094:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg1(e.arg1), arg2(e.arg2), arg3(e.arg3) {}
+        -: 1095:
+        -: 1096:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+        -: 1097:   //
+        -: 1098:   // If we have static_assert we can give a more useful error message
+        -: 1099:   // than if we simply have no operator defined at all:
+        -: 1100:   //
+        -: 1101:   template <class Other>
+        -: 1102:   BOOST_MP_CXX14_CONSTEXPR expression& operator=(const Other&)
+        -: 1103:   {
+        -: 1104:      // This should always fail:
+        -: 1105:      static_assert(sizeof(Other) == INT_MAX, "You can not assign to a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1106:      return *this;
+        -: 1107:   }
+        -: 1108:   BOOST_MP_CXX14_CONSTEXPR expression& operator++()
+        -: 1109:   {
+        -: 1110:      // This should always fail:
+        -: 1111:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1112:      return *this;
+        -: 1113:   }
+        -: 1114:   BOOST_MP_CXX14_CONSTEXPR expression& operator++(int)
+        -: 1115:   {
+        -: 1116:      // This should always fail:
+        -: 1117:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1118:      return *this;
+        -: 1119:   }
+        -: 1120:   BOOST_MP_CXX14_CONSTEXPR expression& operator--()
+        -: 1121:   {
+        -: 1122:      // This should always fail:
+        -: 1123:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1124:      return *this;
+        -: 1125:   }
+        -: 1126:   BOOST_MP_CXX14_CONSTEXPR expression& operator--(int)
+        -: 1127:   {
+        -: 1128:      // This should always fail:
+        -: 1129:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1130:      return *this;
+        -: 1131:   }
+        -: 1132:   template <class Other>
+        -: 1133:   BOOST_MP_CXX14_CONSTEXPR expression& operator+=(const Other&)
+        -: 1134:   {
+        -: 1135:      // This should always fail:
+        -: 1136:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator+= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1137:      return *this;
+        -: 1138:   }
+        -: 1139:   template <class Other>
+        -: 1140:   BOOST_MP_CXX14_CONSTEXPR expression& operator-=(const Other&)
+        -: 1141:   {
+        -: 1142:      // This should always fail:
+        -: 1143:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator-= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1144:      return *this;
+        -: 1145:   }
+        -: 1146:   template <class Other>
+        -: 1147:   BOOST_MP_CXX14_CONSTEXPR expression& operator*=(const Other&)
+        -: 1148:   {
+        -: 1149:      // This should always fail:
+        -: 1150:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator*= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1151:      return *this;
+        -: 1152:   }
+        -: 1153:   template <class Other>
+        -: 1154:   BOOST_MP_CXX14_CONSTEXPR expression& operator/=(const Other&)
+        -: 1155:   {
+        -: 1156:      // This should always fail:
+        -: 1157:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator/= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1158:      return *this;
+        -: 1159:   }
+        -: 1160:   template <class Other>
+        -: 1161:   BOOST_MP_CXX14_CONSTEXPR expression& operator%=(const Other&)
+        -: 1162:   {
+        -: 1163:      // This should always fail:
+        -: 1164:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator%= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1165:      return *this;
+        -: 1166:   }
+        -: 1167:   template <class Other>
+        -: 1168:   BOOST_MP_CXX14_CONSTEXPR expression& operator|=(const Other&)
+        -: 1169:   {
+        -: 1170:      // This should always fail:
+        -: 1171:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator|= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1172:      return *this;
+        -: 1173:   }
+        -: 1174:   template <class Other>
+        -: 1175:   BOOST_MP_CXX14_CONSTEXPR expression& operator&=(const Other&)
+        -: 1176:   {
+        -: 1177:      // This should always fail:
+        -: 1178:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator&= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1179:      return *this;
+        -: 1180:   }
+        -: 1181:   template <class Other>
+        -: 1182:   BOOST_MP_CXX14_CONSTEXPR expression& operator^=(const Other&)
+        -: 1183:   {
+        -: 1184:      // This should always fail:
+        -: 1185:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator^= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1186:      return *this;
+        -: 1187:   }
+        -: 1188:   template <class Other>
+        -: 1189:   BOOST_MP_CXX14_CONSTEXPR expression& operator<<=(const Other&)
+        -: 1190:   {
+        -: 1191:      // This should always fail:
+        -: 1192:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator<<= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1193:      return *this;
+        -: 1194:   }
+        -: 1195:   template <class Other>
+        -: 1196:   BOOST_MP_CXX14_CONSTEXPR expression& operator>>=(const Other&)
+        -: 1197:   {
+        -: 1198:      // This should always fail:
+        -: 1199:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator>>= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1200:      return *this;
+        -: 1201:   }
+        -: 1202:#endif
+        -: 1203:
+        -: 1204:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -: 1205:   {
+        -: 1206:      return left_type(arg1);
+        -: 1207:   }
+        -: 1208:   BOOST_MP_CXX14_CONSTEXPR middle_type middle() const { return middle_type(arg2); }
+        -: 1209:   BOOST_MP_CXX14_CONSTEXPR right_type  right() const { return right_type(arg3); }
+        -: 1210:   BOOST_MP_CXX14_CONSTEXPR const Arg1& left_ref() const BOOST_NOEXCEPT { return arg1; }
+        -: 1211:   BOOST_MP_CXX14_CONSTEXPR const Arg2& middle_ref() const BOOST_NOEXCEPT { return arg2; }
+        -: 1212:   BOOST_MP_CXX14_CONSTEXPR const Arg3& right_ref() const BOOST_NOEXCEPT { return arg3; }
+        -: 1213:
+        -: 1214:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -: 1215:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))
+        -: 1216:   //
+        -: 1217:   // Horrible workaround for gcc-4.6.x which always prefers the template
+        -: 1218:   // operator bool() rather than the non-template operator when converting to
+        -: 1219:   // an arithmetic type:
+        -: 1220:   //
+        -: 1221:   template <class T, typename boost::enable_if<is_same<T, bool>, int>::type = 0>
+        -: 1222:   explicit operator T() const
+        -: 1223:   {
+        -: 1224:      result_type r(*this);
+        -: 1225:      return static_cast<bool>(r);
+        -: 1226:   }
+        -: 1227:   template <class T, typename boost::disable_if_c<is_same<T, bool>::value || is_void<T>::value || is_number<T>::value, int>::type = 0>
+        -: 1228:   explicit operator T() const
+        -: 1229:   {
+        -: 1230:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1231:   }
+        -: 1232:#else
+        -: 1233:   template <class T
+        -: 1234:#ifndef __SUNPRO_CC
+        -: 1235:             ,
+        -: 1236:             typename boost::disable_if_c<is_number<T>::value || is_constructible<T const&, result_type>::value || !is_constructible<T, result_type>::value, int>::type = 0
+        -: 1237:#endif
+        -: 1238:             >
+        -: 1239:   explicit BOOST_MP_CXX14_CONSTEXPR operator T() const
+        -: 1240:   {
+        -: 1241:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1242:   }
+        -: 1243:   BOOST_MP_FORCEINLINE explicit BOOST_MP_CXX14_CONSTEXPR operator bool() const
+        -: 1244:   {
+        -: 1245:      result_type r(*this);
+        -: 1246:      return static_cast<bool>(r);
+        -: 1247:   }
+        -: 1248:#if BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40800)
+        -: 1249:   BOOST_MP_FORCEINLINE explicit operator void() const
+        -: 1250:   {}
+        -: 1251:#endif
+        -: 1252:#endif
+        -: 1253:#else
+        -: 1254:   operator unmentionable_type() const
+        -: 1255:   {
+        -: 1256:      result_type r(*this);
+        -: 1257:      return r ? &unmentionable::proc : 0;
+        -: 1258:   }
+        -: 1259:#endif
+        -: 1260:   template <class T>
+        -: 1261:   BOOST_MP_CXX14_CONSTEXPR T convert_to()
+        -: 1262:   {
+        -: 1263:      result_type r(*this);
+        -: 1264:      return r.template convert_to<T>();
+        -: 1265:   }
+        -: 1266:
+        -: 1267:   static const unsigned left_depth   = left_type::depth + 1;
+        -: 1268:   static const unsigned middle_depth = middle_type::depth + 1;
+        -: 1269:   static const unsigned right_depth  = right_type::depth + 1;
+        -: 1270:   static const unsigned depth        = left_depth > right_depth ? (left_depth > middle_depth ? left_depth : middle_depth) : (right_depth > middle_depth ? right_depth : middle_depth);
+        -: 1271:
+        -: 1272: private:
+        -: 1273:   typename expression_storage<Arg1>::type arg1;
+        -: 1274:   typename expression_storage<Arg2>::type arg2;
+        -: 1275:   typename expression_storage<Arg3>::type arg3;
+        -: 1276:   expression&                             operator=(const expression&);
+        -: 1277:};
+        -: 1278:
+        -: 1279:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1280:struct expression
+        -: 1281:{
+        -: 1282:   typedef mpl::int_<4>                            arity;
+        -: 1283:   typedef typename arg_type<Arg1>::type           left_type;
+        -: 1284:   typedef typename arg_type<Arg2>::type           left_middle_type;
+        -: 1285:   typedef typename arg_type<Arg3>::type           right_middle_type;
+        -: 1286:   typedef typename arg_type<Arg4>::type           right_type;
+        -: 1287:   typedef typename left_type::result_type         left_result_type;
+        -: 1288:   typedef typename left_middle_type::result_type  left_middle_result_type;
+        -: 1289:   typedef typename right_middle_type::result_type right_middle_result_type;
+        -: 1290:   typedef typename right_type::result_type        right_result_type;
+        -: 1291:   typedef typename combine_expression<
+        -: 1292:       left_result_type,
+        -: 1293:       typename combine_expression<
+        -: 1294:           left_middle_result_type,
+        -: 1295:           typename combine_expression<right_middle_result_type, right_result_type>::type>::type>::type result_type;
+        -: 1296:   typedef tag                                                                                          tag_type;
+        -: 1297:
+    15489: 1298:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2, const Arg3& a3, const Arg4& a4) : arg1(a1), arg2(a2), arg3(a3), arg4(a4) {}
+        -: 1299:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg1(e.arg1), arg2(e.arg2), arg3(e.arg3), arg4(e.arg4) {}
+        -: 1300:
+        -: 1301:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
+        -: 1302:   //
+        -: 1303:   // If we have static_assert we can give a more useful error message
+        -: 1304:   // than if we simply have no operator defined at all:
+        -: 1305:   //
+        -: 1306:   template <class Other>
+        -: 1307:   BOOST_MP_CXX14_CONSTEXPR expression& operator=(const Other&)
+        -: 1308:   {
+        -: 1309:      // This should always fail:
+        -: 1310:      static_assert(sizeof(Other) == INT_MAX, "You can not assign to a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1311:      return *this;
+        -: 1312:   }
+        -: 1313:   BOOST_MP_CXX14_CONSTEXPR expression& operator++()
+        -: 1314:   {
+        -: 1315:      // This should always fail:
+        -: 1316:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1317:      return *this;
+        -: 1318:   }
+        -: 1319:   BOOST_MP_CXX14_CONSTEXPR expression& operator++(int)
+        -: 1320:   {
+        -: 1321:      // This should always fail:
+        -: 1322:      static_assert(sizeof(*this) == INT_MAX, "You can not increment a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1323:      return *this;
+        -: 1324:   }
+        -: 1325:   BOOST_MP_CXX14_CONSTEXPR expression& operator--()
+        -: 1326:   {
+        -: 1327:      // This should always fail:
+        -: 1328:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1329:      return *this;
+        -: 1330:   }
+        -: 1331:   BOOST_MP_CXX14_CONSTEXPR expression& operator--(int)
+        -: 1332:   {
+        -: 1333:      // This should always fail:
+        -: 1334:      static_assert(sizeof(*this) == INT_MAX, "You can not decrement a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1335:      return *this;
+        -: 1336:   }
+        -: 1337:   template <class Other>
+        -: 1338:   BOOST_MP_CXX14_CONSTEXPR expression& operator+=(const Other&)
+        -: 1339:   {
+        -: 1340:      // This should always fail:
+        -: 1341:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator+= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1342:      return *this;
+        -: 1343:   }
+        -: 1344:   template <class Other>
+        -: 1345:   BOOST_MP_CXX14_CONSTEXPR expression& operator-=(const Other&)
+        -: 1346:   {
+        -: 1347:      // This should always fail:
+        -: 1348:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator-= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1349:      return *this;
+        -: 1350:   }
+        -: 1351:   template <class Other>
+        -: 1352:   BOOST_MP_CXX14_CONSTEXPR expression& operator*=(const Other&)
+        -: 1353:   {
+        -: 1354:      // This should always fail:
+        -: 1355:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator*= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1356:      return *this;
+        -: 1357:   }
+        -: 1358:   template <class Other>
+        -: 1359:   BOOST_MP_CXX14_CONSTEXPR expression& operator/=(const Other&)
+        -: 1360:   {
+        -: 1361:      // This should always fail:
+        -: 1362:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator/= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1363:      return *this;
+        -: 1364:   }
+        -: 1365:   template <class Other>
+        -: 1366:   BOOST_MP_CXX14_CONSTEXPR expression& operator%=(const Other&)
+        -: 1367:   {
+        -: 1368:      // This should always fail:
+        -: 1369:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator%= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1370:      return *this;
+        -: 1371:   }
+        -: 1372:   template <class Other>
+        -: 1373:   BOOST_MP_CXX14_CONSTEXPR expression& operator|=(const Other&)
+        -: 1374:   {
+        -: 1375:      // This should always fail:
+        -: 1376:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator|= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1377:      return *this;
+        -: 1378:   }
+        -: 1379:   template <class Other>
+        -: 1380:   BOOST_MP_CXX14_CONSTEXPR expression& operator&=(const Other&)
+        -: 1381:   {
+        -: 1382:      // This should always fail:
+        -: 1383:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator&= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1384:      return *this;
+        -: 1385:   }
+        -: 1386:   template <class Other>
+        -: 1387:   BOOST_MP_CXX14_CONSTEXPR expression& operator^=(const Other&)
+        -: 1388:   {
+        -: 1389:      // This should always fail:
+        -: 1390:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator^= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1391:      return *this;
+        -: 1392:   }
+        -: 1393:   template <class Other>
+        -: 1394:   BOOST_MP_CXX14_CONSTEXPR expression& operator<<=(const Other&)
+        -: 1395:   {
+        -: 1396:      // This should always fail:
+        -: 1397:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator<<= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1398:      return *this;
+        -: 1399:   }
+        -: 1400:   template <class Other>
+        -: 1401:   BOOST_MP_CXX14_CONSTEXPR expression& operator>>=(const Other&)
+        -: 1402:   {
+        -: 1403:      // This should always fail:
+        -: 1404:      static_assert(sizeof(Other) == INT_MAX, "You can not use operator>>= on a Boost.Multiprecision expression template: did you inadvertantly store an expression template in a \"auto\" variable?  Or pass an expression to a template function with deduced temnplate arguments?");
+        -: 1405:      return *this;
+        -: 1406:   }
+        -: 1407:#endif
+        -: 1408:
+    15489: 1409:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -: 1410:   {
+    15489: 1411:      return left_type(arg1);
+        -: 1412:   }
+        -: 1413:   BOOST_MP_CXX14_CONSTEXPR left_middle_type  left_middle() const { return left_middle_type(arg2); }
+        -: 1414:   BOOST_MP_CXX14_CONSTEXPR right_middle_type right_middle() const { return right_middle_type(arg3); }
+        -: 1415:   BOOST_MP_CXX14_CONSTEXPR right_type        right() const { return right_type(arg4); }
+        -: 1416:   BOOST_MP_CXX14_CONSTEXPR const Arg1&       left_ref() const BOOST_NOEXCEPT { return arg1; }
+    15489: 1417:   BOOST_MP_CXX14_CONSTEXPR const Arg2&       left_middle_ref() const BOOST_NOEXCEPT { return arg2; }
+    15489: 1418:   BOOST_MP_CXX14_CONSTEXPR const Arg3&       right_middle_ref() const BOOST_NOEXCEPT { return arg3; }
+    15489: 1419:   BOOST_MP_CXX14_CONSTEXPR const Arg4&       right_ref() const BOOST_NOEXCEPT { return arg4; }
+        -: 1420:
+        -: 1421:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -: 1422:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))
+        -: 1423:   //
+        -: 1424:   // Horrible workaround for gcc-4.6.x which always prefers the template
+        -: 1425:   // operator bool() rather than the non-template operator when converting to
+        -: 1426:   // an arithmetic type:
+        -: 1427:   //
+        -: 1428:   template <class T, typename boost::enable_if<is_same<T, bool>, int>::type = 0>
+        -: 1429:   explicit operator T() const
+        -: 1430:   {
+        -: 1431:      result_type r(*this);
+        -: 1432:      return static_cast<bool>(r);
+        -: 1433:   }
+        -: 1434:   template <class T, typename boost::disable_if_c<is_same<T, bool>::value || is_void<T>::value || is_number<T>::value, int>::type = 0>
+        -: 1435:   explicit operator T() const
+        -: 1436:   {
+        -: 1437:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1438:   }
+        -: 1439:#else
+        -: 1440:   template <class T
+        -: 1441:#ifndef __SUNPRO_CC
+        -: 1442:             ,
+        -: 1443:             typename boost::disable_if_c<is_number<T>::value || is_constructible<T const&, result_type>::value || !is_constructible<T, result_type>::value, int>::type = 0
+        -: 1444:#endif
+        -: 1445:             >
+        -: 1446:   explicit BOOST_MP_CXX14_CONSTEXPR operator T() const
+        -: 1447:   {
+        -: 1448:      return static_cast<T>(static_cast<result_type>(*this));
+        -: 1449:   }
+        -: 1450:   BOOST_MP_FORCEINLINE explicit BOOST_MP_CXX14_CONSTEXPR operator bool() const
+        -: 1451:   {
+        -: 1452:      result_type r(*this);
+        -: 1453:      return static_cast<bool>(r);
+        -: 1454:   }
+        -: 1455:#if BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40800)
+        -: 1456:   BOOST_MP_FORCEINLINE explicit operator void() const
+        -: 1457:   {}
+        -: 1458:#endif
+        -: 1459:#endif
+        -: 1460:#else
+        -: 1461:   operator unmentionable_type() const
+        -: 1462:   {
+        -: 1463:      result_type r(*this);
+        -: 1464:      return r ? &unmentionable::proc : 0;
+        -: 1465:   }
+        -: 1466:#endif
+        -: 1467:   template <class T>
+        -: 1468:   BOOST_MP_CXX14_CONSTEXPR T convert_to()
+        -: 1469:   {
+        -: 1470:      result_type r(*this);
+        -: 1471:      return r.template convert_to<T>();
+        -: 1472:   }
+        -: 1473:
+        -: 1474:   static const unsigned left_depth         = left_type::depth + 1;
+        -: 1475:   static const unsigned left_middle_depth  = left_middle_type::depth + 1;
+        -: 1476:   static const unsigned right_middle_depth = right_middle_type::depth + 1;
+        -: 1477:   static const unsigned right_depth        = right_type::depth + 1;
+        -: 1478:
+        -: 1479:   static const unsigned left_max_depth  = left_depth > left_middle_depth ? left_depth : left_middle_depth;
+        -: 1480:   static const unsigned right_max_depth = right_depth > right_middle_depth ? right_depth : right_middle_depth;
+        -: 1481:
+        -: 1482:   static const unsigned depth = left_max_depth > right_max_depth ? left_max_depth : right_max_depth;
+        -: 1483:
+        -: 1484: private:
+        -: 1485:   typename expression_storage<Arg1>::type arg1;
+        -: 1486:   typename expression_storage<Arg2>::type arg2;
+        -: 1487:   typename expression_storage<Arg3>::type arg3;
+        -: 1488:   typename expression_storage<Arg4>::type arg4;
+        -: 1489:   expression&                             operator=(const expression&);
+        -: 1490:};
+        -: 1491:
+        -: 1492:template <class T>
+        -: 1493:struct digits2
+        -: 1494:{
+        -: 1495:   BOOST_STATIC_ASSERT(std::numeric_limits<T>::is_specialized);
+        -: 1496:   BOOST_STATIC_ASSERT((std::numeric_limits<T>::radix == 2) || (std::numeric_limits<T>::radix == 10));
+        -: 1497:   // If we really have so many digits that this fails, then we're probably going to hit other problems anyway:
+        -: 1498:   BOOST_STATIC_ASSERT(LONG_MAX / 1000 > (std::numeric_limits<T>::digits + 1));
+        -: 1499:   static const long                  m_value = std::numeric_limits<T>::radix == 10 ? (((std::numeric_limits<T>::digits + 1) * 1000L) / 301L) : std::numeric_limits<T>::digits;
+        -: 1500:   static inline BOOST_CONSTEXPR long value() BOOST_NOEXCEPT { return m_value; }
+        -: 1501:};
+        -: 1502:
+        -: 1503:#ifndef BOOST_MP_MIN_EXPONENT_DIGITS
+        -: 1504:#ifdef _MSC_VER
+        -: 1505:#define BOOST_MP_MIN_EXPONENT_DIGITS 2
+        -: 1506:#else
+        -: 1507:#define BOOST_MP_MIN_EXPONENT_DIGITS 2
+        -: 1508:#endif
+        -: 1509:#endif
+        -: 1510:
+        -: 1511:template <class S>
+        -: 1512:void format_float_string(S& str, boost::intmax_t my_exp, boost::intmax_t digits, std::ios_base::fmtflags f, bool iszero)
+        -: 1513:{
+        -: 1514:   typedef typename S::size_type size_type;
+        -: 1515:   bool                          scientific = (f & std::ios_base::scientific) == std::ios_base::scientific;
+        -: 1516:   bool                          fixed      = (f & std::ios_base::fixed) == std::ios_base::fixed;
+        -: 1517:   bool                          showpoint  = (f & std::ios_base::showpoint) == std::ios_base::showpoint;
+        -: 1518:   bool                          showpos    = (f & std::ios_base::showpos) == std::ios_base::showpos;
+        -: 1519:
+        -: 1520:   bool neg = str.size() && (str[0] == '-');
+        -: 1521:
+        -: 1522:   if (neg)
+        -: 1523:      str.erase(0, 1);
+        -: 1524:
+        -: 1525:   if (digits == 0)
+        -: 1526:   {
+        -: 1527:      digits = (std::max)(str.size(), size_type(16));
+        -: 1528:   }
+        -: 1529:
+        -: 1530:   if (iszero || str.empty() || (str.find_first_not_of('0') == S::npos))
+        -: 1531:   {
+        -: 1532:      // We will be printing zero, even though the value might not
+        -: 1533:      // actually be zero (it just may have been rounded to zero).
+        -: 1534:      str = "0";
+        -: 1535:      if (scientific || fixed)
+        -: 1536:      {
+        -: 1537:         str.append(1, '.');
+        -: 1538:         str.append(size_type(digits), '0');
+        -: 1539:         if (scientific)
+        -: 1540:            str.append("e+00");
+        -: 1541:      }
+        -: 1542:      else
+        -: 1543:      {
+        -: 1544:         if (showpoint)
+        -: 1545:         {
+        -: 1546:            str.append(1, '.');
+        -: 1547:            if (digits > 1)
+        -: 1548:               str.append(size_type(digits - 1), '0');
+        -: 1549:         }
+        -: 1550:      }
+        -: 1551:      if (neg)
+        -: 1552:         str.insert(static_cast<std::string::size_type>(0), 1, '-');
+        -: 1553:      else if (showpos)
+        -: 1554:         str.insert(static_cast<std::string::size_type>(0), 1, '+');
+        -: 1555:      return;
+        -: 1556:   }
+        -: 1557:
+        -: 1558:   if (!fixed && !scientific && !showpoint)
+        -: 1559:   {
+        -: 1560:      //
+        -: 1561:      // Suppress trailing zeros:
+        -: 1562:      //
+        -: 1563:      std::string::iterator pos = str.end();
+        -: 1564:      while (pos != str.begin() && *--pos == '0')
+        -: 1565:      {
+        -: 1566:      }
+        -: 1567:      if (pos != str.end())
+        -: 1568:         ++pos;
+        -: 1569:      str.erase(pos, str.end());
+        -: 1570:      if (str.empty())
+        -: 1571:         str = '0';
+        -: 1572:   }
+        -: 1573:   else if (!fixed || (my_exp >= 0))
+        -: 1574:   {
+        -: 1575:      //
+        -: 1576:      // Pad out the end with zero's if we need to:
+        -: 1577:      //
+        -: 1578:      boost::intmax_t chars = str.size();
+        -: 1579:      chars                 = digits - chars;
+        -: 1580:      if (scientific)
+        -: 1581:         ++chars;
+        -: 1582:      if (chars > 0)
+        -: 1583:      {
+        -: 1584:         str.append(static_cast<std::string::size_type>(chars), '0');
+        -: 1585:      }
+        -: 1586:   }
+        -: 1587:
+        -: 1588:   if (fixed || (!scientific && (my_exp >= -4) && (my_exp < digits)))
+        -: 1589:   {
+        -: 1590:      if (1 + my_exp > static_cast<boost::intmax_t>(str.size()))
+        -: 1591:      {
+        -: 1592:         // Just pad out the end with zeros:
+        -: 1593:         str.append(static_cast<std::string::size_type>(1 + my_exp - str.size()), '0');
+        -: 1594:         if (showpoint || fixed)
+        -: 1595:            str.append(".");
+        -: 1596:      }
+        -: 1597:      else if (my_exp + 1 < static_cast<boost::intmax_t>(str.size()))
+        -: 1598:      {
+        -: 1599:         if (my_exp < 0)
+        -: 1600:         {
+        -: 1601:            str.insert(static_cast<std::string::size_type>(0), static_cast<std::string::size_type>(-1 - my_exp), '0');
+        -: 1602:            str.insert(static_cast<std::string::size_type>(0), "0.");
+        -: 1603:         }
+        -: 1604:         else
+        -: 1605:         {
+        -: 1606:            // Insert the decimal point:
+        -: 1607:            str.insert(static_cast<std::string::size_type>(my_exp + 1), 1, '.');
+        -: 1608:         }
+        -: 1609:      }
+        -: 1610:      else if (showpoint || fixed) // we have exactly the digits we require to left of the point
+        -: 1611:         str += ".";
+        -: 1612:
+        -: 1613:      if (fixed)
+        -: 1614:      {
+        -: 1615:         // We may need to add trailing zeros:
+        -: 1616:         boost::intmax_t l = str.find('.') + 1;
+        -: 1617:         l                 = digits - (str.size() - l);
+        -: 1618:         if (l > 0)
+        -: 1619:            str.append(size_type(l), '0');
+        -: 1620:      }
+        -: 1621:   }
+        -: 1622:   else
+        -: 1623:   {
+        -: 1624:      BOOST_MP_USING_ABS
+        -: 1625:      // Scientific format:
+        -: 1626:      if (showpoint || (str.size() > 1))
+        -: 1627:         str.insert(static_cast<std::string::size_type>(1u), 1, '.');
+        -: 1628:      str.append(static_cast<std::string::size_type>(1u), 'e');
+        -: 1629:      S e = boost::lexical_cast<S>(abs(my_exp));
+        -: 1630:      if (e.size() < BOOST_MP_MIN_EXPONENT_DIGITS)
+        -: 1631:         e.insert(static_cast<std::string::size_type>(0), BOOST_MP_MIN_EXPONENT_DIGITS - e.size(), '0');
+        -: 1632:      if (my_exp < 0)
+        -: 1633:         e.insert(static_cast<std::string::size_type>(0), 1, '-');
+        -: 1634:      else
+        -: 1635:         e.insert(static_cast<std::string::size_type>(0), 1, '+');
+        -: 1636:      str.append(e);
+        -: 1637:   }
+        -: 1638:   if (neg)
+        -: 1639:      str.insert(static_cast<std::string::size_type>(0), 1, '-');
+        -: 1640:   else if (showpos)
+        -: 1641:      str.insert(static_cast<std::string::size_type>(0), 1, '+');
+        -: 1642:}
+        -: 1643:
+        -: 1644:template <class V>
+        -: 1645:BOOST_MP_CXX14_CONSTEXPR void check_shift_range(V val, const mpl::true_&, const mpl::true_&)
+        -: 1646:{
+        -: 1647:   if (val > (std::numeric_limits<std::size_t>::max)())
+        -: 1648:      BOOST_THROW_EXCEPTION(std::out_of_range("Can not shift by a value greater than std::numeric_limits<std::size_t>::max()."));
+        -: 1649:   if (val < 0)
+        -: 1650:      BOOST_THROW_EXCEPTION(std::out_of_range("Can not shift by a negative value."));
+        -: 1651:}
+        -: 1652:template <class V>
+        -: 1653:BOOST_MP_CXX14_CONSTEXPR void check_shift_range(V val, const mpl::false_&, const mpl::true_&)
+        -: 1654:{
+        -: 1655:   if (val < 0)
+        -: 1656:      BOOST_THROW_EXCEPTION(std::out_of_range("Can not shift by a negative value."));
+        -: 1657:}
+        -: 1658:template <class V>
+        -: 1659:BOOST_MP_CXX14_CONSTEXPR void check_shift_range(V val, const mpl::true_&, const mpl::false_&)
+        -: 1660:{
+        -: 1661:   if (val > (std::numeric_limits<std::size_t>::max)())
+        -: 1662:      BOOST_THROW_EXCEPTION(std::out_of_range("Can not shift by a value greater than std::numeric_limits<std::size_t>::max()."));
+        -: 1663:}
+        -: 1664:template <class V>
+        -: 1665:BOOST_MP_CXX14_CONSTEXPR void check_shift_range(V, const mpl::false_&, const mpl::false_&) BOOST_NOEXCEPT {}
+        -: 1666:
+        -: 1667:template <class T>
+        -: 1668:BOOST_MP_CXX14_CONSTEXPR const T& evaluate_if_expression(const T& val) { return val; }
+        -: 1669:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1670:BOOST_MP_CXX14_CONSTEXPR typename expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type evaluate_if_expression(const expression<tag, Arg1, Arg2, Arg3, Arg4>& val) { return val; }
+        -: 1671:
+        -: 1672:} // namespace detail
+        -: 1673:
+        -: 1674://
+        -: 1675:// Traits class, lets us know what kind of number we have, defaults to a floating point type:
+        -: 1676://
+        -: 1677:enum number_category_type
+        -: 1678:{
+        -: 1679:   number_kind_unknown        = -1,
+        -: 1680:   number_kind_integer        = 0,
+        -: 1681:   number_kind_floating_point = 1,
+        -: 1682:   number_kind_rational       = 2,
+        -: 1683:   number_kind_fixed_point    = 3,
+        -: 1684:   number_kind_complex        = 4
+        -: 1685:};
+        -: 1686:
+        -: 1687:template <class Num, bool, bool>
+        -: 1688:struct number_category_base : public mpl::int_<number_kind_unknown>
+        -: 1689:{};
+        -: 1690:template <class Num>
+        -: 1691:struct number_category_base<Num, true, false> : public mpl::int_<std::numeric_limits<Num>::is_integer ? number_kind_integer : (std::numeric_limits<Num>::max_exponent ? number_kind_floating_point : number_kind_unknown)>
+        -: 1692:{};
+        -: 1693:template <class Num>
+        -: 1694:struct number_category : public number_category_base<Num, boost::is_class<Num>::value || boost::is_arithmetic<Num>::value, boost::is_abstract<Num>::value>
+        -: 1695:{};
+        -: 1696:template <class Backend, expression_template_option ExpressionTemplates>
+        -: 1697:struct number_category<number<Backend, ExpressionTemplates> > : public number_category<Backend>
+        -: 1698:{};
+        -: 1699:template <class tag, class A1, class A2, class A3, class A4>
+        -: 1700:struct number_category<detail::expression<tag, A1, A2, A3, A4> > : public number_category<typename detail::expression<tag, A1, A2, A3, A4>::result_type>
+        -: 1701:{};
+        -: 1702://
+        -: 1703:// Specializations for types which do not always have numberic_limits specializations:
+        -: 1704://
+        -: 1705:#ifdef BOOST_HAS_INT128
+        -: 1706:template <>
+        -: 1707:struct number_category<boost::int128_type> : public mpl::int_<number_kind_integer>
+        -: 1708:{};
+        -: 1709:template <>
+        -: 1710:struct number_category<boost::uint128_type> : public mpl::int_<number_kind_integer>
+        -: 1711:{};
+        -: 1712:#endif
+        -: 1713:#ifdef BOOST_HAS_FLOAT128
+        -: 1714:template <>
+        -: 1715:struct number_category<__float128> : public mpl::int_<number_kind_floating_point>
+        -: 1716:{};
+        -: 1717:#endif
+        -: 1718:
+        -: 1719:template <class T>
+        -: 1720:struct component_type
+        -: 1721:{
+        -: 1722:   typedef T type;
+        -: 1723:};
+        -: 1724:template <class tag, class A1, class A2, class A3, class A4>
+        -: 1725:struct component_type<detail::expression<tag, A1, A2, A3, A4> > : public component_type<typename detail::expression<tag, A1, A2, A3, A4>::result_type>
+        -: 1726:{};
+        -: 1727:
+        -: 1728:template <class T>
+        -: 1729:struct scalar_result_from_possible_complex
+        -: 1730:{
+        -: 1731:   typedef typename mpl::if_c<number_category<T>::value == number_kind_complex,
+        -: 1732:                              typename component_type<T>::type, T>::type type;
+        -: 1733:};
+        -: 1734:
+        -: 1735:template <class T>
+        -: 1736:struct complex_result_from_scalar; // individual backends must specialize this trait.
+        -: 1737:
+        -: 1738:template <class T>
+        -: 1739:struct is_unsigned_number : public mpl::false_
+        -: 1740:{};
+        -: 1741:template <class Backend, expression_template_option ExpressionTemplates>
+        -: 1742:struct is_unsigned_number<number<Backend, ExpressionTemplates> > : public is_unsigned_number<Backend>
+        -: 1743:{};
+        -: 1744:template <class T>
+        -: 1745:struct is_signed_number : public mpl::bool_<!is_unsigned_number<T>::value>
+        -: 1746:{};
+        -: 1747:template <class T>
+        -: 1748:struct is_interval_number : public mpl::false_
+        -: 1749:{};
+        -: 1750:template <class Backend, expression_template_option ExpressionTemplates>
+        -: 1751:struct is_interval_number<number<Backend, ExpressionTemplates> > : public is_interval_number<Backend>
+        -: 1752:{};
+        -: 1753:
+        -: 1754:} // namespace multiprecision
+        -: 1755:} // namespace boost
+        -: 1756:
+        -: 1757:namespace boost { namespace math {
+        -: 1758:   namespace tools {
+        -: 1759:
+        -: 1760:      template <class T>
+        -: 1761:      struct promote_arg;
+        -: 1762:
+        -: 1763:      template <class tag, class A1, class A2, class A3, class A4>
+        -: 1764:      struct promote_arg<boost::multiprecision::detail::expression<tag, A1, A2, A3, A4> >
+        -: 1765:      {
+        -: 1766:         typedef typename boost::multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type type;
+        -: 1767:      };
+        -: 1768:
+        -: 1769:      template <class R, class B, boost::multiprecision::expression_template_option ET>
+        -: 1770:      inline R real_cast(const boost::multiprecision::number<B, ET>& val)
+        -: 1771:      {
+        -: 1772:         return val.template convert_to<R>();
+        -: 1773:      }
+        -: 1774:
+        -: 1775:      template <class R, class tag, class A1, class A2, class A3, class A4>
+        -: 1776:      inline R real_cast(const boost::multiprecision::detail::expression<tag, A1, A2, A3, A4>& val)
+        -: 1777:      {
+        -: 1778:         typedef typename boost::multiprecision::detail::expression<tag, A1, A2, A3, A4>::result_type val_type;
+        -: 1779:         return val_type(val).template convert_to<R>();
+        -: 1780:      }
+        -: 1781:
+        -: 1782:      template <class B, boost::multiprecision::expression_template_option ET>
+        -: 1783:      struct is_complex_type<boost::multiprecision::number<B, ET> > : public boost::mpl::bool_<boost::multiprecision::number_category<B>::value == boost::multiprecision::number_kind_complex> {};
+        -: 1784:
+        -: 1785:} // namespace tools
+        -: 1786:
+        -: 1787:namespace constants {
+        -: 1788:
+        -: 1789:template <class T>
+        -: 1790:struct is_explicitly_convertible_from_string;
+        -: 1791:
+        -: 1792:template <class B, boost::multiprecision::expression_template_option ET>
+        -: 1793:struct is_explicitly_convertible_from_string<boost::multiprecision::number<B, ET> >
+        -: 1794:{
+        -: 1795:   static const bool value = true;
+        -: 1796:};
+        -: 1797:
+        -: 1798:} // namespace constants
+        -: 1799:
+        -: 1800:}} // namespace boost::math
+        -: 1801:
+        -: 1802:#ifdef BOOST_MSVC
+        -: 1803:#pragma warning(pop)
+        -: 1804:#endif
+        -: 1805:
+        -: 1806:#endif // BOOST_MATH_BIG_NUM_BASE_HPP

@@ -1,0 +1,194 @@
+        -:    0:Source:/usr/include/boost/multiprecision/detail/precision.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:///////////////////////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2018 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+        -:    5:
+        -:    6:#ifndef BOOST_MP_PRECISION_HPP
+        -:    7:#define BOOST_MP_PRECISION_HPP
+        -:    8:
+        -:    9:#include <boost/multiprecision/traits/is_variable_precision.hpp>
+        -:   10:#include <boost/multiprecision/detail/number_base.hpp>
+        -:   11:#include <boost/multiprecision/detail/digits.hpp>
+        -:   12:
+        -:   13:namespace boost { namespace multiprecision { namespace detail {
+        -:   14:
+        -:   15:template <class B, boost::multiprecision::expression_template_option ET>
+        -:   16:inline BOOST_CONSTEXPR unsigned current_precision_of_last_chance_imp(const boost::multiprecision::number<B, ET>&, const mpl::false_&)
+        -:   17:{
+        -:   18:   return std::numeric_limits<boost::multiprecision::number<B, ET> >::digits10;
+        -:   19:}
+        -:   20:template <class B, boost::multiprecision::expression_template_option ET>
+        -:   21:inline BOOST_MP_CXX14_CONSTEXPR unsigned current_precision_of_last_chance_imp(const boost::multiprecision::number<B, ET>& val, const mpl::true_&)
+        -:   22:{
+        -:   23:   //
+        -:   24:   // We have an arbitrary precision integer, take it's "precision" as the
+        -:   25:   // location of the most-significant-bit less the location of the
+        -:   26:   // least-significant-bit, ie the number of bits required to represent the
+        -:   27:   // the value assuming we will have an exponent to shift things by:
+        -:   28:   //
+        -:   29:   return val.is_zero() ? 1 : digits2_2_10(msb(abs(val)) - lsb(abs(val)) + 1);
+        -:   30:}
+        -:   31:
+        -:   32:template <class B, boost::multiprecision::expression_template_option ET>
+        -:   33:inline BOOST_MP_CXX14_CONSTEXPR unsigned current_precision_of_imp(const boost::multiprecision::number<B, ET>& n, const mpl::true_&)
+        -:   34:{
+        -:   35:   return n.precision();
+        -:   36:}
+        -:   37:template <class B, boost::multiprecision::expression_template_option ET>
+        -:   38:inline BOOST_CONSTEXPR unsigned current_precision_of_imp(const boost::multiprecision::number<B, ET>& val, const mpl::false_&)
+        -:   39:{
+        -:   40:   return current_precision_of_last_chance_imp(val,
+        -:   41:                                               mpl::bool_ <
+        -:   42:                                                       std::numeric_limits<boost::multiprecision::number<B, ET> >::is_specialized &&
+        -:   43:                                                   std::numeric_limits<boost::multiprecision::number<B, ET> >::is_integer && std::numeric_limits<boost::multiprecision::number<B, ET> >::is_exact && !std::numeric_limits<boost::multiprecision::number<B, ET> >::is_modulo > ());
+        -:   44:}
+        -:   45:
+        -:   46:template <class Terminal>
+        -:   47:inline BOOST_CONSTEXPR unsigned current_precision_of(const Terminal&)
+        -:   48:{
+        -:   49:   return std::numeric_limits<Terminal>::digits10;
+        -:   50:}
+        -:   51:
+        -:   52:template <class Terminal, std::size_t N>
+        -:   53:inline BOOST_CONSTEXPR unsigned current_precision_of(const Terminal (&)[N])
+        -:   54:{ // For string literals:
+        -:   55:   return 0;
+        -:   56:}
+        -:   57:
+        -:   58:template <class B, boost::multiprecision::expression_template_option ET>
+        -:   59:inline BOOST_CONSTEXPR unsigned current_precision_of(const boost::multiprecision::number<B, ET>& n)
+        -:   60:{
+        -:   61:   return current_precision_of_imp(n, boost::multiprecision::detail::is_variable_precision<boost::multiprecision::number<B, ET> >());
+        -:   62:}
+        -:   63:
+        -:   64:template <class tag, class Arg1>
+        -:   65:inline BOOST_CONSTEXPR unsigned current_precision_of(const expression<tag, Arg1, void, void, void>& expr)
+        -:   66:{
+        -:   67:   return current_precision_of(expr.left_ref());
+        -:   68:}
+        -:   69:
+        -:   70:template <class Arg1>
+        -:   71:inline BOOST_CONSTEXPR unsigned current_precision_of(const expression<terminal, Arg1, void, void, void>& expr)
+        -:   72:{
+        -:   73:   return current_precision_of(expr.value());
+        -:   74:}
+        -:   75:
+        -:   76:template <class tag, class Arg1, class Arg2>
+        -:   77:inline BOOST_CONSTEXPR unsigned current_precision_of(const expression<tag, Arg1, Arg2, void, void>& expr)
+        -:   78:{
+        -:   79:   return (std::max)(current_precision_of(expr.left_ref()), current_precision_of(expr.right_ref()));
+        -:   80:}
+        -:   81:
+        -:   82:template <class tag, class Arg1, class Arg2, class Arg3>
+        -:   83:inline BOOST_CONSTEXPR unsigned current_precision_of(const expression<tag, Arg1, Arg2, Arg3, void>& expr)
+        -:   84:{
+        -:   85:   return (std::max)((std::max)(current_precision_of(expr.left_ref()), current_precision_of(expr.right_ref())), current_precision_of(expr.middle_ref()));
+        -:   86:}
+        -:   87:
+        -:   88:#ifdef BOOST_MSVC
+        -:   89:#pragma warning(push)
+        -:   90:#pragma warning(disable : 4130)
+        -:   91:#endif
+        -:   92:
+        -:   93:template <class R, bool = boost::multiprecision::detail::is_variable_precision<R>::value>
+        -:   94:struct scoped_default_precision
+        -:   95:{
+        -:   96:   template <class T>
+   44562*:   97:   BOOST_CONSTEXPR scoped_default_precision(const T&) {}
+        -:   98:   template <class T, class U>
+   20001*:   99:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&) {}
+        -:  100:   template <class T, class U, class V>
+        -:  101:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&, const V&) {}
+        -:  102:
+        -:  103:   //
+        -:  104:   // This function is never called: in C++17 it won't be compiled either:
+        -:  105:   //
+        -:  106:   unsigned precision() const
+        -:  107:   {
+        -:  108:      BOOST_ASSERT("This function should never be called!!" == 0);
+        -:  109:      return 0;
+        -:  110:   }
+        -:  111:};
+        -:  112:
+        -:  113:#ifdef BOOST_MSVC
+        -:  114:#pragma warning(pop)
+        -:  115:#endif
+        -:  116:
+        -:  117:template <class R>
+        -:  118:struct scoped_default_precision<R, true>
+        -:  119:{
+        -:  120:   template <class T>
+        -:  121:   BOOST_MP_CXX14_CONSTEXPR scoped_default_precision(const T& a)
+        -:  122:   {
+        -:  123:      init(current_precision_of(a));
+        -:  124:   }
+        -:  125:   template <class T, class U>
+        -:  126:   BOOST_MP_CXX14_CONSTEXPR scoped_default_precision(const T& a, const U& b)
+        -:  127:   {
+        -:  128:      init((std::max)(current_precision_of(a), current_precision_of(b)));
+        -:  129:   }
+        -:  130:   template <class T, class U, class V>
+        -:  131:   BOOST_MP_CXX14_CONSTEXPR scoped_default_precision(const T& a, const U& b, const V& c)
+        -:  132:   {
+        -:  133:      init((std::max)((std::max)(current_precision_of(a), current_precision_of(b)), current_precision_of(c)));
+        -:  134:   }
+        -:  135:   ~scoped_default_precision()
+        -:  136:   {
+        -:  137:      if(m_new_prec != m_old_prec)
+        -:  138:         R::default_precision(m_old_prec);
+        -:  139:   }
+        -:  140:   BOOST_MP_CXX14_CONSTEXPR unsigned precision() const
+        -:  141:   {
+        -:  142:      return m_new_prec;
+        -:  143:   }
+        -:  144:
+        -:  145: private:
+        -:  146:   BOOST_MP_CXX14_CONSTEXPR void init(unsigned p)
+        -:  147:   {
+        -:  148:      m_old_prec = R::default_precision();
+        -:  149:      if (p && (p != m_old_prec))
+        -:  150:      {
+        -:  151:         R::default_precision(p);
+        -:  152:         m_new_prec = p;
+        -:  153:      }
+        -:  154:      else
+        -:  155:         m_new_prec = m_old_prec;
+        -:  156:   }
+        -:  157:   unsigned m_old_prec, m_new_prec;
+        -:  158:};
+        -:  159:
+        -:  160:template <class T>
+        -:  161:inline BOOST_MP_CXX14_CONSTEXPR void maybe_promote_precision(T*, const mpl::false_&) {}
+        -:  162:
+        -:  163:template <class T>
+        -:  164:inline BOOST_MP_CXX14_CONSTEXPR void maybe_promote_precision(T* obj, const mpl::true_&)
+        -:  165:{
+        -:  166:   if (obj->precision() != T::default_precision())
+        -:  167:   {
+        -:  168:      obj->precision(T::default_precision());
+        -:  169:   }
+        -:  170:}
+        -:  171:
+        -:  172:template <class T>
+        -:  173:inline BOOST_MP_CXX14_CONSTEXPR void maybe_promote_precision(T* obj)
+        -:  174:{
+        -:  175:   maybe_promote_precision(obj, mpl::bool_<boost::multiprecision::detail::is_variable_precision<T>::value>());
+        -:  176:}
+        -:  177:
+        -:  178:#ifndef BOOST_NO_CXX17_IF_CONSTEXPR
+        -:  179:#define BOOST_MP_CONSTEXPR_IF_VARIABLE_PRECISION(T) \
+        -:  180:   if                                               \
+        -:  181:   constexpr(boost::multiprecision::detail::is_variable_precision<T>::value)
+        -:  182:#else
+        -:  183:#define BOOST_MP_CONSTEXPR_IF_VARIABLE_PRECISION(T) if (boost::multiprecision::detail::is_variable_precision<T>::value)
+        -:  184:#endif
+        -:  185:
+        -:  186:}
+        -:  187:}
+        -:  188:} // namespace boost::multiprecision::detail
+        -:  189:
+        -:  190:#endif // BOOST_MP_IS_BACKEND_HPP

@@ -1,0 +1,379 @@
+        -:    0:Source:/usr/include/boost/multiprecision/cpp_int/comparison.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:///////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
+        -:    5://
+        -:    6:// Comparison operators for cpp_int_backend:
+        -:    7://
+        -:    8:#ifndef BOOST_MP_CPP_INT_COMPARISON_HPP
+        -:    9:#define BOOST_MP_CPP_INT_COMPARISON_HPP
+        -:   10:
+        -:   11:#include <boost/type_traits/make_unsigned.hpp>
+        -:   12:#include <boost/multiprecision/detail/constexpr.hpp>
+        -:   13:
+        -:   14:namespace boost { namespace multiprecision { namespace backends {
+        -:   15:
+        -:   16:#ifdef BOOST_MSVC
+        -:   17:#pragma warning(push)
+        -:   18:#pragma warning(disable : 4018 4389 4996)
+        -:   19:#endif
+        -:   20:
+        -:   21://
+        -:   22:// Start with non-trivial cpp_int's:
+        -:   23://
+        -:   24:template <unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked, class Allocator>
+        -:   25:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   26:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator> >::value,
+        -:   27:    bool>::type
+198100953:   28:eval_eq(const cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& a, const cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator>& b) BOOST_NOEXCEPT
+        -:   29:{
+792403812:   30:   return (a.sign() == b.sign()) && (a.size() == b.size()) && std_constexpr::equal(a.limbs(), a.limbs() + a.size(), b.limbs());
+        -:   31:}
+        -:   32:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:   33:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   34:    !is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value,
+        -:   35:    bool>::type
+        -:   36:eval_eq(const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& a, const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& b) BOOST_NOEXCEPT
+        -:   37:{
+        -:   38:   return (a.sign() == b.sign()) && (a.size() == b.size()) && std_constexpr::equal(a.limbs(), a.limbs() + a.size(), b.limbs());
+        -:   39:}
+        -:   40:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   41:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   42:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator> >::value,
+        -:   43:    bool>::type
+    11626:   44:eval_eq(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:   45:{
+    23252:   46:   return (a.sign() == false) && (a.size() == 1) && (*a.limbs() == b);
+        -:   47:}
+        -:   48:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   49:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   50:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator> >::value,
+        -:   51:    bool>::type
+    66546:   52:eval_eq(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:   53:{
+   199638:   54:   return (a.sign() == (b < 0)) && (a.size() == 1) && (*a.limbs() == boost::multiprecision::detail::unsigned_abs(b));
+        -:   55:}
+        -:   56:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   57:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   58:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:   59:    bool>::type
+        -:   60:eval_eq(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:   61:{
+        -:   62:   return (a.size() == 1) && (*a.limbs() == b);
+        -:   63:}
+        -:   64:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   65:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   66:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:   67:    bool>::type
+        -:   68:eval_eq(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:   69:{
+        -:   70:   return (b < 0) ? eval_eq(a, cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>(b)) : eval_eq(a, static_cast<limb_type>(b)); // Use bit pattern of b for comparison
+        -:   71:}
+        -:   72:
+        -:   73:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   74:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   75:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator> >::value,
+        -:   76:    bool>::type
+        -:   77:eval_lt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:   78:{
+        -:   79:   if (a.sign())
+        -:   80:      return true;
+        -:   81:   if (a.size() > 1)
+        -:   82:      return false;
+        -:   83:   return *a.limbs() < b;
+        -:   84:}
+        -:   85:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:   86:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:   87:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator> >::value,
+        -:   88:    bool>::type
+    34896:   89:eval_lt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:   90:{
+    34896:   91:   if ((b == 0) || (a.sign() != (b < 0)))
+    #####:   92:      return a.sign();
+    34896:   93:   if (a.sign())
+        -:   94:   {
+    #####:   95:      if (a.size() > 1)
+        -:   96:         return true;
+    #####:   97:      return *a.limbs() > boost::multiprecision::detail::unsigned_abs(b);
+        -:   98:   }
+        -:   99:   else
+        -:  100:   {
+    34896:  101:      if (a.size() > 1)
+        -:  102:         return false;
+   104688:  103:      return *a.limbs() < boost::multiprecision::detail::unsigned_abs(b);
+        -:  104:   }
+        -:  105:}
+        -:  106:
+        -:  107:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  108:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  109:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:  110:    bool>::type
+        -:  111:eval_lt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:  112:{
+        -:  113:   if (a.size() > 1)
+        -:  114:      return false;
+        -:  115:   return *a.limbs() < b;
+        -:  116:}
+        -:  117:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  118:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  119:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:  120:    bool>::type
+        -:  121:eval_lt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:  122:{
+        -:  123:   return (b < 0) ? a.compare(b) < 0 : eval_lt(a, static_cast<limb_type>(b)); // Use bit pattern of b for comparison
+        -:  124:}
+        -:  125:
+        -:  126:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  127:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  128:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator> >::value,
+        -:  129:    bool>::type
+     5813:  130:eval_gt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:  131:{
+     5813:  132:   if (a.sign())
+        -:  133:      return false;
+     5813:  134:   if (a.size() > 1)
+        -:  135:      return true;
+    11626:  136:   return *a.limbs() > b;
+        -:  137:}
+        -:  138:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  139:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  140:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:  141:    bool>::type
+   102327:  142:eval_gt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:  143:{
+   102327:  144:   if (b == 0)
+    #####:  145:      return !a.sign() && ((a.size() > 1) || *a.limbs());
+   102327:  146:   if (a.sign() != (b < 0))
+    #####:  147:      return !a.sign();
+   102327:  148:   if (a.sign())
+        -:  149:   {
+    #####:  150:      if (a.size() > 1)
+        -:  151:         return false;
+    #####:  152:      return *a.limbs() < boost::multiprecision::detail::unsigned_abs(b);
+        -:  153:   }
+        -:  154:   else
+        -:  155:   {
+   102327:  156:      if (a.size() > 1)
+        -:  157:         return true;
+   306981:  158:      return *a.limbs() > boost::multiprecision::detail::unsigned_abs(b);
+        -:  159:   }
+        -:  160:}
+        -:  161:
+        -:  162:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  163:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  164:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:  165:    bool>::type
+        -:  166:eval_gt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, limb_type b) BOOST_NOEXCEPT
+        -:  167:{
+        -:  168:   if (a.size() > 1)
+        -:  169:      return true;
+        -:  170:   return *a.limbs() > b;
+        -:  171:}
+        -:  172:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class Allocator>
+        -:  173:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  174:    !is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator> >::value,
+        -:  175:    bool>::type
+        -:  176:eval_gt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, Allocator>& a, signed_limb_type b) BOOST_NOEXCEPT
+        -:  177:{
+        -:  178:   return (b < 0) ? a.compare(b) > 0 : eval_gt(a, static_cast<limb_type>(b)); // Use bit pattern of b for comparison.
+        -:  179:}
+        -:  180://
+        -:  181:// And again for trivial cpp_ints:
+        -:  182://
+        -:  183:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  184:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  185:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  186:    bool>::value
+        -:  187:eval_eq(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  188:{
+        -:  189:   return (a.sign() == b.sign()) && (*a.limbs() == *b.limbs());
+        -:  190:}
+        -:  191:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  192:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  193:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  194:    bool>::value
+        -:  195:eval_eq(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  196:{
+        -:  197:   return *a.limbs() == *b.limbs();
+        -:  198:}
+        -:  199:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  200:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  201:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  202:    bool>::type
+        -:  203:eval_eq(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  204:{
+        -:  205:   return !a.sign() && (*a.limbs() == b);
+        -:  206:}
+        -:  207:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  208:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  209:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  210:    bool>::type
+        -:  211:eval_eq(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  212:{
+        -:  213:   return (a.sign() == (b < 0)) && (*a.limbs() == boost::multiprecision::detail::unsigned_abs(b));
+        -:  214:}
+        -:  215:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  216:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  217:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  218:    bool>::type
+        -:  219:eval_eq(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  220:{
+        -:  221:   return *a.limbs() == b;
+        -:  222:}
+        -:  223:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  224:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  225:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  226:    bool>::type
+        -:  227:eval_eq(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  228:{
+        -:  229:   typedef typename make_unsigned<S>::type ui_type;
+        -:  230:   if (b < 0)
+        -:  231:   {
+        -:  232:      cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
+        -:  233:      return *a.limbs() == *t.limbs();
+        -:  234:   }
+        -:  235:   else
+        -:  236:   {
+        -:  237:      return *a.limbs() == static_cast<ui_type>(b);
+        -:  238:   }
+        -:  239:}
+        -:  240:
+        -:  241:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  242:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  243:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  244:    bool>::type
+        -:  245:eval_lt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  246:{
+        -:  247:   if (a.sign() != b.sign())
+        -:  248:      return a.sign();
+        -:  249:   return a.sign() ? *a.limbs() > *b.limbs() : *a.limbs() < *b.limbs();
+        -:  250:}
+        -:  251:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  252:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  253:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  254:    bool>::type
+        -:  255:eval_lt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  256:{
+        -:  257:   return *a.limbs() < *b.limbs();
+        -:  258:}
+        -:  259:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  260:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  261:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  262:    bool>::type
+        -:  263:eval_lt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  264:{
+        -:  265:   if (a.sign())
+        -:  266:      return true;
+        -:  267:   return *a.limbs() < b;
+        -:  268:}
+        -:  269:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  270:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  271:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  272:    bool>::type
+        -:  273:eval_lt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  274:{
+        -:  275:   if (a.sign() != (b < 0))
+        -:  276:      return a.sign();
+        -:  277:   return a.sign() ? (*a.limbs() > boost::multiprecision::detail::unsigned_abs(b)) : (*a.limbs() < boost::multiprecision::detail::unsigned_abs(b));
+        -:  278:}
+        -:  279:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  280:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  281:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  282:    bool>::type
+        -:  283:eval_lt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  284:{
+        -:  285:   return *a.limbs() < b;
+        -:  286:}
+        -:  287:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  288:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  289:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  290:    bool>::type
+        -:  291:eval_lt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  292:{
+        -:  293:   typedef typename make_unsigned<S>::type ui_type;
+        -:  294:   if (b < 0)
+        -:  295:   {
+        -:  296:      cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
+        -:  297:      return *a.limbs() < *t.limbs();
+        -:  298:   }
+        -:  299:   else
+        -:  300:   {
+        -:  301:      return *a.limbs() < static_cast<ui_type>(b);
+        -:  302:   }
+        -:  303:}
+        -:  304:
+        -:  305:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  306:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  307:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  308:    bool>::type
+        -:  309:eval_gt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  310:{
+        -:  311:   if (a.sign() != b.sign())
+        -:  312:      return !a.sign();
+        -:  313:   return a.sign() ? *a.limbs() < *b.limbs() : *a.limbs() > *b.limbs();
+        -:  314:}
+        -:  315:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked>
+        -:  316:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  317:    is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  318:    bool>::type
+        -:  319:eval_gt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& b) BOOST_NOEXCEPT
+        -:  320:{
+        -:  321:   return *a.limbs() > *b.limbs();
+        -:  322:}
+        -:  323:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  324:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  325:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  326:    bool>::type
+        -:  327:eval_gt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  328:{
+        -:  329:   if (a.sign())
+        -:  330:      return false;
+        -:  331:   return *a.limbs() > b;
+        -:  332:}
+        -:  333:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  334:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  335:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void> >::value,
+        -:  336:    bool>::type
+        -:  337:eval_gt(const cpp_int_backend<MinBits, MaxBits, signed_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  338:{
+        -:  339:   if (a.sign() != (b < 0))
+        -:  340:      return !a.sign();
+        -:  341:   return a.sign() ? (*a.limbs() < boost::multiprecision::detail::unsigned_abs(b)) : (*a.limbs() > boost::multiprecision::detail::unsigned_abs(b));
+        -:  342:}
+        -:  343:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class U>
+        -:  344:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  345:    is_unsigned<U>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  346:    bool>::type
+        -:  347:eval_gt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, U b) BOOST_NOEXCEPT
+        -:  348:{
+        -:  349:   return *a.limbs() > b;
+        -:  350:}
+        -:  351:template <unsigned MinBits, unsigned MaxBits, cpp_int_check_type Checked, class S>
+        -:  352:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  353:    is_signed<S>::value && is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> >::value,
+        -:  354:    bool>::type
+        -:  355:eval_gt(const cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void>& a, S b) BOOST_NOEXCEPT
+        -:  356:{
+        -:  357:   typedef typename make_unsigned<S>::type ui_type;
+        -:  358:   if (b < 0)
+        -:  359:   {
+        -:  360:      cpp_int_backend<MinBits, MaxBits, unsigned_magnitude, Checked, void> t(b);
+        -:  361:      return *a.limbs() > *t.limbs();
+        -:  362:   }
+        -:  363:   else
+        -:  364:   {
+        -:  365:      return *a.limbs() > static_cast<ui_type>(b);
+        -:  366:   }
+        -:  367:}
+        -:  368:
+        -:  369:#ifdef BOOST_MSVC
+        -:  370:#pragma warning(pop)
+        -:  371:#endif
+        -:  372:
+        -:  373:}}} // namespace boost::multiprecision::backends
+        -:  374:
+        -:  375:#endif

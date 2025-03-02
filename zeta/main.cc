@@ -48,8 +48,20 @@ bool isPrime(cpp_int x) {
 	return miller_rabin_test(x, 1);
 }
 
-cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, cpp_int primeAmount, cpp_int printOrNot){
+cpp_int calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, cpp_int primeAmount, cpp_int printOrNot){
   cpp_int sum = 0;
+      for (cpp_int i = minOfUser - 1; i >= 2; i--) {
+        if (isPrime(i) == true) {
+                  primeNumbers.push_back(i);
+                }
+      }
+
+      for (cpp_int i = minOfUser; i <= max; i++) {
+        if (isPrime(i) == true) {
+              primeNumbers.push_back(i);
+              
+            }
+      }
 
       for (cpp_int i = min; i <= max; i++) {
                    auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
@@ -67,6 +79,7 @@ cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbe
                  }
     return sum;
 }
+
 
 int main() {
 	cpp_int primeAmount = 0;
@@ -86,20 +99,8 @@ int main() {
 		die();
 	}
 	clock_t start_time = clock();
-	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
-		if (isPrime(i) == true) {
-			primeNumbers.push_back(i);
-		}
-	}
 
-	for (cpp_int i = minOfUser; i <= max; i++) {
-		if (isPrime(i) == true) {
-			primeNumbers.push_back(i);
-			
-		}
-	}
-
-  cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
+  cpp_int sum = calculate(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
 	cout << "The answer is: " << sum << endl;
 	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 }

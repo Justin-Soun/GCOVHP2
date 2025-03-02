@@ -1,0 +1,639 @@
+        -:    0:Source:/usr/include/boost/multiprecision/cpp_int/divide.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:4
+        -:    1:///////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
+        -:    5://
+        -:    6:// Comparison operators for cpp_int_backend:
+        -:    7://
+        -:    8:#ifndef BOOST_MP_CPP_INT_DIV_HPP
+        -:    9:#define BOOST_MP_CPP_INT_DIV_HPP
+        -:   10:
+        -:   11:namespace boost { namespace multiprecision { namespace backends {
+        -:   12:
+        -:   13:template <class CppInt1, class CppInt2, class CppInt3>
+   254378:   14:BOOST_MP_CXX14_CONSTEXPR void divide_unsigned_helper(
+        -:   15:    CppInt1*       result,
+        -:   16:    const CppInt2& x,
+        -:   17:    const CppInt3& y,
+        -:   18:    CppInt1&       r)
+        -:   19:{
+   254378:   20:   if (((void*)result == (void*)&x) || ((void*)&r == (void*)&x))
+        -:   21:   {
+    #####:   22:      CppInt2 t(x);
+    #####:   23:      divide_unsigned_helper(result, t, y, r);
+    #####:   24:      return;
+    #####:   25:   }
+   254378:   26:   if (((void*)result == (void*)&y) || ((void*)&r == (void*)&y))
+        -:   27:   {
+    #####:   28:      CppInt3 t(y);
+    #####:   29:      divide_unsigned_helper(result, x, t, r);
+    #####:   30:      return;
+    #####:   31:   }
+        -:   32:
+        -:   33:   /*
+        -:   34:    Very simple, fairly braindead long division.
+        -:   35:    Start by setting the remainder equal to x, and the
+        -:   36:    result equal to 0.  Then in each loop we calculate our
+        -:   37:    "best guess" for how many times y divides into r,
+        -:   38:    add our guess to the result, and subtract guess*y
+        -:   39:    from the remainder r.  One wrinkle is that the remainder
+        -:   40:    may go negative, in which case we subtract the current guess
+        -:   41:    from the result rather than adding.  The value of the guess
+        -:   42:    is determined by dividing the most-significant-limb of the
+        -:   43:    current remainder by the most-significant-limb of y.
+        -:   44:
+        -:   45:    Note that there are more efficient algorithms than this
+        -:   46:    available, in particular see Knuth Vol 2.  However for small
+        -:   47:    numbers of limbs this generally outperforms the alternatives
+        -:   48:    and avoids the normalisation step which would require extra storage.
+        -:   49:    */
+        -:   50:
+        -:   51:   using default_ops::eval_subtract;
+        -:   52:
+   254378:   53:   if (result == &r)
+        -:   54:   {
+    #####:   55:      CppInt1 rem;
+    #####:   56:      divide_unsigned_helper(result, x, y, rem);
+    #####:   57:      r = rem;
+    #####:   58:      return;
+    #####:   59:   }
+        -:   60:
+        -:   61:   //
+        -:   62:   // Find the most significant words of numerator and denominator.
+        -:   63:   //
+   254378:   64:   limb_type y_order = y.size() - 1;
+        -:   65:
+   254378:   66:   if (y_order == 0)
+        -:   67:   {
+        -:   68:      //
+        -:   69:      // Only a single non-zero limb in the denominator, in this case
+        -:   70:      // we can use a specialized divide-by-single-limb routine which is
+        -:   71:      // much faster.  This also handles division by zero:
+        -:   72:      //
+   508756:   73:      divide_unsigned_helper(result, x, y.limbs()[y_order], r);
+   254378:   74:      return;
+        -:   75:   }
+        -:   76:
+    #####:   77:   typename CppInt2::const_limb_pointer px = x.limbs();
+    #####:   78:   typename CppInt3::const_limb_pointer py = y.limbs();
+        -:   79:
+    #####:   80:   limb_type r_order = x.size() - 1;
+    #####:   81:   if ((r_order == 0) && (*px == 0))
+        -:   82:   {
+        -:   83:      // x is zero, so is the result:
+    #####:   84:      r = x;
+    #####:   85:      if (result)
+    #####:   86:         *result = x;
+    #####:   87:      return;
+        -:   88:   }
+        -:   89:
+    #####:   90:   r = x;
+    #####:   91:   r.sign(false);
+    #####:   92:   if (result)
+    #####:   93:      *result = static_cast<limb_type>(0u);
+        -:   94:   //
+        -:   95:   // Check if the remainder is already less than the divisor, if so
+        -:   96:   // we already have the result.  Note we try and avoid a full compare
+        -:   97:   // if we can:
+        -:   98:   //
+    #####:   99:   if (r_order <= y_order)
+        -:  100:   {
+    #####:  101:      if ((r_order < y_order) || (r.compare_unsigned(y) < 0))
+        -:  102:      {
+        -:  103:         return;
+        -:  104:      }
+        -:  105:   }
+        -:  106:
+    #####:  107:   CppInt1 t;
+    #####:  108:   bool    r_neg = false;
+        -:  109:
+        -:  110:   //
+        -:  111:   // See if we can short-circuit long division, and use basic arithmetic instead:
+        -:  112:   //
+    #####:  113:   if (r_order == 0)
+        -:  114:   {
+    #####:  115:      if (result)
+        -:  116:      {
+    #####:  117:         *result = px[0] / py[0];
+        -:  118:      }
+    #####:  119:      r = px[0] % py[0];
+    #####:  120:      return;
+        -:  121:   }
+    #####:  122:   else if (r_order == 1)
+        -:  123:   {
+    #####:  124:      double_limb_type a = (static_cast<double_limb_type>(px[1]) << CppInt1::limb_bits) | px[0];
+    #####:  125:      double_limb_type b = y_order ? (static_cast<double_limb_type>(py[1]) << CppInt1::limb_bits) | py[0]
+        -:  126:                  : py[0];
+    #####:  127:      if (result)
+        -:  128:      {
+    #####:  129:         *result = a / b;
+        -:  130:      }
+    #####:  131:      r = a % b;
+    #####:  132:      return;
+        -:  133:   }
+        -:  134:   //
+        -:  135:   // prepare result:
+        -:  136:   //
+    #####:  137:   if (result)
+    #####:  138:      result->resize(1 + r_order - y_order, 1 + r_order - y_order);
+    #####:  139:   typename CppInt1::const_limb_pointer prem = r.limbs();
+        -:  140:   // This is initialised just to keep the compiler from emitting useless warnings later on:
+    #####:  141:   typename CppInt1::limb_pointer pr = typename CppInt1::limb_pointer();
+    #####:  142:   if (result)
+        -:  143:   {
+    #####:  144:      pr = result->limbs();
+    #####:  145:      for (unsigned i = 1; i < 1 + r_order - y_order; ++i)
+    #####:  146:         pr[i] = 0;
+        -:  147:   }
+    #####:  148:   bool first_pass = true;
+        -:  149:
+        -:  150:   do
+        -:  151:   {
+        -:  152:      //
+        -:  153:      // Calculate our best guess for how many times y divides into r:
+        -:  154:      //
+    #####:  155:      limb_type guess = 1;
+    #####:  156:      if ((prem[r_order] <= py[y_order]) && (r_order > 0))
+        -:  157:      {
+    #####:  158:         double_limb_type a = (static_cast<double_limb_type>(prem[r_order]) << CppInt1::limb_bits) | prem[r_order - 1];
+    #####:  159:         double_limb_type b = py[y_order];
+    #####:  160:         double_limb_type v = a / b;
+    #####:  161:         if (v <= CppInt1::max_limb_value)
+        -:  162:         {
+    #####:  163:            guess = static_cast<limb_type>(v);
+    #####:  164:            --r_order;
+        -:  165:         }
+        -:  166:      }
+    #####:  167:      else if (r_order == 0)
+        -:  168:      {
+    #####:  169:         guess = prem[0] / py[y_order];
+        -:  170:      }
+        -:  171:      else
+        -:  172:      {
+    #####:  173:         double_limb_type a = (static_cast<double_limb_type>(prem[r_order]) << CppInt1::limb_bits) | prem[r_order - 1];
+    #####:  174:         double_limb_type b = (y_order > 0) ? (static_cast<double_limb_type>(py[y_order]) << CppInt1::limb_bits) | py[y_order - 1] : (static_cast<double_limb_type>(py[y_order]) << CppInt1::limb_bits);
+    #####:  175:         double_limb_type v = a / b;
+    #####:  176:         guess = static_cast<limb_type>(v);
+        -:  177:      }
+    #####:  178:      BOOST_ASSERT(guess); // If the guess ever gets to zero we go on forever....
+        -:  179:      //
+        -:  180:      // Update result:
+        -:  181:      //
+    #####:  182:      limb_type shift = r_order - y_order;
+    #####:  183:      if (result)
+        -:  184:      {
+    #####:  185:         if (r_neg)
+        -:  186:         {
+    #####:  187:            if (pr[shift] > guess)
+    #####:  188:               pr[shift] -= guess;
+        -:  189:            else
+        -:  190:            {
+    #####:  191:               t.resize(shift + 1, shift + 1);
+    #####:  192:               t.limbs()[shift] = guess;
+    #####:  193:               for (unsigned i = 0; i < shift; ++i)
+    #####:  194:                  t.limbs()[i] = 0;
+    #####:  195:               eval_subtract(*result, t);
+        -:  196:            }
+        -:  197:         }
+    #####:  198:         else if (CppInt1::max_limb_value - pr[shift] > guess)
+    #####:  199:            pr[shift] += guess;
+        -:  200:         else
+        -:  201:         {
+    #####:  202:            t.resize(shift + 1, shift + 1);
+    #####:  203:            t.limbs()[shift] = guess;
+    #####:  204:            for (unsigned i = 0; i < shift; ++i)
+    #####:  205:               t.limbs()[i] = 0;
+    #####:  206:            eval_add(*result, t);
+        -:  207:         }
+        -:  208:      }
+        -:  209:      //
+        -:  210:      // Calculate guess * y, we use a fused mutiply-shift O(N) for this
+        -:  211:      // rather than a full O(N^2) multiply:
+        -:  212:      //
+    #####:  213:      double_limb_type carry = 0;
+    #####:  214:      t.resize(y.size() + shift + 1, y.size() + shift);
+    #####:  215:      bool                           truncated_t = (t.size() != y.size() + shift + 1);
+    #####:  216:      typename CppInt1::limb_pointer pt          = t.limbs();
+    #####:  217:      for (unsigned i = 0; i < shift; ++i)
+    #####:  218:         pt[i] = 0;
+    #####:  219:      for (unsigned i = 0; i < y.size(); ++i)
+        -:  220:      {
+    #####:  221:         carry += static_cast<double_limb_type>(py[i]) * static_cast<double_limb_type>(guess);
+        -:  222:#ifdef __MSVC_RUNTIME_CHECKS
+        -:  223:         pt[i + shift] = static_cast<limb_type>(carry & ~static_cast<limb_type>(0));
+        -:  224:#else
+    #####:  225:         pt[i + shift]    = static_cast<limb_type>(carry);
+        -:  226:#endif
+    #####:  227:         carry >>= CppInt1::limb_bits;
+        -:  228:      }
+    #####:  229:      if (carry && !truncated_t)
+        -:  230:      {
+        -:  231:#ifdef __MSVC_RUNTIME_CHECKS
+        -:  232:         pt[t.size() - 1] = static_cast<limb_type>(carry & ~static_cast<limb_type>(0));
+        -:  233:#else
+    #####:  234:         pt[t.size() - 1] = static_cast<limb_type>(carry);
+        -:  235:#endif
+        -:  236:      }
+    #####:  237:      else if (!truncated_t)
+        -:  238:      {
+    #####:  239:         t.resize(t.size() - 1, t.size() - 1);
+        -:  240:      }
+        -:  241:      //
+        -:  242:      // Update r in a way that won't actually produce a negative result
+        -:  243:      // in case the argument types are unsigned:
+        -:  244:      //
+    #####:  245:      if (truncated_t && carry)
+        -:  246:      {
+        -:  247:         // We need to calculate 2^n + t - r
+        -:  248:         // where n is the number of bits in this type.
+        -:  249:         // Simplest way is to get 2^n - r by complementing
+        -:  250:         // r, then add t to it.  Note that we can't call eval_complement
+        -:  251:         // in case this is a signed checked type:
+    #####:  252:         for (unsigned i = 0; i <= r_order; ++i)
+    #####:  253:            r.limbs()[i] = ~prem[i];
+    #####:  254:         r.normalize();
+    #####:  255:         eval_increment(r);
+    #####:  256:         eval_add(r, t);
+    #####:  257:         r_neg = !r_neg;
+        -:  258:      }
+    #####:  259:      else if (r.compare(t) > 0)
+        -:  260:      {
+    #####:  261:         eval_subtract(r, t);
+        -:  262:      }
+        -:  263:      else
+        -:  264:      {
+    #####:  265:         r.swap(t);
+    #####:  266:         eval_subtract(r, t);
+    #####:  267:         prem  = r.limbs();
+    #####:  268:         r_neg = !r_neg;
+        -:  269:      }
+        -:  270:      //
+        -:  271:      // First time through we need to strip any leading zero, otherwise
+        -:  272:      // the termination condition goes belly-up:
+        -:  273:      //
+    #####:  274:      if (result && first_pass)
+        -:  275:      {
+    #####:  276:         first_pass = false;
+    #####:  277:         while (pr[result->size() - 1] == 0)
+    #####:  278:            result->resize(result->size() - 1, result->size() - 1);
+        -:  279:      }
+        -:  280:      //
+        -:  281:      // Update r_order:
+        -:  282:      //
+    #####:  283:      r_order = r.size() - 1;
+    #####:  284:      if (r_order < y_order)
+        -:  285:         break;
+        -:  286:   }
+        -:  287:   // Termination condition is really just a check that r > y, but with a common
+        -:  288:   // short-circuit case handled first:
+    #####:  289:   while ((r_order > y_order) || (r.compare_unsigned(y) >= 0));
+        -:  290:
+        -:  291:   //
+        -:  292:   // We now just have to normalise the result:
+        -:  293:   //
+    #####:  294:   if (r_neg && eval_get_sign(r))
+        -:  295:   {
+        -:  296:      // We have one too many in the result:
+    #####:  297:      if (result)
+    #####:  298:         eval_decrement(*result);
+    #####:  299:      if (y.sign())
+        -:  300:      {
+    #####:  301:         r.negate();
+    #####:  302:         eval_subtract(r, y);
+        -:  303:      }
+        -:  304:      else
+    #####:  305:         eval_subtract(r, y, r);
+        -:  306:   }
+        -:  307:
+    #####:  308:   BOOST_ASSERT(r.compare_unsigned(y) < 0); // remainder must be less than the divisor or our code has failed
+  254378*:  309:}
+        -:  310:
+        -:  311:template <class CppInt1, class CppInt2>
+   340534:  312:BOOST_MP_CXX14_CONSTEXPR void divide_unsigned_helper(
+        -:  313:    CppInt1*       result,
+        -:  314:    const CppInt2& x,
+        -:  315:    limb_type      y,
+        -:  316:    CppInt1&       r)
+        -:  317:{
+   340534:  318:   if (((void*)result == (void*)&x) || ((void*)&r == (void*)&x))
+        -:  319:   {
+    #####:  320:      CppInt2 t(x);
+    #####:  321:      divide_unsigned_helper(result, t, y, r);
+    #####:  322:      return;
+    #####:  323:   }
+        -:  324:
+   340534:  325:   if (result == &r)
+        -:  326:   {
+    #####:  327:      CppInt1 rem;
+    #####:  328:      divide_unsigned_helper(result, x, y, rem);
+    #####:  329:      r = rem;
+    #####:  330:      return;
+    #####:  331:   }
+        -:  332:
+        -:  333:   // As above, but simplified for integer divisor:
+        -:  334:
+        -:  335:   using default_ops::eval_subtract;
+        -:  336:
+   340534:  337:   if (y == 0)
+        -:  338:   {
+    #####:  339:      BOOST_THROW_EXCEPTION(std::overflow_error("Integer Division by zero."));
+        -:  340:   }
+        -:  341:   //
+        -:  342:   // Find the most significant word of numerator.
+        -:  343:   //
+   340534:  344:   limb_type r_order = x.size() - 1;
+        -:  345:
+        -:  346:   //
+        -:  347:   // Set remainder and result to their initial values:
+        -:  348:   //
+   340534:  349:   r = x;
+   340534:  350:   r.sign(false);
+   340534:  351:   typename CppInt1::limb_pointer pr = r.limbs();
+        -:  352:
+        -:  353:   //
+        -:  354:   // check for x < y, try to do this without actually having to
+        -:  355:   // do a full comparison:
+        -:  356:   //
+   340534:  357:   if ((r_order == 0) && (*pr < y))
+        -:  358:   {
+   119115:  359:      if (result)
+   119115:  360:         *result = static_cast<limb_type>(0u);
+   119115:  361:      return;
+        -:  362:   }
+        -:  363:
+        -:  364:   //
+        -:  365:   // See if we can short-circuit long division, and use basic arithmetic instead:
+        -:  366:   //
+        -:  367:   if (r_order == 0)
+        -:  368:   {
+   221419:  369:      if (result)
+        -:  370:      {
+    #####:  371:         *result = *pr / y;
+    #####:  372:         result->sign(x.sign());
+        -:  373:      }
+   221419:  374:      *pr %= y;
+   221419:  375:      r.sign(x.sign());
+   221419:  376:      return;
+        -:  377:   }
+    #####:  378:   else if (r_order == 1)
+        -:  379:   {
+    #####:  380:      double_limb_type a = (static_cast<double_limb_type>(pr[r_order]) << CppInt1::limb_bits) | pr[0];
+    #####:  381:      if (result)
+        -:  382:      {
+    #####:  383:         *result = a / y;
+    #####:  384:         result->sign(x.sign());
+        -:  385:      }
+    #####:  386:      r = a % y;
+    #####:  387:      r.sign(x.sign());
+    #####:  388:      return;
+        -:  389:   }
+        -:  390:
+        -:  391:   // This is initialised just to keep the compiler from emitting useless warnings later on:
+    #####:  392:   typename CppInt1::limb_pointer pres = typename CppInt1::limb_pointer();
+    #####:  393:   if (result)
+        -:  394:   {
+    #####:  395:      result->resize(r_order + 1, r_order + 1);
+    #####:  396:      pres = result->limbs();
+    #####:  397:      if (result->size() > r_order)
+    #####:  398:         pres[r_order] = 0; // just in case we don't set the most significant limb below.
+        -:  399:   }
+        -:  400:
+        -:  401:   do
+        -:  402:   {
+        -:  403:      //
+        -:  404:      // Calculate our best guess for how many times y divides into r:
+        -:  405:      //
+    #####:  406:      if ((pr[r_order] < y) && r_order)
+        -:  407:      {
+    #####:  408:         double_limb_type a = (static_cast<double_limb_type>(pr[r_order]) << CppInt1::limb_bits) | pr[r_order - 1];
+    #####:  409:         double_limb_type b = a % y;
+    #####:  410:         r.resize(r.size() - 1, r.size() - 1);
+    #####:  411:         --r_order;
+    #####:  412:         pr[r_order] = static_cast<limb_type>(b);
+    #####:  413:         if (result)
+    #####:  414:            pres[r_order] = static_cast<limb_type>(a / y);
+    #####:  415:         if (r_order && pr[r_order] == 0)
+        -:  416:         {
+    #####:  417:            --r_order; // No remainder, division was exact.
+    #####:  418:            r.resize(r.size() - 1, r.size() - 1);
+    #####:  419:            if (result)
+    #####:  420:               pres[r_order] = static_cast<limb_type>(0u);
+        -:  421:         }
+        -:  422:      }
+        -:  423:      else
+        -:  424:      {
+    #####:  425:         if (result)
+    #####:  426:            pres[r_order] = pr[r_order] / y;
+    #####:  427:         pr[r_order] %= y;
+    #####:  428:         if (r_order && pr[r_order] == 0)
+        -:  429:         {
+    #####:  430:            --r_order; // No remainder, division was exact.
+    #####:  431:            r.resize(r.size() - 1, r.size() - 1);
+    #####:  432:            if (result)
+    #####:  433:               pres[r_order] = static_cast<limb_type>(0u);
+        -:  434:         }
+        -:  435:      }
+        -:  436:   }
+        -:  437:   // Termination condition is really just a check that r >= y, but with two common
+        -:  438:   // short-circuit cases handled first:
+    #####:  439:   while (r_order || (pr[r_order] >= y));
+        -:  440:
+    #####:  441:   if (result)
+        -:  442:   {
+    #####:  443:      result->normalize();
+    #####:  444:      result->sign(x.sign());
+        -:  445:   }
+    #####:  446:   r.normalize();
+    #####:  447:   r.sign(x.sign());
+        -:  448:
+    #####:  449:   BOOST_ASSERT(r.compare(y) < 0); // remainder must be less than the divisor or our code has failed
+        -:  450:}
+        -:  451:
+        -:  452:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2, unsigned MinBits3, unsigned MaxBits3, cpp_integer_type SignType3, cpp_int_check_type Checked3, class Allocator3>
+        -:  453:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3> >::value>::type
+    #####:  454:eval_divide(
+        -:  455:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  456:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
+        -:  457:    const cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3>& b)
+        -:  458:{
+    #####:  459:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> r;
+    #####:  460:   bool                                                                 s = a.sign() != b.sign();
+    #####:  461:   divide_unsigned_helper(&result, a, b, r);
+    #####:  462:   result.sign(s);
+    #####:  463:}
+        -:  464:
+        -:  465:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  466:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+        -:  467:eval_divide(
+        -:  468:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  469:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
+        -:  470:    limb_type&                                                                  b)
+        -:  471:{
+        -:  472:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> r;
+        -:  473:   bool                                                                 s = a.sign();
+        -:  474:   divide_unsigned_helper(&result, a, b, r);
+        -:  475:   result.sign(s);
+        -:  476:}
+        -:  477:
+        -:  478:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  479:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+        -:  480:eval_divide(
+        -:  481:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  482:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
+        -:  483:    signed_limb_type&                                                           b)
+        -:  484:{
+        -:  485:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> r;
+        -:  486:   bool                                                                 s = a.sign() != (b < 0);
+        -:  487:   divide_unsigned_helper(&result, a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(b)), r);
+        -:  488:   result.sign(s);
+        -:  489:}
+        -:  490:
+        -:  491:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  492:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+    #####:  493:eval_divide(
+        -:  494:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  495:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& b)
+        -:  496:{
+        -:  497:   // There is no in place divide:
+    #####:  498:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+    #####:  499:   eval_divide(result, a, b);
+    #####:  500:}
+        -:  501:
+        -:  502:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  503:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  504:eval_divide(
+        -:  505:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
+        -:  506:    limb_type                                                             b)
+        -:  507:{
+        -:  508:   // There is no in place divide:
+        -:  509:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+        -:  510:   eval_divide(result, a, b);
+        -:  511:}
+        -:  512:
+        -:  513:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  514:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  515:eval_divide(
+        -:  516:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
+        -:  517:    signed_limb_type                                                      b)
+        -:  518:{
+        -:  519:   // There is no in place divide:
+        -:  520:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+        -:  521:   eval_divide(result, a, b);
+        -:  522:}
+        -:  523:
+        -:  524:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2, unsigned MinBits3, unsigned MaxBits3, cpp_integer_type SignType3, cpp_int_check_type Checked3, class Allocator3>
+        -:  525:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3> >::value>::type
+   254378:  526:eval_modulus(
+        -:  527:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  528:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
+        -:  529:    const cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3>& b)
+        -:  530:{
+   254378:  531:   bool s = a.sign();
+   254378:  532:   divide_unsigned_helper(static_cast<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>*>(0), a, b, result);
+   254378:  533:   result.sign(s);
+   254378:  534:}
+        -:  535:
+        -:  536:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  537:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+        -:  538:eval_modulus(
+        -:  539:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  540:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a, limb_type b)
+        -:  541:{
+        -:  542:   bool s = a.sign();
+        -:  543:   divide_unsigned_helper(static_cast<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>*>(0), a, b, result);
+        -:  544:   result.sign(s);
+        -:  545:}
+        -:  546:
+        -:  547:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  548:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+        -:  549:eval_modulus(
+        -:  550:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  551:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
+        -:  552:    signed_limb_type                                                            b)
+        -:  553:{
+        -:  554:   bool s = a.sign();
+        -:  555:   divide_unsigned_helper(static_cast<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>*>(0), a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(b)), result);
+        -:  556:   result.sign(s);
+        -:  557:}
+        -:  558:
+        -:  559:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+        -:  560:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
+        -:  561:eval_modulus(
+        -:  562:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  563:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& b)
+        -:  564:{
+        -:  565:   // There is no in place divide:
+        -:  566:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+        -:  567:   eval_modulus(result, a, b);
+        -:  568:}
+        -:  569:
+        -:  570:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  571:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  572:eval_modulus(
+        -:  573:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
+        -:  574:    limb_type                                                             b)
+        -:  575:{
+        -:  576:   // There is no in place divide:
+        -:  577:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+        -:  578:   eval_modulus(result, a, b);
+        -:  579:}
+        -:  580:
+        -:  581:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  582:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  583:eval_modulus(
+        -:  584:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
+        -:  585:    signed_limb_type                                                      b)
+        -:  586:{
+        -:  587:   // There is no in place divide:
+        -:  588:   cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> a(result);
+        -:  589:   eval_modulus(result, a, b);
+        -:  590:}
+        -:  591:
+        -:  592://
+        -:  593:// Over again for trivial cpp_int's:
+        -:  594://
+        -:  595:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  596:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  597:    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && (is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value || is_signed_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value)>::type
+        -:  598:eval_divide(
+        -:  599:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  600:    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& o)
+        -:  601:{
+        -:  602:   if (!*o.limbs())
+        -:  603:      BOOST_THROW_EXCEPTION(std::overflow_error("Division by zero."));
+        -:  604:   *result.limbs() /= *o.limbs();
+        -:  605:   result.sign(result.sign() != o.sign());
+        -:  606:}
+        -:  607:
+        -:  608:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  609:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  610:    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && is_unsigned_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && is_unsigned_number<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  611:eval_divide(
+        -:  612:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  613:    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& o)
+        -:  614:{
+        -:  615:   if (!*o.limbs())
+        -:  616:      BOOST_THROW_EXCEPTION(std::overflow_error("Division by zero."));
+        -:  617:   *result.limbs() /= *o.limbs();
+        -:  618:}
+        -:  619:
+        -:  620:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
+        -:  621:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<
+        -:  622:    is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
+        -:  623:eval_modulus(
+        -:  624:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
+        -:  625:    const cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& o)
+        -:  626:{
+        -:  627:   if (!*o.limbs())
+        -:  628:      BOOST_THROW_EXCEPTION(std::overflow_error("Division by zero."));
+        -:  629:   *result.limbs() %= *o.limbs();
+        -:  630:   result.sign(result.sign());
+        -:  631:}
+        -:  632:
+        -:  633:}}} // namespace boost::multiprecision::backends
+        -:  634:
+        -:  635:#endif
