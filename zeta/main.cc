@@ -49,9 +49,16 @@ bool isPrime(cpp_int x) {
 	return miller_rabin_test(x, 1);
 }
 
+string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, int primeAmount, cpp_int printOrNot){
+	if (minOfUser <= 1) {
+		return "Error";
+	} else if (max <= 1) {
+		return "Error";
+	} else if (max < minOfUser) {
+		return "Error";
+	}
 
-cpp_int calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, cpp_int primeAmount, cpp_int printOrNot){
-	cpp_int sum = 0;
+	int sum = 0;
 	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
 		if (isPrime(i) == true) {
 			primeNumbers.push_back(i);
@@ -80,12 +87,23 @@ cpp_int calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, 
 			}
 		}
 	}
-	return sum;
+	return to_string(sum);
 }
 
+/*
 TEST(Calc, GoodTests) {
+	vector<cpp_int> primes;
+	EXPECT_EQ(calculate(2,3,primes,2,1,1), "3");
 }
-
+*/
+TEST(Calc, BadTests) {
+	vector<cpp_int> primes = {2, 3, 5, 7}; 
+	EXPECT_EQ(calculate(1, 10, primes, 2, 0, 0), "Error"); 
+	EXPECT_EQ(calculate(-50, 10, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(2, 1, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(2, -100, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(50, 10, primes, 2, 0, 0), "Error");
+}
 
 
 TEST(Prime, GoodTests) {
@@ -124,7 +142,7 @@ int main(int argc, char** argv) {
 	} 
 	else if (user == 2) {
 
-		cpp_int primeAmount = 0;
+		int primeAmount = 0;
 		int min = 2;
 
 		cout << "Welcome to Zeta World!\nWe will compute the sum of all pi(x) from x = i to j\n";
@@ -142,7 +160,7 @@ int main(int argc, char** argv) {
 		clock_t start_time = clock();
 
 
-		cpp_int sum = calculate(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
+		int sum = stoi(calculate(minOfUser, max, primeNumbers, min, primeAmount, printOrNot));
 		cout << "The answer is: " << sum << endl;
 		cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 
