@@ -49,7 +49,7 @@ bool isPrime(cpp_int x) {
 	return miller_rabin_test(x, 1);
 }
 
-string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> &primeNumbers, int min, int primeAmount, cpp_int printOrNot){
+string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, cpp_int printOrNot){
 	if (minOfUser <= 1) {
 		return "Error";
 	} else if (max <= 1) {
@@ -57,7 +57,8 @@ string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> &primeNumbers, 
 	} else if (max < minOfUser) {
 		return "Error";
 	}
-
+  int min = 2;
+  int primeAmount = 0;
 	int sum = 0;
 	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
 		if (isPrime(i) == true) {
@@ -91,27 +92,27 @@ string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> &primeNumbers, 
 
 TEST(Calc, GoodTests) {
 	vector<cpp_int> primes;
-	EXPECT_EQ(calculate(2,3,primes,2,0,0), "3");
-	EXPECT_EQ(calculate(2, 13, primes, 2, 0, 0), "43"); 
-	EXPECT_EQ(calculate(52, 235, primes, 2, 0, 0), "6234"); 
-	EXPECT_EQ(calculate(100, 10000, primes, 2, 0, 0), "6553393"); 
-	EXPECT_EQ(calculate(2, 100000, primes, 2, 0, 0), "504813055"); 
+	EXPECT_EQ(calculate(2,3,primes,0), "3");
+	EXPECT_EQ(calculate(2, 13, primes,0), "43"); 
+	EXPECT_EQ(calculate(52, 235, primes, 0), "6234"); 
+	EXPECT_EQ(calculate(100, 10000, primes, 0), "6553393"); 
+	EXPECT_EQ(calculate(2, 100000, primes, 0), "504813055"); 
 }
 TEST(Calc, BadTests) {
 	vector<cpp_int> primes; 
-	EXPECT_EQ(calculate(1, 10, primes, 2, 0, 0), "Error"); 
-	EXPECT_EQ(calculate(-50, 10, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(50, -10, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(2, -100, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(50, 10, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(1, 10, primes, 0), "Error"); 
+	EXPECT_EQ(calculate(-50, 10, primes,  0), "Error");
+	EXPECT_EQ(calculate(50, -10, primes,  0), "Error");
+	EXPECT_EQ(calculate(2, -100, primes, 0), "Error");
+	EXPECT_EQ(calculate(50, 10, primes, 0), "Error");
 }
 TEST(Calc, EdgeTests) {
 	vector<cpp_int> primes;
-	EXPECT_EQ(calculate(2, 2, primes, 2, 0, 0), "1");
-	EXPECT_EQ(calculate(1, 2, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(2, 1, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(2, 4, primes, 2, 0, 0), "5");
-	EXPECT_EQ(calculate(2, 5, primes, 2, 0, 0), "8");
+	EXPECT_EQ(calculate(2, 2, primes,0), "1");
+	EXPECT_EQ(calculate(1, 2, primes,  0), "Error");
+	EXPECT_EQ(calculate(2, 1, primes, 0), "Error");
+	EXPECT_EQ(calculate(2, 4, primes,  0), "5");
+	EXPECT_EQ(calculate(2, 5, primes, 0), "8");
 }
 TEST(Prime, GoodTests) {
 	EXPECT_EQ(isPrime(2), true);
@@ -149,8 +150,7 @@ int main(int argc, char** argv) {
 	} 
 	else if (user == 2) {
 
-		int primeAmount = 0;
-		int min = 2;
+
 
 		cout << "Welcome to Zeta World!\nWe will compute the sum of all pi(x) from x = i to j\n";
 
@@ -167,7 +167,7 @@ int main(int argc, char** argv) {
 		clock_t start_time = clock();
 
 
-		int sum = stoi(calculate(minOfUser, max, primeNumbers, min, primeAmount, printOrNot));
+		int sum = stoi(calculate(minOfUser, max, primeNumbers, printOrNot));
 		cout << "The answer is: " << sum << endl;
 		cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 
