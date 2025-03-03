@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/stdexcept
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Standard exception classes  -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.

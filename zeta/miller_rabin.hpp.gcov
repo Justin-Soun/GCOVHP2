@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/multiprecision/miller_rabin.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:///////////////////////////////////////////////////////////////
         -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -22,31 +18,18 @@
         -:   14:namespace detail {
         -:   15:
         -:   16:template <class I>
-<<<<<<< HEAD
-    #####:   17:bool check_small_factors(const I& n)
-=======
-    26989:   17:bool check_small_factors(const I& n)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  1051930:   17:bool check_small_factors(const I& n)
         -:   18:{
         -:   19:   static const boost::uint32_t small_factors1[] = {
         -:   20:       3u, 5u, 7u, 11u, 13u, 17u, 19u, 23u};
         -:   21:   static const boost::uint32_t pp1 = 223092870u;
         -:   22:
-<<<<<<< HEAD
-    #####:   23:   boost::uint32_t m1 = integer_modulus(n, pp1);
+  1051930:   23:   boost::uint32_t m1 = integer_modulus(n, pp1);
         -:   24:
-    #####:   25:   for (unsigned i = 0; i < sizeof(small_factors1) / sizeof(small_factors1[0]); ++i)
+  4719539:   25:   for (unsigned i = 0; i < sizeof(small_factors1) / sizeof(small_factors1[0]); ++i)
         -:   26:   {
-    #####:   27:      BOOST_ASSERT(pp1 % small_factors1[i] == 0);
-    #####:   28:      if (m1 % small_factors1[i] == 0)
-=======
-    26989:   23:   boost::uint32_t m1 = integer_modulus(n, pp1);
-        -:   24:
-   121060:   25:   for (unsigned i = 0; i < sizeof(small_factors1) / sizeof(small_factors1[0]); ++i)
-        -:   26:   {
-  112239*:   27:      BOOST_ASSERT(pp1 % small_factors1[i] == 0);
-   112239:   28:      if (m1 % small_factors1[i] == 0)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+ 4375410*:   27:      BOOST_ASSERT(pp1 % small_factors1[i] == 0);
+  4375410:   28:      if (m1 % small_factors1[i] == 0)
         -:   29:         return false;
         -:   30:   }
         -:   31:
@@ -54,21 +37,12 @@
         -:   33:       29u, 31u, 37u, 41u, 43u, 47u};
         -:   34:   static const boost::uint32_t pp2 = 2756205443u;
         -:   35:
-<<<<<<< HEAD
-    #####:   36:   m1 = integer_modulus(n, pp2);
+   344129:   36:   m1 = integer_modulus(n, pp2);
         -:   37:
-    #####:   38:   for (unsigned i = 0; i < sizeof(small_factors2) / sizeof(small_factors2[0]); ++i)
+  2206300:   38:   for (unsigned i = 0; i < sizeof(small_factors2) / sizeof(small_factors2[0]); ++i)
         -:   39:   {
-    #####:   40:      BOOST_ASSERT(pp2 % small_factors2[i] == 0);
-    #####:   41:      if (m1 % small_factors2[i] == 0)
-=======
-     8821:   36:   m1 = integer_modulus(n, pp2);
-        -:   37:
-    56456:   38:   for (unsigned i = 0; i < sizeof(small_factors2) / sizeof(small_factors2[0]); ++i)
-        -:   39:   {
-   49017*:   40:      BOOST_ASSERT(pp2 % small_factors2[i] == 0);
-    49017:   41:      if (m1 % small_factors2[i] == 0)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+ 1914311*:   40:      BOOST_ASSERT(pp2 % small_factors2[i] == 0);
+  1914311:   41:      if (m1 % small_factors2[i] == 0)
         -:   42:         return false;
         -:   43:   }
         -:   44:
@@ -76,21 +50,12 @@
         -:   46:       53u, 59u, 61u, 67u, 71u};
         -:   47:   static const boost::uint32_t pp3 = 907383479u;
         -:   48:
-<<<<<<< HEAD
-    #####:   49:   m1 = integer_modulus(n, pp3);
+   291989:   49:   m1 = integer_modulus(n, pp3);
         -:   50:
-    #####:   51:   for (unsigned i = 0; i < sizeof(small_factors3) / sizeof(small_factors3[0]); ++i)
+  1680356:   51:   for (unsigned i = 0; i < sizeof(small_factors3) / sizeof(small_factors3[0]); ++i)
         -:   52:   {
-    #####:   53:      BOOST_ASSERT(pp3 % small_factors3[i] == 0);
-    #####:   54:      if (m1 % small_factors3[i] == 0)
-=======
-     7439:   49:   m1 = integer_modulus(n, pp3);
-        -:   50:
-    42587:   51:   for (unsigned i = 0; i < sizeof(small_factors3) / sizeof(small_factors3[0]); ++i)
-        -:   52:   {
-   35793*:   53:      BOOST_ASSERT(pp3 % small_factors3[i] == 0);
-    35793:   54:      if (m1 % small_factors3[i] == 0)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+ 1410895*:   53:      BOOST_ASSERT(pp3 % small_factors3[i] == 0);
+  1410895:   54:      if (m1 % small_factors3[i] == 0)
         -:   55:         return false;
         -:   56:   }
         -:   57:
@@ -98,21 +63,12 @@
         -:   59:       73u, 79u, 83u, 89u, 97u};
         -:   60:   static const boost::uint32_t pp4 = 4132280413u;
         -:   61:
-<<<<<<< HEAD
-    #####:   62:   m1 = integer_modulus(n, pp4);
+   269461:   62:   m1 = integer_modulus(n, pp4);
         -:   63:
-    #####:   64:   for (unsigned i = 0; i < sizeof(small_factors4) / sizeof(small_factors4[0]); ++i)
+  1567122:   64:   for (unsigned i = 0; i < sizeof(small_factors4) / sizeof(small_factors4[0]); ++i)
         -:   65:   {
-    #####:   66:      BOOST_ASSERT(pp4 % small_factors4[i] == 0);
-    #####:   67:      if (m1 % small_factors4[i] == 0)
-=======
-     6794:   62:   m1 = integer_modulus(n, pp4);
-        -:   63:
-    39436:   64:   for (unsigned i = 0; i < sizeof(small_factors4) / sizeof(small_factors4[0]); ++i)
-        -:   65:   {
-   33057*:   66:      BOOST_ASSERT(pp4 % small_factors4[i] == 0);
-    33057:   67:      if (m1 % small_factors4[i] == 0)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+ 1313467*:   66:      BOOST_ASSERT(pp4 % small_factors4[i] == 0);
+  1313467:   67:      if (m1 % small_factors4[i] == 0)
         -:   68:         return false;
         -:   69:   }
         -:   70:
@@ -132,25 +88,14 @@
         -:   84:           181u * 191u * 193u * 197u,
         -:   85:           199u * 211u * 223u * 227u};
         -:   86:
-<<<<<<< HEAD
-    #####:   87:   for (unsigned k = 0; k < sizeof(pp5) / sizeof(*pp5); ++k)
+  1609513:   87:   for (unsigned k = 0; k < sizeof(pp5) / sizeof(*pp5); ++k)
         -:   88:   {
-    #####:   89:      m1 = integer_modulus(n, pp5[k]);
+  1398257:   89:      m1 = integer_modulus(n, pp5[k]);
         -:   90:
-    #####:   91:      for (unsigned i = 0; i < 4; ++i)
+  6883227:   91:      for (unsigned i = 0; i < 4; ++i)
         -:   92:      {
-    #####:   93:         BOOST_ASSERT(pp5[k] % small_factors5[k][i] == 0);
-    #####:   94:         if (m1 % small_factors5[k][i] == 0)
-=======
-    41926:   87:   for (unsigned k = 0; k < sizeof(pp5) / sizeof(*pp5); ++k)
-        -:   88:   {
-    36113:   89:      m1 = integer_modulus(n, pp5[k]);
-        -:   90:
-   179075:   91:      for (unsigned i = 0; i < 4; ++i)
-        -:   92:      {
-  143528*:   93:         BOOST_ASSERT(pp5[k] % small_factors5[k][i] == 0);
-   143528:   94:         if (m1 % small_factors5[k][i] == 0)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+ 5527369*:   93:         BOOST_ASSERT(pp5[k] % small_factors5[k][i] == 0);
+  5527369:   94:         if (m1 % small_factors5[k][i] == 0)
         -:   95:            return false;
         -:   96:      }
         -:   97:   }
@@ -167,15 +112,9 @@
         -:  108:           127u, 131u, 137u, 139u, 149u, 151u, 157u, 163u,
         -:  109:           167u, 173u, 179u, 181u, 191u, 193u, 197u, 199u,
         -:  110:           211u, 223u, 227u};
-<<<<<<< HEAD
-     1305:  111:   for (unsigned i = 0; i < sizeof(p) / sizeof(*p); ++i)
+    21860:  111:   for (unsigned i = 0; i < sizeof(p) / sizeof(*p); ++i)
         -:  112:   {
-     1284:  113:      if (n == p[i])
-=======
-    17444:  111:   for (unsigned i = 0; i < sizeof(p) / sizeof(*p); ++i)
-        -:  112:   {
-    17184:  113:      if (n == p[i])
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+    21534:  113:      if (n == p[i])
         -:  114:         return true;
         -:  115:   }
         -:  116:   return false;
@@ -189,26 +128,16 @@
         -:  124:}
         -:  125:template <class I>
         -:  126:typename disable_if_c<is_convertible<I, unsigned>::value, unsigned>::type
-<<<<<<< HEAD
-       44:  127:cast_to_unsigned(const I& val)
+      569:  127:cast_to_unsigned(const I& val)
         -:  128:{
-       44:  129:   return val.template convert_to<unsigned>();
-=======
-      452:  127:cast_to_unsigned(const I& val)
-        -:  128:{
-      452:  129:   return val.template convert_to<unsigned>();
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      569:  129:   return val.template convert_to<unsigned>();
         -:  130:}
         -:  131:
         -:  132:} // namespace detail
         -:  133:
         -:  134:template <class I, class Engine>
         -:  135:typename enable_if_c<number_category<I>::value == number_kind_integer, bool>::type
-<<<<<<< HEAD
-       89:  136:miller_rabin_test(const I& n, unsigned trials, Engine& gen)
-=======
-    54885:  136:miller_rabin_test(const I& n, unsigned trials, Engine& gen)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  2105004:  136:miller_rabin_test(const I& n, unsigned trials, Engine& gen)
         -:  137:{
         -:  138:#ifdef BOOST_MSVC
         -:  139:#pragma warning(push)
@@ -216,126 +145,66 @@
         -:  141:#endif
         -:  142:   typedef I number_type;
         -:  143:
-<<<<<<< HEAD
-       89:  144:   if (n == 2)
+  2105004:  144:   if (n == 2)
         -:  145:      return true; // Trivial special case.
-       88:  146:   if (bit_test(n, 0) == 0)
+  2104998:  146:   if (bit_test(n, 0) == 0)
         -:  147:      return false; // n is even
-       44:  148:   if (n <= 227)
-       44:  149:      return detail::is_small_prime(detail::cast_to_unsigned(n));
+  1052499:  148:   if (n <= 227)
+      569:  149:      return detail::is_small_prime(detail::cast_to_unsigned(n));
         -:  150:
-    #####:  151:   if (!detail::check_small_factors(n))
+  1051930:  151:   if (!detail::check_small_factors(n))
         -:  152:      return false;
         -:  153:
-    #####:  154:   number_type nm1 = n - 1;
+   211256:  154:   number_type nm1 = n - 1;
         -:  155:   //
         -:  156:   // Begin with a single Fermat test - it excludes a lot of candidates:
         -:  157:   //
-    #####:  158:   number_type q(228), x, y; // We know n is greater than this, as we've excluded small factors
-    #####:  159:   x = powm(q, nm1, n);
-    #####:  160:   if (x != 1u)
+   211256:  158:   number_type q(228), x, y; // We know n is greater than this, as we've excluded small factors
+   211256:  159:   x = powm(q, nm1, n);
+   211256:  160:   if (x != 1u)
         -:  161:      return false;
         -:  162:
-    #####:  163:   q          = n - 1;
-    #####:  164:   unsigned k = lsb(q);
-    #####:  165:   q >>= k;
+   171709:  163:   q          = n - 1;
+   171709:  164:   unsigned k = lsb(q);
+   171709:  165:   q >>= k;
         -:  166:
         -:  167:   // Declare our random number generator:
-    #####:  168:   boost::random::uniform_int_distribution<number_type> dist(2, n - 2);
+   343418:  168:   boost::random::uniform_int_distribution<number_type> dist(2, n - 2);
         -:  169:   //
         -:  170:   // Execute the trials:
         -:  171:   //
-    #####:  172:   for (unsigned i = 0; i < trials; ++i)
+   343313:  172:   for (unsigned i = 0; i < trials; ++i)
         -:  173:   {
-    #####:  174:      x          = dist(gen);
-    #####:  175:      y          = powm(x, q, n);
-    #####:  176:      unsigned j = 0;
-    #####:  177:      while (true)
+   343418:  174:      x          = dist(gen);
+   171709:  175:      y          = powm(x, q, n);
+   171709:  176:      unsigned j = 0;
+   114116:  177:      while (true)
         -:  178:      {
-    #####:  179:         if (y == nm1)
+   285825:  179:         if (y == nm1)
         -:  180:            break;
-    #####:  181:         if (y == 1)
+   171760:  181:         if (y == 1)
         -:  182:         {
-    #####:  183:            if (j == 0)
+    57546:  183:            if (j == 0)
         -:  184:               break;
         -:  185:            return false; // test failed
         -:  186:         }
-    #####:  187:         if (++j == k)
+   114214:  187:         if (++j == k)
         -:  188:            return false; // failed
-    #####:  189:         y = powm(y, 2, n);
-=======
-    54885:  144:   if (n == 2)
-        -:  145:      return true; // Trivial special case.
-    54881:  146:   if (bit_test(n, 0) == 0)
-        -:  147:      return false; // n is even
-    27441:  148:   if (n <= 227)
-      452:  149:      return detail::is_small_prime(detail::cast_to_unsigned(n));
-        -:  150:
-    26989:  151:   if (!detail::check_small_factors(n))
-        -:  152:      return false;
-        -:  153:
-     5813:  154:   number_type nm1 = n - 1;
-        -:  155:   //
-        -:  156:   // Begin with a single Fermat test - it excludes a lot of candidates:
-        -:  157:   //
-     5813:  158:   number_type q(228), x, y; // We know n is greater than this, as we've excluded small factors
-     5813:  159:   x = powm(q, nm1, n);
-     5813:  160:   if (x != 1u)
-        -:  161:      return false;
-        -:  162:
-     5813:  163:   q          = n - 1;
-     5813:  164:   unsigned k = lsb(q);
-     5813:  165:   q >>= k;
-        -:  166:
-        -:  167:   // Declare our random number generator:
-    11626:  168:   boost::random::uniform_int_distribution<number_type> dist(2, n - 2);
-        -:  169:   //
-        -:  170:   // Execute the trials:
-        -:  171:   //
-    11626:  172:   for (unsigned i = 0; i < trials; ++i)
-        -:  173:   {
-    11626:  174:      x          = dist(gen);
-     5813:  175:      y          = powm(x, q, n);
-     5813:  176:      unsigned j = 0;
-     3863:  177:      while (true)
-        -:  178:      {
-     9676:  179:         if (y == nm1)
-        -:  180:            break;
-     5848:  181:         if (y == 1)
-        -:  182:         {
-     1985:  183:            if (j == 0)
-        -:  184:               break;
-        -:  185:            return false; // test failed
-        -:  186:         }
-     3863:  187:         if (++j == k)
-        -:  188:            return false; // failed
-     3863:  189:         y = powm(y, 2, n);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   114116:  189:         y = powm(y, 2, n);
         -:  190:      }
         -:  191:   }
         -:  192:   return true; // Yeheh! probably prime.
         -:  193:#ifdef BOOST_MSVC
         -:  194:#pragma warning(pop)
         -:  195:#endif
-<<<<<<< HEAD
-      89*:  196:}
+  2316260:  196:}
         -:  197:
         -:  198:template <class I>
         -:  199:typename enable_if_c<number_category<I>::value == number_kind_integer, bool>::type
-       89:  200:miller_rabin_test(const I& x, unsigned trials)
+  2105004:  200:miller_rabin_test(const I& x, unsigned trials)
         -:  201:{
-       89:  202:   static mt19937 gen;
-       89:  203:   return miller_rabin_test(x, trials, gen);
-=======
-    60698:  196:}
-        -:  197:
-        -:  198:template <class I>
-        -:  199:typename enable_if_c<number_category<I>::value == number_kind_integer, bool>::type
-    54885:  200:miller_rabin_test(const I& x, unsigned trials)
-        -:  201:{
-    54885:  202:   static mt19937 gen;
-    54885:  203:   return miller_rabin_test(x, trials, gen);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  2105004:  202:   static mt19937 gen;
+  2105004:  203:   return miller_rabin_test(x, trials, gen);
         -:  204:}
         -:  205:
         -:  206:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class Engine>

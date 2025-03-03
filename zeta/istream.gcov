@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/istream
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Input streams -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 1997-2022 Free Software Foundation, Inc.
@@ -739,13 +735,8 @@
         -:  731:#if __cplusplus >= 201103L
         -:  732:      explicit
         -:  733:#endif
-<<<<<<< HEAD
-        2:  734:      operator bool() const
-        2:  735:      { return _M_ok; }
-=======
-        8:  734:      operator bool() const
-        8:  735:      { return _M_ok; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  734:      operator bool() const
+       18:  735:      { return _M_ok; }
         -:  736:    };
         -:  737:
         -:  738:  ///@{

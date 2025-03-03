@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/lexical_cast/detail/converter_lexical.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Copyright Kevlin Henney, 2000-2005.
         -:    2:// Copyright Alexander Nasonov, 2006-2010.
         -:    3:// Copyright Antony Polukhin, 2011-2020.
@@ -480,31 +476,17 @@
         -:  472:                BOOST_DEDUCED_TYPENAME stream_trait::traits
         -:  473:            > o_interpreter_type;
         -:  474:
-<<<<<<< HEAD
-        1:  475:            static inline bool try_convert(const Source& arg, Target& result) {
-        1:  476:                i_interpreter_type i_interpreter;
+        9:  475:            static inline bool try_convert(const Source& arg, Target& result) {
+        9:  476:                i_interpreter_type i_interpreter;
         -:  477:
         -:  478:                // Disabling ADL, by directly specifying operators.
-        1:  479:                if (!(i_interpreter.operator <<(arg)))
+        9:  479:                if (!(i_interpreter.operator <<(arg)))
         -:  480:                    return false;
         -:  481:
-        1:  482:                o_interpreter_type out(i_interpreter.cbegin(), i_interpreter.cend());
+        9:  482:                o_interpreter_type out(i_interpreter.cbegin(), i_interpreter.cend());
         -:  483:
         -:  484:                // Disabling ADL, by directly specifying operators.
-        1:  485:                if(!(out.operator >>(result)))
-=======
-        4:  475:            static inline bool try_convert(const Source& arg, Target& result) {
-        4:  476:                i_interpreter_type i_interpreter;
-        -:  477:
-        -:  478:                // Disabling ADL, by directly specifying operators.
-        4:  479:                if (!(i_interpreter.operator <<(arg)))
-        -:  480:                    return false;
-        -:  481:
-        4:  482:                o_interpreter_type out(i_interpreter.cbegin(), i_interpreter.cend());
-        -:  483:
-        -:  484:                // Disabling ADL, by directly specifying operators.
-        4:  485:                if(!(out.operator >>(result)))
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:  485:                if(!(out.operator >>(result)))
         -:  486:                    return false;
         -:  487:
         -:  488:                return true;

@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_algobase.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Core algorithmic facilities -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -259,22 +255,13 @@
         -:  251:  template<typename _Tp>
         -:  252:    _GLIBCXX14_CONSTEXPR
         -:  253:    inline const _Tp&
-<<<<<<< HEAD
-       6*:  254:    max(const _Tp& __a, const _Tp& __b)
-=======
-      42*:  254:    max(const _Tp& __a, const _Tp& __b)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      81*:  254:    max(const _Tp& __a, const _Tp& __b)
         -:  255:    {
         -:  256:      // concept requirements
         -:  257:      __glibcxx_function_requires(_LessThanComparableConcept<_Tp>)
         -:  258:      //return  __a < __b ? __b : __a;
-<<<<<<< HEAD
-       6*:  259:      if (__a < __b)
-       1*:  260:	return __b;
-=======
-      42*:  259:      if (__a < __b)
-       4*:  260:	return __b;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      81*:  259:      if (__a < __b)
+       6*:  260:	return __b;
         -:  261:      return __a;
         -:  262:    }
         -:  263:
@@ -2073,114 +2060,60 @@
         -: 2056:  template<typename _RandomAccessIterator, typename _Predicate>
         -: 2057:    _GLIBCXX20_CONSTEXPR
         -: 2058:    _RandomAccessIterator
-<<<<<<< HEAD
-       89: 2059:    __find_if(_RandomAccessIterator __first, _RandomAccessIterator __last,
+  2105004: 2059:    __find_if(_RandomAccessIterator __first, _RandomAccessIterator __last,
         -: 2060:	      _Predicate __pred, random_access_iterator_tag)
         -: 2061:    {
         -: 2062:      typename iterator_traits<_RandomAccessIterator>::difference_type
-       89: 2063:	__trip_count = (__last - __first) >> 2;
+  2105004: 2063:	__trip_count = (__last - __first) >> 2;
         -: 2064:
-      539: 2065:      for (; __trip_count > 0; --__trip_count)
+29040301888: 2065:      for (; __trip_count > 0; --__trip_count)
         -: 2066:	{
-      474: 2067:	  if (__pred(__first))
-        6: 2068:	    return __first;
-      468: 2069:	  ++__first;
+29038368732: 2067:	  if (__pred(__first))
+    42962: 2068:	    return __first;
+29038325770: 2069:	  ++__first;
         -: 2070:
-      468: 2071:	  if (__pred(__first))
-        6: 2072:	    return __first;
-      462: 2073:	  ++__first;
+29038325770: 2071:	  if (__pred(__first))
+    42962: 2072:	    return __first;
+29038282808: 2073:	  ++__first;
         -: 2074:
-      462: 2075:	  if (__pred(__first))
-        6: 2076:	    return __first;
-      456: 2077:	  ++__first;
+29038282808: 2075:	  if (__pred(__first))
+    42962: 2076:	    return __first;
+29038239846: 2077:	  ++__first;
         -: 2078:
-      456: 2079:	  if (__pred(__first))
-        6: 2080:	    return __first;
-      450: 2081:	  ++__first;
+29038239846: 2079:	  if (__pred(__first))
+    42962: 2080:	    return __first;
+29038196884: 2081:	  ++__first;
         -: 2082:	}
         -: 2083:
-       65: 2084:      switch (__last - __first)
+  1933156: 2084:      switch (__last - __first)
         -: 2085:	{
     #####: 2086:	case 3:
     #####: 2087:	  if (__pred(__first))
     #####: 2088:	    return __first;
-    #####: 2089:	  ++__first;
+   916918: 2089:	  ++__first;
         -: 2090:	  // FALLTHRU
-    #####: 2091:	case 2:
-    #####: 2092:	  if (__pred(__first))
-    #####: 2093:	    return __first;
-    #####: 2094:	  ++__first;
+   916918: 2091:	case 2:
+   916918: 2092:	  if (__pred(__first))
+        2: 2093:	    return __first;
+   921247: 2094:	  ++__first;
         -: 2095:	  // FALLTHRU
-    #####: 2096:	case 1:
-    #####: 2097:	  if (__pred(__first))
-    #####: 2098:	    return __first;
+   921247: 2096:	case 1:
+   921247: 2097:	  if (__pred(__first))
+        3: 2098:	    return __first;
         -: 2099:	  ++__first;
         -: 2100:	  // FALLTHRU
-       65: 2101:	case 0:
+  1933151: 2101:	case 0:
         -: 2102:	default:
-       65: 2103:	  return __last;
-=======
-    54885: 2059:    __find_if(_RandomAccessIterator __first, _RandomAccessIterator __last,
-        -: 2060:	      _Predicate __pred, random_access_iterator_tag)
-        -: 2061:    {
-        -: 2062:      typename iterator_traits<_RandomAccessIterator>::difference_type
-    54885: 2063:	__trip_count = (__last - __first) >> 2;
-        -: 2064:
- 49541936: 2065:      for (; __trip_count > 0; --__trip_count)
-        -: 2066:	{
- 49493051: 2067:	  if (__pred(__first))
-     1500: 2068:	    return __first;
- 49491551: 2069:	  ++__first;
-        -: 2070:
- 49491551: 2071:	  if (__pred(__first))
-     1500: 2072:	    return __first;
- 49490051: 2073:	  ++__first;
-        -: 2074:
- 49490051: 2075:	  if (__pred(__first))
-     1500: 2076:	    return __first;
- 49488551: 2077:	  ++__first;
-        -: 2078:
- 49488551: 2079:	  if (__pred(__first))
-     1500: 2080:	    return __first;
- 49487051: 2081:	  ++__first;
-        -: 2082:	}
-        -: 2083:
-    48885: 2084:      switch (__last - __first)
-        -: 2085:	{
-    39081: 2086:	case 3:
-    39081: 2087:	  if (__pred(__first))
-        2: 2088:	    return __first;
-    40112: 2089:	  ++__first;
-        -: 2090:	  // FALLTHRU
-    40112: 2091:	case 2:
-    40112: 2092:	  if (__pred(__first))
-        3: 2093:	    return __first;
-    48880: 2094:	  ++__first;
-        -: 2095:	  // FALLTHRU
-    48880: 2096:	case 1:
-    48880: 2097:	  if (__pred(__first))
-        4: 2098:	    return __first;
-        -: 2099:	  ++__first;
-        -: 2100:	  // FALLTHRU
-    48876: 2101:	case 0:
-        -: 2102:	default:
-    48876: 2103:	  return __last;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  1933151: 2103:	  return __last;
         -: 2104:	}
         -: 2105:    }
         -: 2106:
         -: 2107:  template<typename _Iterator, typename _Predicate>
         -: 2108:    _GLIBCXX20_CONSTEXPR
         -: 2109:    inline _Iterator
-<<<<<<< HEAD
-       89: 2110:    __find_if(_Iterator __first, _Iterator __last, _Predicate __pred)
+  2105004: 2110:    __find_if(_Iterator __first, _Iterator __last, _Predicate __pred)
         -: 2111:    {
-       89: 2112:      return __find_if(__first, __last, __pred,
-=======
-    54885: 2110:    __find_if(_Iterator __first, _Iterator __last, _Predicate __pred)
-        -: 2111:    {
-    54885: 2112:      return __find_if(__first, __last, __pred,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  2105004: 2112:      return __find_if(__first, __last, __pred,
         -: 2113:		       std::__iterator_category(__first));
         -: 2114:    }
         -: 2115:

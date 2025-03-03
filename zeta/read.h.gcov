@@ -1,11 +1,7 @@
         -:    0:Source:/public/read.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1://read.h - a tiny header-only library to allow input in C++ to be more sensible
         -:    2://by ShakaUVM
         -:    3:#ifndef READ_SHAKAUVM_H
@@ -128,54 +124,31 @@
         -:  120://Credit: /u/9cantthinkofgoodname, modified to support C++98 by Mikadore
         -:  121://However, int x = read(ins) is about 20% slower than using read<int>(ins), though
         -:  122://There's probably some template tricks we can use to eliminate the while loop when reading from a file
-<<<<<<< HEAD
-        2:  123:struct Reader {
-        2:  124:	Reader(std::istream& ins_, const std::string& prompt_) : ins(ins_), prompt(prompt_) {}
+       18:  123:struct Reader {
+       18:  124:	Reader(std::istream& ins_, const std::string& prompt_) : ins(ins_), prompt(prompt_) {}
         -:  125:	template<class T>
-        2:  126:		operator T() {
+       18:  126:		operator T() {
     #####:  127:			while(true) {
-        2:  128:				if(ins.eof()) //We reached the end of file, or the user hit ctrl-d
-        2:  129:					return T(); //Alternatively, we could throw an exception
-        2:  130:				T retval;
-        2:  131:				std::cout << prompt;
-        2:  132:				ins >> retval; //If this fails, it's because you need a operator>> defined for your type
-        2:  133:				if(!ins) {
-=======
-        8:  123:struct Reader {
-        8:  124:	Reader(std::istream& ins_, const std::string& prompt_) : ins(ins_), prompt(prompt_) {}
-        -:  125:	template<class T>
-        8:  126:		operator T() {
-    #####:  127:			while(true) {
-        8:  128:				if(ins.eof()) //We reached the end of file, or the user hit ctrl-d
-        8:  129:					return T(); //Alternatively, we could throw an exception
-        8:  130:				T retval;
-        8:  131:				std::cout << prompt;
-        8:  132:				ins >> retval; //If this fails, it's because you need a operator>> defined for your type
-        8:  133:				if(!ins) {
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  128:				if(ins.eof()) //We reached the end of file, or the user hit ctrl-d
+       18:  129:					return T(); //Alternatively, we could throw an exception
+       18:  130:				T retval;
+       18:  131:				std::cout << prompt;
+       18:  132:				ins >> retval; //If this fails, it's because you need a operator>> defined for your type
+       18:  133:				if(!ins) {
     #####:  134:					ins.clear(); //Clear error code
     #####:  135:					std::string s;
     #####:  136:					ins >> s; //Remove the word that caused the error
         -:  137:					continue;
     #####:  138:				}
-<<<<<<< HEAD
-        2:  139:				return retval;
-=======
-        8:  139:				return retval;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  139:				return retval;
         -:  140:			}
         -:  141:		}
         -:  142:	std::istream &ins;
         -:  143:	const std::string prompt;
         -:  144:};
         -:  145:
-<<<<<<< HEAD
-        2:  146:inline Reader read(const std::string prompt = "") {
-        2:  147:	return Reader(std::cin,prompt);
-=======
-        8:  146:inline Reader read(const std::string prompt = "") {
-        8:  147:	return Reader(std::cin,prompt);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  146:inline Reader read(const std::string prompt = "") {
+       18:  147:	return Reader(std::cin,prompt);
         -:  148:}
         -:  149:inline Reader read(std::istream &ins) {
         -:  150:	return Reader(ins,"");

@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/ext/alloc_traits.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Allocator traits -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2011-2022 Free Software Foundation, Inc.
@@ -102,13 +98,8 @@
         -:   94:      noexcept(noexcept(_Base_type::destroy(__a, std::__to_address(__p))))
         -:   95:      { _Base_type::destroy(__a, std::__to_address(__p)); }
         -:   96:
-<<<<<<< HEAD
-        3:   97:    static constexpr _Alloc _S_select_on_copy(const _Alloc& __a)
-        3:   98:    { return _Base_type::select_on_container_copy_construction(__a); }
-=======
-       12:   97:    static constexpr _Alloc _S_select_on_copy(const _Alloc& __a)
-       12:   98:    { return _Base_type::select_on_container_copy_construction(__a); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       24:   97:    static constexpr _Alloc _S_select_on_copy(const _Alloc& __a)
+       24:   98:    { return _Base_type::select_on_container_copy_construction(__a); }
         -:   99:
         -:  100:    static _GLIBCXX14_CONSTEXPR void _S_on_swap(_Alloc& __a, _Alloc& __b)
         -:  101:    { std::__alloc_on_swap(__a, __b); }

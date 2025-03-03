@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/random/uniform_int_distribution.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:/* boost random/uniform_int_distribution.hpp header file
         -:    2: *
         -:    3: * Copyright Jens Maurer 2000-2001
@@ -55,11 +51,7 @@
         -:   47:#endif
         -:   48:
         -:   49:template<class Engine, class T>
-<<<<<<< HEAD
-    #####:   50:T generate_uniform_int(
-=======
-     5813:   50:T generate_uniform_int(
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:   50:T generate_uniform_int(
         -:   51:    Engine& eng, T min_value, T max_value,
         -:   52:    boost::mpl::true_ /** is_integral<Engine::result_type> */)
         -:   53:{
@@ -68,34 +60,19 @@
         -:   56:    typedef typename Engine::result_type base_result;
         -:   57:    // ranges are always unsigned or unbounded
         -:   58:    typedef typename boost::random::traits::make_unsigned_or_unbounded<base_result>::type base_unsigned;
-<<<<<<< HEAD
-    #####:   59:    const range_type range = random::detail::subtract<result_type>()(max_value, min_value);
-    #####:   60:    const base_result bmin = (eng.min)();
-    #####:   61:    const base_unsigned brange =
-    #####:   62:      random::detail::subtract<base_result>()((eng.max)(), (eng.min)());
+   343418:   59:    const range_type range = random::detail::subtract<result_type>()(max_value, min_value);
+   171709:   60:    const base_result bmin = (eng.min)();
+   171709:   61:    const base_unsigned brange =
+   171709:   62:      random::detail::subtract<base_result>()((eng.max)(), (eng.min)());
         -:   63:
-    #####:   64:    if(range == 0) {
-    #####:   65:      return min_value;    
-    #####:   66:    } else if(brange == range) {
-=======
-    11626:   59:    const range_type range = random::detail::subtract<result_type>()(max_value, min_value);
-     5813:   60:    const base_result bmin = (eng.min)();
-     5813:   61:    const base_unsigned brange =
-     5813:   62:      random::detail::subtract<base_result>()((eng.max)(), (eng.min)());
-        -:   63:
-     5813:   64:    if(range == 0) {
-     5813:   65:      return min_value;    
-     5813:   66:    } else if(brange == range) {
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:   64:    if(range == 0) {
+   171709:   65:      return min_value;    
+   171709:   66:    } else if(brange == range) {
         -:   67:      // this will probably never happen in real life
         -:   68:      // basically nothing to do; just take care we don't overflow / underflow
     #####:   69:      base_unsigned v = random::detail::subtract<base_result>()(eng(), bmin);
     #####:   70:      return random::detail::add<base_unsigned, result_type>()(v, min_value);
-<<<<<<< HEAD
-    #####:   71:    } else if(brange < range) {
-=======
-     5813:   71:    } else if(brange < range) {
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:   71:    } else if(brange < range) {
         -:   72:      // use rejection method to handle things like 0..3 --> 0..4
     #####:   73:      for(;;) {
         -:   74:        // concatenate several invocations of the base RNG
@@ -235,42 +212,24 @@
         -:  208:      // and there are no explicit converison operators.
         -:  209:
         -:  210:      if(brange == (std::numeric_limits<base_unsigned>::max)()) {
-<<<<<<< HEAD
-    #####:  211:        bucket_size = static_cast<mixed_range_type>(brange) / (static_cast<mixed_range_type>(range)+1);
-    #####:  212:        if(static_cast<mixed_range_type>(brange) % (static_cast<mixed_range_type>(range)+1) == static_cast<mixed_range_type>(range)) {
-    #####:  213:          ++bucket_size;
-=======
-     5813:  211:        bucket_size = static_cast<mixed_range_type>(brange) / (static_cast<mixed_range_type>(range)+1);
-     5813:  212:        if(static_cast<mixed_range_type>(brange) % (static_cast<mixed_range_type>(range)+1) == static_cast<mixed_range_type>(range)) {
-        3:  213:          ++bucket_size;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  211:        bucket_size = static_cast<mixed_range_type>(brange) / (static_cast<mixed_range_type>(range)+1);
+   171709:  212:        if(static_cast<mixed_range_type>(brange) % (static_cast<mixed_range_type>(range)+1) == static_cast<mixed_range_type>(range)) {
+       16:  213:          ++bucket_size;
         -:  214:        }
         -:  215:      } else {
         -:  216:        bucket_size = static_cast<mixed_range_type>(brange + 1) / (static_cast<mixed_range_type>(range)+1);
         -:  217:      }
         -:  218:      for(;;) {
         -:  219:        mixed_range_type result =
-<<<<<<< HEAD
-    #####:  220:          random::detail::subtract<base_result>()(eng(), bmin);
-    #####:  221:        result /= bucket_size;
+   171718:  220:          random::detail::subtract<base_result>()(eng(), bmin);
+   171718:  221:        result /= bucket_size;
         -:  222:        // result and range are non-negative, and result is possibly larger
         -:  223:        // than range, so the cast is safe
-    #####:  224:        if(result <= static_cast<mixed_range_type>(range))
-    #####:  225:          return random::detail::add<mixed_range_type, result_type>()(result, min_value);
+   171718:  224:        if(result <= static_cast<mixed_range_type>(range))
+   343418:  225:          return random::detail::add<mixed_range_type, result_type>()(result, min_value);
         -:  226:      }
         -:  227:    }
-    #####:  228:}
-=======
-     5813:  220:          random::detail::subtract<base_result>()(eng(), bmin);
-     5813:  221:        result /= bucket_size;
-        -:  222:        // result and range are non-negative, and result is possibly larger
-        -:  223:        // than range, so the cast is safe
-     5813:  224:        if(result <= static_cast<mixed_range_type>(range))
-    11626:  225:          return random::detail::add<mixed_range_type, result_type>()(result, min_value);
-        -:  226:      }
-        -:  227:    }
-     5813:  228:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  228:}
         -:  229:
         -:  230:#ifdef BOOST_MSVC
         -:  231:#pragma warning(pop)
@@ -286,19 +245,11 @@
         -:  241:}
         -:  242:
         -:  243:template<class Engine, class T>
-<<<<<<< HEAD
-    #####:  244:inline T generate_uniform_int(Engine& eng, T min_value, T max_value)
+   171709:  244:inline T generate_uniform_int(Engine& eng, T min_value, T max_value)
         -:  245:{
         -:  246:    typedef typename Engine::result_type base_result;
         -:  247:    return generate_uniform_int(eng, min_value, max_value,
-    #####:  248:        boost::random::traits::is_integral<base_result>());
-=======
-     5813:  244:inline T generate_uniform_int(Engine& eng, T min_value, T max_value)
-        -:  245:{
-        -:  246:    typedef typename Engine::result_type base_result;
-        -:  247:    return generate_uniform_int(eng, min_value, max_value,
-    11626:  248:        boost::random::traits::is_integral<base_result>());
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   343418:  248:        boost::random::traits::is_integral<base_result>());
         -:  249:}
         -:  250:
         -:  251:}
@@ -311,11 +262,7 @@
         -:  258: * The template parameter IntType shall denote an integer-like value type.
         -:  259: */
         -:  260:template<class IntType = int>
-<<<<<<< HEAD
-    #####:  261:class uniform_int_distribution
-=======
-     5813:  261:class uniform_int_distribution
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  261:class uniform_int_distribution
         -:  262:{
         -:  263:public:
         -:  264:    typedef IntType input_type;
@@ -386,23 +333,13 @@
         -:  329:     *
         -:  330:     * Requires: min <= max
         -:  331:     */
-<<<<<<< HEAD
-    #####:  332:    explicit uniform_int_distribution(
+   171709:  332:    explicit uniform_int_distribution(
         -:  333:        IntType min_arg = 0,
         -:  334:        IntType max_arg = (std::numeric_limits<IntType>::max)())
-    #####:  335:      : _min(min_arg), _max(max_arg)
+   343418:  335:      : _min(min_arg), _max(max_arg)
         -:  336:    {
-    #####:  337:        BOOST_ASSERT(min_arg <= max_arg);
-    #####:  338:    }
-=======
-     5813:  332:    explicit uniform_int_distribution(
-        -:  333:        IntType min_arg = 0,
-        -:  334:        IntType max_arg = (std::numeric_limits<IntType>::max)())
-    11626:  335:      : _min(min_arg), _max(max_arg)
-        -:  336:    {
-    5813*:  337:        BOOST_ASSERT(min_arg <= max_arg);
-     5813:  338:    }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  171709*:  337:        BOOST_ASSERT(min_arg <= max_arg);
+   171709:  338:    }
         -:  339:    /** Constructs a uniform_int_distribution from its parameters. */
         -:  340:    explicit uniform_int_distribution(const param_type& parm)
         -:  341:      : _min(parm.a()), _max(parm.b()) {}
@@ -434,13 +371,8 @@
         -:  367:
         -:  368:    /** Returns an integer uniformly distributed in the range [min, max]. */
         -:  369:    template<class Engine>
-<<<<<<< HEAD
-    #####:  370:    result_type operator()(Engine& eng) const
-    #####:  371:    { return detail::generate_uniform_int(eng, _min, _max); }
-=======
-     5813:  370:    result_type operator()(Engine& eng) const
-    17439:  371:    { return detail::generate_uniform_int(eng, _min, _max); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  370:    result_type operator()(Engine& eng) const
+   515127:  371:    { return detail::generate_uniform_int(eng, _min, _max); }
         -:  372:
         -:  373:    /**
         -:  374:     * Returns an integer uniformly distributed in the range

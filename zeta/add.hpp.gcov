@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/multiprecision/cpp_int/add.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:///////////////////////////////////////////////////////////////
         -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -29,40 +25,22 @@
         -:   21:// This is the key addition routine where all the argument types are non-trivial cpp_int's:
         -:   22://
         -:   23:template <class CppInt1, class CppInt2, class CppInt3>
-<<<<<<< HEAD
-       89:   24:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
-=======
-    25814:   24:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:   24:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
         -:   25:{
         -:   26:   using ::boost::multiprecision::std_constexpr::swap;
         -:   27:
         -:   28:   // Nothing fancy, just let uintmax_t take the strain:
-<<<<<<< HEAD
-       89:   29:   double_limb_type carry = 0;
-       89:   30:   unsigned         m(0), x(0);
-       89:   31:   unsigned         as = a.size();
-       89:   32:   unsigned         bs = b.size();
-       89:   33:   minmax(as, bs, m, x);
-       89:   34:   if (x == 1)
+   171709:   29:   double_limb_type carry = 0;
+   171709:   30:   unsigned         m(0), x(0);
+   171709:   31:   unsigned         as = a.size();
+   171709:   32:   unsigned         bs = b.size();
+   171709:   33:   minmax(as, bs, m, x);
+   171709:   34:   if (x == 1)
         -:   35:   {
-       89:   36:      bool s = a.sign();
-      267:   37:      result = static_cast<double_limb_type>(*a.limbs()) + static_cast<double_limb_type>(*b.limbs());
-       89:   38:      result.sign(s);
-       89:   39:      return;
-=======
-    25814:   29:   double_limb_type carry = 0;
-    25814:   30:   unsigned         m(0), x(0);
-    25814:   31:   unsigned         as = a.size();
-    25814:   32:   unsigned         bs = b.size();
-    25814:   33:   minmax(as, bs, m, x);
-    25814:   34:   if (x == 1)
-        -:   35:   {
-    25814:   36:      bool s = a.sign();
-    77442:   37:      result = static_cast<double_limb_type>(*a.limbs()) + static_cast<double_limb_type>(*b.limbs());
-    25814:   38:      result.sign(s);
-    25814:   39:      return;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:   36:      bool s = a.sign();
+   515127:   37:      result = static_cast<double_limb_type>(*a.limbs()) + static_cast<double_limb_type>(*b.limbs());
+   171709:   38:      result.sign(s);
+   171709:   39:      return;
         -:   40:   }
     #####:   41:   result.resize(x, x);
     #####:   42:   typename CppInt2::const_limb_pointer pa     = a.limbs();
@@ -118,64 +96,34 @@
         -:   92:// As above, but for adding a single limb to a non-trivial cpp_int:
         -:   93://
         -:   94:template <class CppInt1, class CppInt2>
-<<<<<<< HEAD
-        2:   95:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const limb_type& o) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
+       18:   95:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const limb_type& o) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
         -:   96:{
         -:   97:   // Addition using modular arithmetic.
         -:   98:   // Nothing fancy, just let uintmax_t take the strain:
-        2:   99:   if (&result != &a)
+       18:   99:   if (&result != &a)
     #####:  100:      result.resize(a.size(), a.size());
-        2:  101:   double_limb_type                     carry = o;
-        2:  102:   typename CppInt1::limb_pointer       pr    = result.limbs();
-        2:  103:   typename CppInt2::const_limb_pointer pa    = a.limbs();
-        2:  104:   unsigned                             i     = 0;
+       18:  101:   double_limb_type                     carry = o;
+       18:  102:   typename CppInt1::limb_pointer       pr    = result.limbs();
+       18:  103:   typename CppInt2::const_limb_pointer pa    = a.limbs();
+       18:  104:   unsigned                             i     = 0;
         -:  105:   // Addition with carry until we either run out of digits or carry is zero:
-        4:  106:   for (; carry && (i < result.size()); ++i)
+       36:  106:   for (; carry && (i < result.size()); ++i)
         -:  107:   {
-        2:  108:      carry += static_cast<double_limb_type>(pa[i]);
+       18:  108:      carry += static_cast<double_limb_type>(pa[i]);
         -:  109:#ifdef __MSVC_RUNTIME_CHECKS
         -:  110:      pr[i] = static_cast<limb_type>(carry & ~static_cast<limb_type>(0));
         -:  111:#else
-        2:  112:      pr[i] = static_cast<limb_type>(carry);
+       18:  112:      pr[i] = static_cast<limb_type>(carry);
         -:  113:#endif
-        2:  114:      carry >>= CppInt1::limb_bits;
+       18:  114:      carry >>= CppInt1::limb_bits;
         -:  115:   }
         -:  116:   // Just copy any remaining digits:
-        2:  117:   if (&a != &result)
-=======
-        8:   95:inline BOOST_MP_CXX14_CONSTEXPR void add_unsigned(CppInt1& result, const CppInt2& a, const limb_type& o) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
-        -:   96:{
-        -:   97:   // Addition using modular arithmetic.
-        -:   98:   // Nothing fancy, just let uintmax_t take the strain:
-        8:   99:   if (&result != &a)
-    #####:  100:      result.resize(a.size(), a.size());
-        8:  101:   double_limb_type                     carry = o;
-        8:  102:   typename CppInt1::limb_pointer       pr    = result.limbs();
-        8:  103:   typename CppInt2::const_limb_pointer pa    = a.limbs();
-        8:  104:   unsigned                             i     = 0;
-        -:  105:   // Addition with carry until we either run out of digits or carry is zero:
-       16:  106:   for (; carry && (i < result.size()); ++i)
-        -:  107:   {
-        8:  108:      carry += static_cast<double_limb_type>(pa[i]);
-        -:  109:#ifdef __MSVC_RUNTIME_CHECKS
-        -:  110:      pr[i] = static_cast<limb_type>(carry & ~static_cast<limb_type>(0));
-        -:  111:#else
-        8:  112:      pr[i] = static_cast<limb_type>(carry);
-        -:  113:#endif
-        8:  114:      carry >>= CppInt1::limb_bits;
-        -:  115:   }
-        -:  116:   // Just copy any remaining digits:
-        8:  117:   if (&a != &result)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  117:   if (&a != &result)
         -:  118:   {
     #####:  119:      for (; i < result.size(); ++i)
     #####:  120:         pr[i] = pa[i];
         -:  121:   }
-<<<<<<< HEAD
-        2:  122:   if (carry)
-=======
-        8:  122:   if (carry)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  122:   if (carry)
         -:  123:   {
         -:  124:      // We overflowed, need to add one more limb:
     #####:  125:      unsigned x = result.size();
@@ -183,66 +131,36 @@
     #####:  127:      if (result.size() > x)
     #####:  128:         result.limbs()[x] = static_cast<limb_type>(carry);
         -:  129:   }
-<<<<<<< HEAD
-        2:  130:   result.normalize();
-        2:  131:   result.sign(a.sign());
-        2:  132:}
-=======
-        8:  130:   result.normalize();
-        8:  131:   result.sign(a.sign());
-        8:  132:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  130:   result.normalize();
+       18:  131:   result.sign(a.sign());
+       18:  132:}
         -:  133://
         -:  134:// Core subtraction routine for all non-trivial cpp_int's:
         -:  135://
         -:  136:template <class CppInt1, class CppInt2, class CppInt3>
-<<<<<<< HEAD
-        1:  137:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
-=======
-     5817:  137:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  137:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const CppInt3& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
         -:  138:{
         -:  139:   using ::boost::multiprecision::std_constexpr::swap;
         -:  140:
         -:  141:   // Nothing fancy, just let uintmax_t take the strain:
-<<<<<<< HEAD
-        1:  142:   double_limb_type borrow = 0;
-        1:  143:   unsigned         m(0), x(0);
-        1:  144:   minmax(a.size(), b.size(), m, x);
+   171718:  142:   double_limb_type borrow = 0;
+   171718:  143:   unsigned         m(0), x(0);
+   171718:  144:   minmax(a.size(), b.size(), m, x);
         -:  145:   //
         -:  146:   // special cases for small limb counts:
         -:  147:   //
-        1:  148:   if (x == 1)
+   171718:  148:   if (x == 1)
         -:  149:   {
-        1:  150:      bool      s  = a.sign();
-        1:  151:      limb_type al = *a.limbs();
-        1:  152:      limb_type bl = *b.limbs();
-        1:  153:      if (bl > al)
-=======
-     5817:  142:   double_limb_type borrow = 0;
-     5817:  143:   unsigned         m(0), x(0);
-     5817:  144:   minmax(a.size(), b.size(), m, x);
-        -:  145:   //
-        -:  146:   // special cases for small limb counts:
-        -:  147:   //
-     5817:  148:   if (x == 1)
-        -:  149:   {
-     5817:  150:      bool      s  = a.sign();
-     5817:  151:      limb_type al = *a.limbs();
-     5817:  152:      limb_type bl = *b.limbs();
-     5817:  153:      if (bl > al)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  150:      bool      s  = a.sign();
+   171718:  151:      limb_type al = *a.limbs();
+   171718:  152:      limb_type bl = *b.limbs();
+   171718:  153:      if (bl > al)
         -:  154:      {
-    #####:  155:         ::boost::multiprecision::std_constexpr::swap(al, bl);
-    #####:  156:         s = !s;
+        1:  155:         ::boost::multiprecision::std_constexpr::swap(al, bl);
+        1:  156:         s = !s;
         -:  157:      }
-<<<<<<< HEAD
-        1:  158:      result = al - bl;
-        1:  159:      result.sign(s);
-=======
-     5817:  158:      result = al - bl;
-     5817:  159:      result.sign(s);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  158:      result = al - bl;
+   171718:  159:      result.sign(s);
         -:  160:      return;
         -:  161:   }
         -:  162:   // This isn't used till later, but comparison has to occur before we resize the result,
@@ -300,44 +218,25 @@
         -:  214:// And again to subtract a single limb:
         -:  215://
         -:  216:template <class CppInt1, class CppInt2>
-<<<<<<< HEAD
-        1:  217:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const limb_type& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
-=======
-    17443:  217:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const limb_type& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  217:inline BOOST_MP_CXX14_CONSTEXPR void subtract_unsigned(CppInt1& result, const CppInt2& a, const limb_type& b) BOOST_MP_NOEXCEPT_IF(is_non_throwing_cpp_int<CppInt1>::value)
         -:  218:{
         -:  219:   // Subtract one limb.
         -:  220:   // Nothing fancy, just let uintmax_t take the strain:
         -:  221:#ifdef BOOST_NO_CXX14_CONSTEXPR
         -:  222:   BOOST_STATIC_CONSTANT(double_limb_type, borrow = static_cast<double_limb_type>(CppInt1::max_limb_value) + 1);
         -:  223:#else
-<<<<<<< HEAD
-        1:  224:   constexpr double_limb_type borrow = static_cast<double_limb_type>(CppInt1::max_limb_value) + 1;
+   554680:  224:   constexpr double_limb_type borrow = static_cast<double_limb_type>(CppInt1::max_limb_value) + 1;
         -:  225:#endif
-        1:  226:   result.resize(a.size(), a.size());
-        1:  227:   typename CppInt1::limb_pointer       pr = result.limbs();
-        1:  228:   typename CppInt2::const_limb_pointer pa = a.limbs();
-        1:  229:   if (*pa >= b)
+   554680:  226:   result.resize(a.size(), a.size());
+   554680:  227:   typename CppInt1::limb_pointer       pr = result.limbs();
+   554680:  228:   typename CppInt2::const_limb_pointer pa = a.limbs();
+   554680:  229:   if (*pa >= b)
         -:  230:   {
-        1:  231:      *pr = *pa - b;
-        1:  232:      if (&result != &a)
+   554680:  231:      *pr = *pa - b;
+   554680:  232:      if (&result != &a)
         -:  233:      {
-        1:  234:         std_constexpr::copy(pa + 1, pa + a.size(), pr + 1);
-        1:  235:         result.sign(a.sign());
-=======
-    17443:  224:   constexpr double_limb_type borrow = static_cast<double_limb_type>(CppInt1::max_limb_value) + 1;
-        -:  225:#endif
-    17443:  226:   result.resize(a.size(), a.size());
-    17443:  227:   typename CppInt1::limb_pointer       pr = result.limbs();
-    17443:  228:   typename CppInt2::const_limb_pointer pa = a.limbs();
-    17443:  229:   if (*pa >= b)
-        -:  230:   {
-    17443:  231:      *pr = *pa - b;
-    17443:  232:      if (&result != &a)
-        -:  233:      {
-    17443:  234:         std_constexpr::copy(pa + 1, pa + a.size(), pr + 1);
-    17443:  235:         result.sign(a.sign());
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  234:         std_constexpr::copy(pa + 1, pa + a.size(), pr + 1);
+   554680:  235:         result.sign(a.sign());
         -:  236:      }
     #####:  237:      else if ((result.size() == 1) && (*pr == 0))
         -:  238:      {
@@ -367,79 +266,44 @@
     #####:  262:      result.normalize();
     #####:  263:      result.sign(a.sign());
         -:  264:   }
-<<<<<<< HEAD
-        1:  265:}
-=======
-    17443:  265:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  265:}
         -:  266:
         -:  267://
         -:  268:// Now the actual functions called by the front end, all of which forward to one of the above:
         -:  269://
         -:  270:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  271:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
-<<<<<<< HEAD
-      89*:  272:eval_add(
+    #####:  272:eval_add(
         -:  273:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
         -:  274:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  275:{
-      89*:  276:   eval_add(result, result, o);
+    #####:  276:   eval_add(result, result, o);
     #####:  277:}
         -:  278:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2, unsigned MinBits3, unsigned MaxBits3, cpp_integer_type SignType3, cpp_int_check_type Checked3, class Allocator3>
         -:  279:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3> >::value>::type
-       89:  280:eval_add(
-=======
-   20001*:  272:eval_add(
-        -:  273:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
-        -:  274:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
-        -:  275:{
-   20001*:  276:   eval_add(result, result, o);
-    #####:  277:}
-        -:  278:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2, unsigned MinBits3, unsigned MaxBits3, cpp_integer_type SignType3, cpp_int_check_type Checked3, class Allocator3>
-        -:  279:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3> >::value>::type
-    25814:  280:eval_add(
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  280:eval_add(
         -:  281:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
         -:  282:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
         -:  283:    const cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3>& b) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  284:{
-<<<<<<< HEAD
-       89:  285:   if (a.sign() != b.sign())
-=======
-    25814:  285:   if (a.sign() != b.sign())
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171709:  285:   if (a.sign() != b.sign())
         -:  286:   {
     #####:  287:      subtract_unsigned(result, a, b);
     #####:  288:      return;
         -:  289:   }
-<<<<<<< HEAD
-       89:  290:   add_unsigned(result, a, b);
+   171709:  290:   add_unsigned(result, a, b);
         -:  291:}
         -:  292:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
         -:  293:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-        2:  294:eval_add(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result, const limb_type& o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
+       18:  294:eval_add(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result, const limb_type& o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  295:{
-        2:  296:   if (result.sign())
-=======
-    25814:  290:   add_unsigned(result, a, b);
-        -:  291:}
-        -:  292:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
-        -:  293:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-        8:  294:eval_add(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result, const limb_type& o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
-        -:  295:{
-        8:  296:   if (result.sign())
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  296:   if (result.sign())
         -:  297:   {
     #####:  298:      subtract_unsigned(result, result, o);
         -:  299:   }
         -:  300:   else
-<<<<<<< HEAD
-        2:  301:      add_unsigned(result, result, o);
-        2:  302:}
-=======
-        8:  301:      add_unsigned(result, result, o);
-        8:  302:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  301:      add_unsigned(result, result, o);
+       18:  302:}
         -:  303:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  304:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
     #####:  305:eval_add(
@@ -456,27 +320,15 @@
     #####:  316:}
         -:  317:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
         -:  318:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-<<<<<<< HEAD
-       65:  319:eval_add(
+    #####:  319:eval_add(
         -:  320:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
         -:  321:    const signed_limb_type&                                               o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  322:{
-       65:  323:   if (o < 0)
+    #####:  323:   if (o < 0)
     #####:  324:      eval_subtract(result, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
-       65:  325:   else if (o > 0)
+    #####:  325:   else if (o > 0)
     #####:  326:      eval_add(result, static_cast<limb_type>(o));
-       65:  327:}
-=======
-    48876:  319:eval_add(
-        -:  320:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result,
-        -:  321:    const signed_limb_type&                                               o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
-        -:  322:{
-    48876:  323:   if (o < 0)
-    #####:  324:      eval_subtract(result, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
-    48876:  325:   else if (o > 0)
-    #####:  326:      eval_add(result, static_cast<limb_type>(o));
-    48876:  327:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+    #####:  327:}
         -:  328:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  329:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
     #####:  330:eval_add(
@@ -506,34 +358,20 @@
     #####:  354:}
         -:  355:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  356:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
-<<<<<<< HEAD
-        1:  357:eval_subtract(
-=======
-    17443:  357:eval_subtract(
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  357:eval_subtract(
         -:  358:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
         -:  359:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
         -:  360:    const limb_type&                                                            o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  361:{
-<<<<<<< HEAD
-        1:  362:   if (a.sign())
-=======
-    17443:  362:   if (a.sign())
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  362:   if (a.sign())
         -:  363:   {
     #####:  364:      add_unsigned(result, a, o);
         -:  365:   }
         -:  366:   else
         -:  367:   {
-<<<<<<< HEAD
-        1:  368:      subtract_unsigned(result, a, o);
+   554680:  368:      subtract_unsigned(result, a, o);
         -:  369:   }
-        1:  370:}
-=======
-    17443:  368:      subtract_unsigned(result, a, o);
-        -:  369:   }
-    17443:  370:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  370:}
         -:  371:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
         -:  372:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
         -:  373:eval_subtract(
@@ -550,61 +388,33 @@
         -:  384:}
         -:  385:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  386:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
-<<<<<<< HEAD
-        1:  387:eval_subtract(
-=======
-    17443:  387:eval_subtract(
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   554680:  387:eval_subtract(
         -:  388:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
         -:  389:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
         -:  390:    const signed_limb_type&                                                     o) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  391:{
-<<<<<<< HEAD
-        1:  392:   if (o)
+   554680:  392:   if (o)
         -:  393:   {
-        1:  394:      if (o < 0)
+   554680:  394:      if (o < 0)
     #####:  395:         eval_add(result, a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
         -:  396:      else
-        1:  397:         eval_subtract(result, a, static_cast<limb_type>(o));
+   554680:  397:         eval_subtract(result, a, static_cast<limb_type>(o));
         -:  398:   }
     #####:  399:   else if (&result != &a)
-        1:  400:      result = a;
-        1:  401:}
+   554680:  400:      result = a;
+   554680:  401:}
         -:  402:
         -:  403:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
         -:  404:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-      202:  405:eval_increment(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
-=======
-    17443:  392:   if (o)
-        -:  393:   {
-    17443:  394:      if (o < 0)
-    #####:  395:         eval_add(result, a, static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(o)));
-        -:  396:      else
-    17443:  397:         eval_subtract(result, a, static_cast<limb_type>(o));
-        -:  398:   }
-    #####:  399:   else if (&result != &a)
-    17443:  400:      result = a;
-    17443:  401:}
-        -:  402:
-        -:  403:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
-        -:  404:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-    80895:  405:eval_increment(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  4210008:  405:eval_increment(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  406:{
         -:  407:#ifdef BOOST_NO_CXX14_CONSTEXPR
         -:  408:   static const limb_type one = 1;
         -:  409:#else
-<<<<<<< HEAD
-      202:  410:   constexpr const limb_type one = 1;
+  4210008:  410:   constexpr const limb_type one = 1;
         -:  411:#endif
-      404:  412:   if (!result.sign() && (result.limbs()[0] < cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::max_limb_value))
-      202:  413:      ++result.limbs()[0];
-=======
-    80895:  410:   constexpr const limb_type one = 1;
-        -:  411:#endif
-   161790:  412:   if (!result.sign() && (result.limbs()[0] < cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::max_limb_value))
-    80895:  413:      ++result.limbs()[0];
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  8420016:  412:   if (!result.sign() && (result.limbs()[0] < cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::max_limb_value))
+  4210008:  413:      ++result.limbs()[0];
     #####:  414:   else if (result.sign() && result.limbs()[0])
         -:  415:   {
     #####:  416:      --result.limbs()[0];
@@ -613,41 +423,23 @@
         -:  419:   }
         -:  420:   else
     #####:  421:      eval_add(result, one);
-<<<<<<< HEAD
-      202:  422:}
+  4210008:  422:}
         -:  423:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
         -:  424:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
     #####:  425:eval_decrement(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
-=======
-    80895:  422:}
-        -:  423:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1>
-        -:  424:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value>::type
-    34884:  425:eval_decrement(cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>& result) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  426:{
         -:  427:#ifdef BOOST_NO_CXX14_CONSTEXPR
         -:  428:   static const limb_type one = 1;
         -:  429:#else
-<<<<<<< HEAD
     #####:  430:   constexpr const limb_type one = 1;
         -:  431:#endif
     #####:  432:   if (!result.sign() && result.limbs()[0])
     #####:  433:      --result.limbs()[0];
-=======
-    34884:  430:   constexpr const limb_type one = 1;
-        -:  431:#endif
-    69768:  432:   if (!result.sign() && result.limbs()[0])
-    34884:  433:      --result.limbs()[0];
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  434:   else if (result.sign() && (result.limbs()[0] < cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::max_limb_value))
     #####:  435:      ++result.limbs()[0];
         -:  436:   else
     #####:  437:      eval_subtract(result, one);
-<<<<<<< HEAD
     #####:  438:}
-=======
-    34884:  438:}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  439:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
         -:  440:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value>::type
     #####:  441:eval_subtract(
@@ -658,29 +450,17 @@
     #####:  446:}
         -:  447:template <unsigned MinBits1, unsigned MaxBits1, cpp_integer_type SignType1, cpp_int_check_type Checked1, class Allocator1, unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2, unsigned MinBits3, unsigned MaxBits3, cpp_integer_type SignType3, cpp_int_check_type Checked3, class Allocator3>
         -:  448:BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value && !is_trivial_cpp_int<cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3> >::value>::type
-<<<<<<< HEAD
-        1:  449:eval_subtract(
-=======
-     5817:  449:eval_subtract(
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  449:eval_subtract(
         -:  450:    cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>&       result,
         -:  451:    const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& a,
         -:  452:    const cpp_int_backend<MinBits3, MaxBits3, SignType3, Checked3, Allocator3>& b) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value))
         -:  453:{
-<<<<<<< HEAD
-        1:  454:   if (a.sign() != b.sign())
-=======
-     5817:  454:   if (a.sign() != b.sign())
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  454:   if (a.sign() != b.sign())
         -:  455:   {
     #####:  456:      add_unsigned(result, a, b);
     #####:  457:      return;
         -:  458:   }
-<<<<<<< HEAD
-        1:  459:   subtract_unsigned(result, a, b);
-=======
-     5817:  459:   subtract_unsigned(result, a, b);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   171718:  459:   subtract_unsigned(result, a, b);
         -:  460:}
         -:  461:
         -:  462://

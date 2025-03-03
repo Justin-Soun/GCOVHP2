@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_iterator_base_funcs.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Functions used by iterators -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -104,21 +100,13 @@
         -:   96:  template<typename _RandomAccessIterator>
         -:   97:    inline _GLIBCXX14_CONSTEXPR
         -:   98:    typename iterator_traits<_RandomAccessIterator>::difference_type
-<<<<<<< HEAD
-        6:   99:    __distance(_RandomAccessIterator __first, _RandomAccessIterator __last,
-=======
-       24:   99:    __distance(_RandomAccessIterator __first, _RandomAccessIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       54:   99:    __distance(_RandomAccessIterator __first, _RandomAccessIterator __last,
         -:  100:               random_access_iterator_tag)
         -:  101:    {
         -:  102:      // concept requirements
         -:  103:      __glibcxx_function_requires(_RandomAccessIteratorConcept<
         -:  104:				  _RandomAccessIterator>)
-<<<<<<< HEAD
-        6:  105:      return __last - __first;
-=======
-       24:  105:      return __last - __first;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       54:  105:      return __last - __first;
         -:  106:    }
         -:  107:
         -:  108:#if _GLIBCXX_USE_CXX11_ABI
@@ -160,17 +148,10 @@
         -:  144:    _GLIBCXX_NODISCARD
         -:  145:    inline _GLIBCXX17_CONSTEXPR
         -:  146:    typename iterator_traits<_InputIterator>::difference_type
-<<<<<<< HEAD
-        6:  147:    distance(_InputIterator __first, _InputIterator __last)
+       54:  147:    distance(_InputIterator __first, _InputIterator __last)
         -:  148:    {
         -:  149:      // concept requirements -- taken care of in __distance
-        6:  150:      return std::__distance(__first, __last,
-=======
-       24:  147:    distance(_InputIterator __first, _InputIterator __last)
-        -:  148:    {
-        -:  149:      // concept requirements -- taken care of in __distance
-       24:  150:      return std::__distance(__first, __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       54:  150:      return std::__distance(__first, __last,
         -:  151:			     std::__iterator_category(__first));
         -:  152:    }
         -:  153:

@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_algo.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Algorithm implementation -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -3848,11 +3844,7 @@
         -: 3840:  template<typename _InputIterator, typename _Tp>
         -: 3841:    _GLIBCXX20_CONSTEXPR
         -: 3842:    inline _InputIterator
-<<<<<<< HEAD
-       89: 3843:    find(_InputIterator __first, _InputIterator __last,
-=======
-    54885: 3843:    find(_InputIterator __first, _InputIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  2105004: 3843:    find(_InputIterator __first, _InputIterator __last,
         -: 3844:	 const _Tp& __val)
         -: 3845:    {
         -: 3846:      // concept requirements
@@ -3860,13 +3852,8 @@
         -: 3848:      __glibcxx_function_requires(_EqualOpConcept<
         -: 3849:		typename iterator_traits<_InputIterator>::value_type, _Tp>)
         -: 3850:      __glibcxx_requires_valid_range(__first, __last);
-<<<<<<< HEAD
-       89: 3851:      return std::__find_if(__first, __last,
-       89: 3852:			    __gnu_cxx::__ops::__iter_equals_val(__val));
-=======
-    54885: 3851:      return std::__find_if(__first, __last,
-    54885: 3852:			    __gnu_cxx::__ops::__iter_equals_val(__val));
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+  2105004: 3851:      return std::__find_if(__first, __last,
+  2105004: 3852:			    __gnu_cxx::__ops::__iter_equals_val(__val));
         -: 3853:    }
         -: 3854:
         -: 3855:  /**

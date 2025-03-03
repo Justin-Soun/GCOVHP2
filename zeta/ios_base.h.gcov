@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/ios_base.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Iostreams base classes -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 1997-2022 Free Software Foundation, Inc.
@@ -88,13 +84,8 @@
         -:   80:    };
         -:   81:
         -:   82:  inline _GLIBCXX_CONSTEXPR _Ios_Fmtflags
-<<<<<<< HEAD
-       5*:   83:  operator&(_Ios_Fmtflags __a, _Ios_Fmtflags __b)
-       2*:   84:  { return _Ios_Fmtflags(static_cast<int>(__a) & static_cast<int>(__b)); }
-=======
-      20*:   83:  operator&(_Ios_Fmtflags __a, _Ios_Fmtflags __b)
-       8*:   84:  { return _Ios_Fmtflags(static_cast<int>(__a) & static_cast<int>(__b)); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      45*:   83:  operator&(_Ios_Fmtflags __a, _Ios_Fmtflags __b)
+      18*:   84:  { return _Ios_Fmtflags(static_cast<int>(__a) & static_cast<int>(__b)); }
         -:   85:
         -:   86:  inline _GLIBCXX_CONSTEXPR _Ios_Fmtflags
         -:   87:  operator|(_Ios_Fmtflags __a, _Ios_Fmtflags __b)
@@ -176,21 +167,12 @@
         -:  163:    };
         -:  164:
         -:  165:  inline _GLIBCXX_CONSTEXPR _Ios_Iostate
-<<<<<<< HEAD
-       4*:  166:  operator&(_Ios_Iostate __a, _Ios_Iostate __b)
-       4*:  167:  { return _Ios_Iostate(static_cast<int>(__a) & static_cast<int>(__b)); }
+      36*:  166:  operator&(_Ios_Iostate __a, _Ios_Iostate __b)
+      36*:  167:  { return _Ios_Iostate(static_cast<int>(__a) & static_cast<int>(__b)); }
         -:  168:
         -:  169:  inline _GLIBCXX_CONSTEXPR _Ios_Iostate
-       2*:  170:  operator|(_Ios_Iostate __a, _Ios_Iostate __b)
-       2*:  171:  { return _Ios_Iostate(static_cast<int>(__a) | static_cast<int>(__b)); }
-=======
-      16*:  166:  operator&(_Ios_Iostate __a, _Ios_Iostate __b)
-      16*:  167:  { return _Ios_Iostate(static_cast<int>(__a) & static_cast<int>(__b)); }
-        -:  168:
-        -:  169:  inline _GLIBCXX_CONSTEXPR _Ios_Iostate
-       8*:  170:  operator|(_Ios_Iostate __a, _Ios_Iostate __b)
-       8*:  171:  { return _Ios_Iostate(static_cast<int>(__a) | static_cast<int>(__b)); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      18*:  170:  operator|(_Ios_Iostate __a, _Ios_Iostate __b)
+      18*:  171:  { return _Ios_Iostate(static_cast<int>(__a) | static_cast<int>(__b)); }
         -:  172:
         -:  173:  inline _GLIBCXX_CONSTEXPR _Ios_Iostate
         -:  174:  operator^(_Ios_Iostate __a, _Ios_Iostate __b)
@@ -677,13 +659,8 @@
         -:  655:     *  @return  The format control flags for both input and output.
         -:  656:    */
         -:  657:    fmtflags
-<<<<<<< HEAD
-       3*:  658:    flags() const
-       3*:  659:    { return _M_flags; }
-=======
-      12*:  658:    flags() const
-      12*:  659:    { return _M_flags; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      27*:  658:    flags() const
+      27*:  659:    { return _M_flags; }
         -:  660:
         -:  661:    /**
         -:  662:     *  @brief  Setting new format flags all at once.
@@ -753,11 +730,7 @@
         -:  726:    */
         -:  727:    streamsize
         -:  728:    precision() const
-<<<<<<< HEAD
-        1:  729:    { return _M_precision; }
-=======
-        4:  729:    { return _M_precision; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:  729:    { return _M_precision; }
         -:  730:
         -:  731:    /**
         -:  732:     *  @brief  Changing flags.
@@ -779,13 +752,8 @@
         -:  748:     *  <em>Minimum field width</em> refers to the number of characters.
         -:  749:    */
         -:  750:    streamsize
-<<<<<<< HEAD
-        1:  751:    width() const
-        1:  752:    { return _M_width; }
-=======
-        4:  751:    width() const
-        4:  752:    { return _M_width; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:  751:    width() const
+        9:  752:    { return _M_width; }
         -:  753:
         -:  754:    /**
         -:  755:     *  @brief  Changing flags.

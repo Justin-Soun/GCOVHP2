@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_uninitialized.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Raw memory manipulators -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -118,27 +114,15 @@
         -:  110:  template<typename _InputIterator, typename _ForwardIterator>
         -:  111:    _GLIBCXX20_CONSTEXPR
         -:  112:    _ForwardIterator
-<<<<<<< HEAD
-        1:  113:    __do_uninit_copy(_InputIterator __first, _InputIterator __last,
+        6:  113:    __do_uninit_copy(_InputIterator __first, _InputIterator __last,
         -:  114:		     _ForwardIterator __result)
         -:  115:    {
-        1:  116:      _ForwardIterator __cur = __result;
+        6:  116:      _ForwardIterator __cur = __result;
         -:  117:      __try
         -:  118:	{
-       25:  119:	  for (; __first != __last; ++__first, (void)++__cur)
-       24:  120:	    std::_Construct(std::__addressof(*__cur), *__first);
-        1:  121:	  return __cur;
-=======
-        4:  113:    __do_uninit_copy(_InputIterator __first, _InputIterator __last,
-        -:  114:		     _ForwardIterator __result)
-        -:  115:    {
-        4:  116:      _ForwardIterator __cur = __result;
-        -:  117:      __try
-        -:  118:	{
-     6013:  119:	  for (; __first != __last; ++__first, (void)++__cur)
-     6009:  120:	    std::_Construct(std::__addressof(*__cur), *__first);
-        4:  121:	  return __cur;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       6*:  119:	  for (; __first != __last; ++__first, (void)++__cur)
+    #####:  120:	    std::_Construct(std::__addressof(*__cur), *__first);
+        6:  121:	  return __cur;
         -:  122:	}
     =====:  123:      __catch(...)
         -:  124:	{
@@ -152,15 +136,9 @@
         -:  132:    {
         -:  133:      template<typename _InputIterator, typename _ForwardIterator>
         -:  134:        static _ForwardIterator
-<<<<<<< HEAD
-        1:  135:        __uninit_copy(_InputIterator __first, _InputIterator __last,
+        6:  135:        __uninit_copy(_InputIterator __first, _InputIterator __last,
         -:  136:		      _ForwardIterator __result)
-        1:  137:	{ return std::__do_uninit_copy(__first, __last, __result); }
-=======
-        4:  135:        __uninit_copy(_InputIterator __first, _InputIterator __last,
-        -:  136:		      _ForwardIterator __result)
-        4:  137:	{ return std::__do_uninit_copy(__first, __last, __result); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  137:	{ return std::__do_uninit_copy(__first, __last, __result); }
         -:  138:    };
         -:  139:
         -:  140:  template<>
@@ -186,11 +164,7 @@
         -:  160:  */
         -:  161:  template<typename _InputIterator, typename _ForwardIterator>
         -:  162:    inline _ForwardIterator
-<<<<<<< HEAD
-        1:  163:    uninitialized_copy(_InputIterator __first, _InputIterator __last,
-=======
-        4:  163:    uninitialized_copy(_InputIterator __first, _InputIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  163:    uninitialized_copy(_InputIterator __first, _InputIterator __last,
         -:  164:		       _ForwardIterator __result)
         -:  165:    {
         -:  166:      typedef typename iterator_traits<_InputIterator>::value_type
@@ -201,30 +175,18 @@
         -:  171:      // _ValueType1 must be trivially-copyable to use memmove, so don't
         -:  172:      // bother optimizing to std::copy if it isn't.
         -:  173:      // XXX Unnecessary because std::copy would check it anyway?
-<<<<<<< HEAD
-        1:  174:      const bool __can_memmove = __is_trivial(_ValueType1);
-=======
-        4:  174:      const bool __can_memmove = __is_trivial(_ValueType1);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  174:      const bool __can_memmove = __is_trivial(_ValueType1);
         -:  175:
         -:  176:#if __cplusplus < 201103L
         -:  177:      typedef typename iterator_traits<_InputIterator>::reference _From;
         -:  178:#else
         -:  179:      using _From = decltype(*__first);
         -:  180:#endif
-<<<<<<< HEAD
-        1:  181:      const bool __assignable
+        6:  181:      const bool __assignable
         -:  182:	= _GLIBCXX_USE_ASSIGN_FOR_INIT(_ValueType2, _From);
         -:  183:
         -:  184:      return std::__uninitialized_copy<__can_memmove && __assignable>::
-        1:  185:	__uninit_copy(__first, __last, __result);
-=======
-        4:  181:      const bool __assignable
-        -:  182:	= _GLIBCXX_USE_ASSIGN_FOR_INIT(_ValueType2, _From);
-        -:  183:
-        -:  184:      return std::__uninitialized_copy<__can_memmove && __assignable>::
-        4:  185:	__uninit_copy(__first, __last, __result);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  185:	__uninit_copy(__first, __last, __result);
         -:  186:    }
         -:  187:
         -:  188:  /// @cond undocumented
@@ -404,22 +366,14 @@
         -:  362:  template<typename _InputIterator, typename _ForwardIterator, typename _Tp>
         -:  363:    _GLIBCXX20_CONSTEXPR
         -:  364:    inline _ForwardIterator
-<<<<<<< HEAD
-        1:  365:    __uninitialized_copy_a(_InputIterator __first, _InputIterator __last,
-=======
-        4:  365:    __uninitialized_copy_a(_InputIterator __first, _InputIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  365:    __uninitialized_copy_a(_InputIterator __first, _InputIterator __last,
         -:  366:			   _ForwardIterator __result, allocator<_Tp>&)
         -:  367:    {
         -:  368:#ifdef __cpp_lib_is_constant_evaluated
         -:  369:      if (std::is_constant_evaluated())
         -:  370:	return std::__do_uninit_copy(__first, __last, __result);
         -:  371:#endif
-<<<<<<< HEAD
-        1:  372:      return std::uninitialized_copy(__first, __last, __result);
-=======
-        4:  372:      return std::uninitialized_copy(__first, __last, __result);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  372:      return std::uninitialized_copy(__first, __last, __result);
         -:  373:    }
         -:  374:
         -:  375:  template<typename _InputIterator, typename _ForwardIterator,
@@ -1103,11 +1057,7 @@
         -: 1053:  template<typename _Tp, typename _Up, typename _Allocator>
         -: 1054:    _GLIBCXX20_CONSTEXPR
         -: 1055:    inline void
-<<<<<<< HEAD
-       31: 1056:    __relocate_object_a(_Tp* __restrict __dest, _Up* __restrict __orig,
-=======
-    10556: 1056:    __relocate_object_a(_Tp* __restrict __dest, _Up* __restrict __orig,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   279550: 1056:    __relocate_object_a(_Tp* __restrict __dest, _Up* __restrict __orig,
         -: 1057:			_Allocator& __alloc)
         -: 1058:    noexcept(noexcept(std::allocator_traits<_Allocator>::construct(__alloc,
         -: 1059:			 __dest, std::move(*__orig)))
@@ -1115,13 +1065,8 @@
         -: 1061:			    __alloc, std::__addressof(*__orig))))
         -: 1062:    {
         -: 1063:      typedef std::allocator_traits<_Allocator> __traits;
-<<<<<<< HEAD
-       31: 1064:      __traits::construct(__alloc, __dest, std::move(*__orig));
-       31: 1065:      __traits::destroy(__alloc, std::__addressof(*__orig));
-=======
-    10556: 1064:      __traits::construct(__alloc, __dest, std::move(*__orig));
-    10556: 1065:      __traits::destroy(__alloc, std::__addressof(*__orig));
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+   279550: 1064:      __traits::construct(__alloc, __dest, std::move(*__orig));
+   279550: 1065:      __traits::destroy(__alloc, std::__addressof(*__orig));
         -: 1066:    }
         -: 1067:
         -: 1068:  // This class may be specialized for specific types.
@@ -1134,11 +1079,7 @@
         -: 1075:	    typename _Allocator>
         -: 1076:    _GLIBCXX20_CONSTEXPR
         -: 1077:    inline _ForwardIterator
-<<<<<<< HEAD
-       12: 1078:    __relocate_a_1(_InputIterator __first, _InputIterator __last,
-=======
-       84: 1078:    __relocate_a_1(_InputIterator __first, _InputIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      162: 1078:    __relocate_a_1(_InputIterator __first, _InputIterator __last,
         -: 1079:		   _ForwardIterator __result, _Allocator& __alloc)
         -: 1080:    noexcept(noexcept(std::__relocate_object_a(std::addressof(*__result),
         -: 1081:					       std::addressof(*__first),
@@ -1150,19 +1091,11 @@
         -: 1087:	_ValueType2;
         -: 1088:      static_assert(std::is_same<_ValueType, _ValueType2>::value,
         -: 1089:	  "relocation is only possible for values of the same type");
-<<<<<<< HEAD
-       12: 1090:      _ForwardIterator __cur = __result;
-       43: 1091:      for (; __first != __last; ++__first, (void)++__cur)
-       31: 1092:	std::__relocate_object_a(std::__addressof(*__cur),
+      162: 1090:      _ForwardIterator __cur = __result;
+   279712: 1091:      for (; __first != __last; ++__first, (void)++__cur)
+   279550: 1092:	std::__relocate_object_a(std::__addressof(*__cur),
         -: 1093:				 std::__addressof(*__first), __alloc);
-       12: 1094:      return __cur;
-=======
-       84: 1090:      _ForwardIterator __cur = __result;
-    10640: 1091:      for (; __first != __last; ++__first, (void)++__cur)
-    10556: 1092:	std::__relocate_object_a(std::__addressof(*__cur),
-        -: 1093:				 std::__addressof(*__first), __alloc);
-       84: 1094:      return __cur;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      162: 1094:      return __cur;
         -: 1095:    }
         -: 1096:
         -: 1097:  template <typename _Tp, typename _Up>
@@ -1195,21 +1128,13 @@
         -: 1124:	    typename _Allocator>
         -: 1125:    _GLIBCXX20_CONSTEXPR
         -: 1126:    inline _ForwardIterator
-<<<<<<< HEAD
-       12: 1127:    __relocate_a(_InputIterator __first, _InputIterator __last,
-=======
-       84: 1127:    __relocate_a(_InputIterator __first, _InputIterator __last,
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      162: 1127:    __relocate_a(_InputIterator __first, _InputIterator __last,
         -: 1128:		 _ForwardIterator __result, _Allocator& __alloc)
         -: 1129:    noexcept(noexcept(__relocate_a_1(std::__niter_base(__first),
         -: 1130:				     std::__niter_base(__last),
         -: 1131:				     std::__niter_base(__result), __alloc)))
         -: 1132:    {
-<<<<<<< HEAD
-        6: 1133:      return std::__relocate_a_1(std::__niter_base(__first),
-=======
-       42: 1133:      return std::__relocate_a_1(std::__niter_base(__first),
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       81: 1133:      return std::__relocate_a_1(std::__niter_base(__first),
         -: 1134:				 std::__niter_base(__last),
         -: 1135:				 std::__niter_base(__result), __alloc);
         -: 1136:    }

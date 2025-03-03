@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/ostream
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Output streams -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 1997-2022 Free Software Foundation, Inc.
@@ -113,20 +109,12 @@
         -:  105:       *  information, see the iomanip header.
         -:  106:      */
         -:  107:      __ostream_type&
-<<<<<<< HEAD
-       1*:  108:      operator<<(__ostream_type& (*__pf)(__ostream_type&))
-=======
-       4*:  108:      operator<<(__ostream_type& (*__pf)(__ostream_type&))
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  108:      operator<<(__ostream_type& (*__pf)(__ostream_type&))
         -:  109:      {
         -:  110:	// _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  111:	// DR 60. What is a formatted input function?
         -:  112:	// The inserters for manipulators are *not* formatted output functions.
-<<<<<<< HEAD
-       1*:  113:	return __pf(*this);
-=======
-       4*:  113:	return __pf(*this);
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  113:	return __pf(*this);
         -:  114:      }
         -:  115:
         -:  116:      __ostream_type&
@@ -179,13 +167,8 @@
         -:  163:       *  @c num_get facet) to perform numeric formatting.
         -:  164:      */
         -:  165:      __ostream_type&
-<<<<<<< HEAD
-        1:  166:      operator<<(long __n)
-        1:  167:      { return _M_insert(__n); }
-=======
-        4:  166:      operator<<(long __n)
-        4:  167:      { return _M_insert(__n); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        6:  166:      operator<<(long __n)
+        6:  167:      { return _M_insert(__n); }
         -:  168:
         -:  169:      __ostream_type&
         -:  170:      operator<<(unsigned long __n)

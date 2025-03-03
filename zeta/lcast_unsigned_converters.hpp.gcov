@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/lexical_cast/detail/lcast_unsigned_converters.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Copyright Kevlin Henney, 2000-2005.
         -:    2:// Copyright Alexander Nasonov, 2006-2010.
         -:    3:// Copyright Antony Polukhin, 2011-2020.
@@ -89,34 +85,20 @@
         -:   81:            int_type const  m_zero;
         -:   82:
         -:   83:        public:
-<<<<<<< HEAD
-        1:   84:            lcast_put_unsigned(const T n_param, CharT* finish) BOOST_NOEXCEPT 
-        1:   85:                : m_value(n_param), m_finish(finish)
-        1:   86:                , m_czero(lcast_char_constants<CharT>::zero), m_zero(Traits::to_int_type(m_czero))
-=======
-        4:   84:            lcast_put_unsigned(const T n_param, CharT* finish) BOOST_NOEXCEPT 
-        4:   85:                : m_value(n_param), m_finish(finish)
-        4:   86:                , m_czero(lcast_char_constants<CharT>::zero), m_zero(Traits::to_int_type(m_czero))
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:   84:            lcast_put_unsigned(const T n_param, CharT* finish) BOOST_NOEXCEPT 
+        9:   85:                : m_value(n_param), m_finish(finish)
+        9:   86:                , m_czero(lcast_char_constants<CharT>::zero), m_zero(Traits::to_int_type(m_czero))
         -:   87:            {
         -:   88:#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
         -:   89:                BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
         -:   90:#endif
         -:   91:            }
         -:   92:
-<<<<<<< HEAD
-        1:   93:            CharT* convert() {
+        9:   93:            CharT* convert() {
         -:   94:#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
-        1:   95:                std::locale loc;
-        1:   96:                if (loc == std::locale::classic()) {
-        1:   97:                    return main_convert_loop();
-=======
-        4:   93:            CharT* convert() {
-        -:   94:#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
-        4:   95:                std::locale loc;
-        4:   96:                if (loc == std::locale::classic()) {
-        4:   97:                    return main_convert_loop();
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:   95:                std::locale loc;
+        9:   96:                if (loc == std::locale::classic()) {
+        9:   97:                    return main_convert_loop();
         -:   98:                }
         -:   99:
         -:  100:                typedef std::numpunct<CharT> numpunct;
@@ -157,37 +139,20 @@
         -:  135:#else
         -:  136:                return main_convert_loop();
         -:  137:#endif
-<<<<<<< HEAD
-        1:  138:            }
+        9:  138:            }
         -:  139:
         -:  140:        private:
-       4*:  141:            inline bool main_convert_iteration() BOOST_NOEXCEPT {
-       4*:  142:                --m_finish;
-       4*:  143:                int_type const digit = static_cast<int_type>(m_value % 10U);
+      10*:  141:            inline bool main_convert_iteration() BOOST_NOEXCEPT {
+      10*:  142:                --m_finish;
+      10*:  143:                int_type const digit = static_cast<int_type>(m_value % 10U);
     #####:  144:                Traits::assign(*m_finish, Traits::to_char_type(m_zero + digit));
-       4*:  145:                m_value /= 10;
+      10*:  145:                m_value /= 10;
         -:  146:                return !!m_value; // suppressing warnings
         -:  147:            }
         -:  148:
-        1:  149:            inline CharT* main_convert_loop() BOOST_NOEXCEPT {
-        4:  150:                while (main_convert_iteration());
-        1:  151:                return m_finish;
-=======
-        4:  138:            }
-        -:  139:
-        -:  140:        private:
-      25*:  141:            inline bool main_convert_iteration() BOOST_NOEXCEPT {
-      25*:  142:                --m_finish;
-      25*:  143:                int_type const digit = static_cast<int_type>(m_value % 10U);
-    #####:  144:                Traits::assign(*m_finish, Traits::to_char_type(m_zero + digit));
-      25*:  145:                m_value /= 10;
-        -:  146:                return !!m_value; // suppressing warnings
-        -:  147:            }
-        -:  148:
-        4:  149:            inline CharT* main_convert_loop() BOOST_NOEXCEPT {
-       25:  150:                while (main_convert_iteration());
-        4:  151:                return m_finish;
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        9:  149:            inline CharT* main_convert_loop() BOOST_NOEXCEPT {
+       10:  150:                while (main_convert_iteration());
+        9:  151:                return m_finish;
         -:  152:            }
         -:  153:        };
         -:  154:    }

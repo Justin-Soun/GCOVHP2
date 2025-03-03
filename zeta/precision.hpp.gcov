@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/boost/multiprecision/detail/precision.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:///////////////////////////////////////////////////////////////////////////////
         -:    2://  Copyright 2018 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -102,15 +98,9 @@
         -:   94:struct scoped_default_precision
         -:   95:{
         -:   96:   template <class T>
-<<<<<<< HEAD
-       2*:   97:   BOOST_CONSTEXPR scoped_default_precision(const T&) {}
+ 1395188*:   97:   BOOST_CONSTEXPR scoped_default_precision(const T&) {}
         -:   98:   template <class T, class U>
-      89*:   99:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&) {}
-=======
-   44562*:   97:   BOOST_CONSTEXPR scoped_default_precision(const T&) {}
-        -:   98:   template <class T, class U>
-   20001*:   99:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&) {}
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+    #####:   99:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&) {}
         -:  100:   template <class T, class U, class V>
         -:  101:   BOOST_CONSTEXPR scoped_default_precision(const T&, const U&, const V&) {}
         -:  102:

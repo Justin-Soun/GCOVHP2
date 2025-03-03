@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/move.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Move, forward and identity for C++11 + swap -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2007-2022 Free Software Foundation, Inc.
@@ -201,11 +197,7 @@
         -:  193:#else
         -:  194:    void
         -:  195:#endif
-<<<<<<< HEAD
-        4:  196:    swap(_Tp& __a, _Tp& __b)
-=======
-       16:  196:    swap(_Tp& __a, _Tp& __b)
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       36:  196:    swap(_Tp& __a, _Tp& __b)
         -:  197:    _GLIBCXX_NOEXCEPT_IF(__and_<is_nothrow_move_constructible<_Tp>,
         -:  198:				is_nothrow_move_assignable<_Tp>>::value)
         -:  199:    {
@@ -213,17 +205,10 @@
         -:  201:      // concept requirements
         -:  202:      __glibcxx_function_requires(_SGIAssignableConcept<_Tp>)
         -:  203:#endif
-<<<<<<< HEAD
-        4:  204:      _Tp __tmp = _GLIBCXX_MOVE(__a);
-        4:  205:      __a = _GLIBCXX_MOVE(__b);
-        4:  206:      __b = _GLIBCXX_MOVE(__tmp);
-        2:  207:    }
-=======
-       16:  204:      _Tp __tmp = _GLIBCXX_MOVE(__a);
-       16:  205:      __a = _GLIBCXX_MOVE(__b);
-       16:  206:      __b = _GLIBCXX_MOVE(__tmp);
-        8:  207:    }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       36:  204:      _Tp __tmp = _GLIBCXX_MOVE(__a);
+       36:  205:      __a = _GLIBCXX_MOVE(__b);
+       36:  206:      __b = _GLIBCXX_MOVE(__tmp);
+       18:  207:    }
         -:  208:
         -:  209:  // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  210:  // DR 809. std::swap should be overloaded for array types.

@@ -1,11 +1,7 @@
         -:    0:Source:/usr/include/c++/12/bits/basic_ios.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
-<<<<<<< HEAD
-        -:    0:Runs:1
-=======
-        -:    0:Runs:4
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+        -:    0:Runs:9
         -:    1:// Iostreams base classes -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 1997-2022 Free Software Foundation, Inc.
@@ -130,13 +126,8 @@
         -:  122:#endif
         -:  123:
         -:  124:      bool
-<<<<<<< HEAD
-        2:  125:      operator!() const
-        2:  126:      { return this->fail(); }
-=======
-        8:  125:      operator!() const
-        8:  126:      { return this->fail(); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  125:      operator!() const
+       18:  126:      { return this->fail(); }
         -:  127:      ///@}
         -:  128:
         -:  129:      /**
@@ -147,13 +138,8 @@
         -:  134:       *  users will call one of the interpreting wrappers, e.g., good().
         -:  135:      */
         -:  136:      iostate
-<<<<<<< HEAD
-       6*:  137:      rdstate() const
-       6*:  138:      { return _M_streambuf_state; }
-=======
-      24*:  137:      rdstate() const
-      24*:  138:      { return _M_streambuf_state; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      54*:  137:      rdstate() const
+      54*:  138:      { return _M_streambuf_state; }
         -:  139:
         -:  140:      /**
         -:  141:       *  @brief  [Re]sets the error state.
@@ -172,13 +158,8 @@
         -:  154:       *  See std::ios_base::iostate for the possible bit values.
         -:  155:      */
         -:  156:      void
-<<<<<<< HEAD
-       2*:  157:      setstate(iostate __state)
-       2*:  158:      { this->clear(this->rdstate() | __state); }
-=======
-       8*:  157:      setstate(iostate __state)
-       8*:  158:      { this->clear(this->rdstate() | __state); }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      18*:  157:      setstate(iostate __state)
+      18*:  158:      { this->clear(this->rdstate() | __state); }
         -:  159:
         -:  160:      // Flip the internal state on for the proper state bits, then
         -:  161:      // rethrows the propagated exception if bit also set in
@@ -210,13 +191,8 @@
         -:  187:       *  Note that other iostate flags may also be set.
         -:  188:      */
         -:  189:      bool
-<<<<<<< HEAD
-        2:  190:      eof() const
-        2:  191:      { return (this->rdstate() & eofbit) != 0; }
-=======
-        8:  190:      eof() const
-        8:  191:      { return (this->rdstate() & eofbit) != 0; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       18:  190:      eof() const
+       18:  191:      { return (this->rdstate() & eofbit) != 0; }
         -:  192:
         -:  193:      /**
         -:  194:       *  @brief  Fast error checking.
@@ -226,13 +202,8 @@
         -:  198:       *  Note that other iostate flags may also be set.
         -:  199:      */
         -:  200:      bool
-<<<<<<< HEAD
-       2*:  201:      fail() const
-       2*:  202:      { return (this->rdstate() & (badbit | failbit)) != 0; }
-=======
-       8*:  201:      fail() const
-       8*:  202:      { return (this->rdstate() & (badbit | failbit)) != 0; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+      18*:  201:      fail() const
+      18*:  202:      { return (this->rdstate() & (badbit | failbit)) != 0; }
         -:  203:
         -:  204:      /**
         -:  205:       *  @brief  Fast error checking.
@@ -351,13 +322,8 @@
         -:  318:       *  This does not change the state of the stream.
         -:  319:      */
         -:  320:      basic_streambuf<_CharT, _Traits>*
-<<<<<<< HEAD
-        5:  321:      rdbuf() const
-        5:  322:      { return _M_streambuf; }
-=======
-       35:  321:      rdbuf() const
-       35:  322:      { return _M_streambuf; }
->>>>>>> bf91227e0c6e59222de38990c994107e0e707234
+       79:  321:      rdbuf() const
+       79:  322:      { return _M_streambuf; }
         -:  323:
         -:  324:      /**
         -:  325:       *  @brief  Changing the underlying buffer.

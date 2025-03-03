@@ -140,7 +140,7 @@ TEST(Prime, EdgeTests) {
 
 
 int main(int argc, char** argv) {
-	testing::InitGoogleTest(&argc, argv);
+testing::InitGoogleTest(&argc, argv);
 
 	int user = 0;
 	cout << "1) For GTest" << endl;
@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
 		cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 
 
-	}
+}
 }
 
 
