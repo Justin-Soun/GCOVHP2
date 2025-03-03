@@ -16,6 +16,6 @@ void die();
 
 bool isPrime();
 
-string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, int primeAmount, cpp_int printOrNot);
+string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, cpp_int printOrNot);
 
 #endif

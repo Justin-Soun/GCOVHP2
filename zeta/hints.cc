@@ -56,19 +56,26 @@ void testIsPrime4(){
 }
 
 void testCalculateSum1(){
-
-  assertTrue(
+  vector<cpp_int> primes;
+  assertTrue(calculate(100, 10000, primes, 0) == 6553393,
+	     "calculate 100 to 1000 = 6553393");
 }
 
 void testCalculateSum2(){
-  assertTrue(
+  vector<cpp_int> primes;
+  assertTrue(calculate(2, 13, primes, 0) == 43,
+             "calculate 2 to 13 = 43");
 }
 
 void testCalculateSum3(){
-  assertTrue(
+  vector<cpp_int> primes;
+  assertTrue(calculate(52, 235, primes, 0) == 6234,
+             "calculate 52 to 235 = 6234");
 }
 
 void testCalculateSum4(){
-  assertTrue(
+  vector<cpp_int> primes;
+  assertTrue(calculate(2, 100000, primes, 0) == 504813055,
+             "calculate 2 to 100000 = 504813055");
 }
 
