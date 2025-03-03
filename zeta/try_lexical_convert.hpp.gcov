@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/lexical_cast/try_lexical_convert.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Copyright Kevlin Henney, 2000-2005.
         -:    2:// Copyright Alexander Nasonov, 2006-2010.
         -:    3:// Copyright Antony Polukhin, 2011-2020.
@@ -166,7 +170,11 @@
         -:  162:    namespace conversion { namespace detail {
         -:  163:
         -:  164:        template <typename Target, typename Source>
+<<<<<<< HEAD
         1:  165:        inline bool try_lexical_convert(const Source& arg, Target& result)
+=======
+        4:  165:        inline bool try_lexical_convert(const Source& arg, Target& result)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  166:        {
         -:  167:            typedef BOOST_DEDUCED_TYPENAME boost::detail::array_to_pointer_decay<Source>::type src;
         -:  168:
@@ -202,7 +210,11 @@
         -:  198:
         -:  199:            typedef BOOST_DEDUCED_TYPENAME caster_type_lazy::type caster_type;
         -:  200:
+<<<<<<< HEAD
         1:  201:            return caster_type::try_convert(arg, result);
+=======
+        4:  201:            return caster_type::try_convert(arg, result);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  202:        }
         -:  203:
         -:  204:        template <typename Target, typename CharacterT>

@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/basic_string.tcc
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Components for manipulating sequences of characters -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 1997-2022 Free Software Foundation, Inc.
@@ -135,18 +139,30 @@
         -:  131:  template<typename _CharT, typename _Traits, typename _Alloc>
         -:  132:    _GLIBCXX20_CONSTEXPR
         -:  133:    typename basic_string<_CharT, _Traits, _Alloc>::pointer
+<<<<<<< HEAD
         4:  134:    basic_string<_CharT, _Traits, _Alloc>::
+=======
+       16:  134:    basic_string<_CharT, _Traits, _Alloc>::
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  135:    _M_create(size_type& __capacity, size_type __old_capacity)
         -:  136:    {
         -:  137:      // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  138:      // 83.  String::npos vs. string::max_size()
+<<<<<<< HEAD
         4:  139:      if (__capacity > max_size())
+=======
+       16:  139:      if (__capacity > max_size())
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  140:	std::__throw_length_error(__N("basic_string::_M_create"));
         -:  141:
         -:  142:      // The below implements an exponential growth policy, necessary to
         -:  143:      // meet amortized linear time requirements of the library: see
         -:  144:      // http://gcc.gnu.org/ml/libstdc++/2001-07/msg00085.html.
+<<<<<<< HEAD
         4:  145:      if (__capacity > __old_capacity && __capacity < 2 * __old_capacity)
+=======
+       16:  145:      if (__capacity > __old_capacity && __capacity < 2 * __old_capacity)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  146:	{
     #####:  147:	  __capacity = 2 * __old_capacity;
         -:  148:	  // Never allocate a string bigger than max_size.
@@ -156,7 +172,11 @@
         -:  152:
         -:  153:      // NB: Need an array of char_type[__capacity], plus a terminating
         -:  154:      // null char_type() element.
+<<<<<<< HEAD
         4:  155:      return _Alloc_traits::allocate(_M_get_allocator(), __capacity + 1);
+=======
+       16:  155:      return _Alloc_traits::allocate(_M_get_allocator(), __capacity + 1);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  156:    }
         -:  157:
         -:  158:  // NB: This is the special case for Input Iterators, used in
@@ -218,6 +238,7 @@
         -:  214:    template<typename _InIterator>
         -:  215:      _GLIBCXX20_CONSTEXPR
         -:  216:      void
+<<<<<<< HEAD
         6:  217:      basic_string<_CharT, _Traits, _Alloc>::
         -:  218:      _M_construct(_InIterator __beg, _InIterator __end,
         -:  219:		   std::forward_iterator_tag)
@@ -228,6 +249,18 @@
         -:  224:	  {
         4:  225:	    _M_data(_M_create(__dnew, size_type(0)));
         4:  226:	    _M_capacity(__dnew);
+=======
+       24:  217:      basic_string<_CharT, _Traits, _Alloc>::
+        -:  218:      _M_construct(_InIterator __beg, _InIterator __end,
+        -:  219:		   std::forward_iterator_tag)
+        -:  220:      {
+       24:  221:	size_type __dnew = static_cast<size_type>(std::distance(__beg, __end));
+        -:  222:
+       24:  223:	if (__dnew > size_type(_S_local_capacity))
+        -:  224:	  {
+       16:  225:	    _M_data(_M_create(__dnew, size_type(0)));
+       16:  226:	    _M_capacity(__dnew);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  227:	  }
         -:  228:	else
         -:  229:	  _M_use_local_data();
@@ -236,6 +269,7 @@
         -:  232:	struct _Guard
         -:  233:	{
         -:  234:	  _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
         6:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
         -:  236:
         -:  237:	  _GLIBCXX20_CONSTEXPR
@@ -262,6 +296,34 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St
         -:  224:	  {
         2:  225:	    _M_data(_M_create(__dnew, size_type(0)));
         2:  226:	    _M_capacity(__dnew);
+=======
+       24:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
+        -:  236:
+        -:  237:	  _GLIBCXX20_CONSTEXPR
+       24:  238:	  ~_Guard() { if (_M_guarded) _M_guarded->_M_dispose(); }
+        -:  239:
+        -:  240:	  basic_string* _M_guarded;
+       24:  241:	} __guard(this);
+        -:  242:
+       24:  243:	this->_S_copy_chars(_M_data(), __beg, __end);
+        -:  244:
+       24:  245:	__guard._M_guarded = 0;
+        -:  246:
+       24:  247:	_M_set_length(__dnew);
+       24:  248:      }
+------------------
+_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St20forward_iterator_tag:
+        8:  217:      basic_string<_CharT, _Traits, _Alloc>::
+        -:  218:      _M_construct(_InIterator __beg, _InIterator __end,
+        -:  219:		   std::forward_iterator_tag)
+        -:  220:      {
+        8:  221:	size_type __dnew = static_cast<size_type>(std::distance(__beg, __end));
+        -:  222:
+        8:  223:	if (__dnew > size_type(_S_local_capacity))
+        -:  224:	  {
+        8:  225:	    _M_data(_M_create(__dnew, size_type(0)));
+        8:  226:	    _M_capacity(__dnew);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  227:	  }
         -:  228:	else
         -:  229:	  _M_use_local_data();
@@ -270,6 +332,7 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPcEEvT_S7_St
         -:  232:	struct _Guard
         -:  233:	{
         -:  234:	  _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
         2:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
         -:  236:
         -:  237:	  _GLIBCXX20_CONSTEXPR
@@ -296,6 +359,34 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  224:	  {
         2:  225:	    _M_data(_M_create(__dnew, size_type(0)));
         2:  226:	    _M_capacity(__dnew);
+=======
+        8:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
+        -:  236:
+        -:  237:	  _GLIBCXX20_CONSTEXPR
+        8:  238:	  ~_Guard() { if (_M_guarded) _M_guarded->_M_dispose(); }
+        -:  239:
+        -:  240:	  basic_string* _M_guarded;
+        8:  241:	} __guard(this);
+        -:  242:
+        8:  243:	this->_S_copy_chars(_M_data(), __beg, __end);
+        -:  244:
+        8:  245:	__guard._M_guarded = 0;
+        -:  246:
+        8:  247:	_M_set_length(__dnew);
+        8:  248:      }
+------------------
+_ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_St20forward_iterator_tag:
+       16:  217:      basic_string<_CharT, _Traits, _Alloc>::
+        -:  218:      _M_construct(_InIterator __beg, _InIterator __end,
+        -:  219:		   std::forward_iterator_tag)
+        -:  220:      {
+       16:  221:	size_type __dnew = static_cast<size_type>(std::distance(__beg, __end));
+        -:  222:
+       16:  223:	if (__dnew > size_type(_S_local_capacity))
+        -:  224:	  {
+        8:  225:	    _M_data(_M_create(__dnew, size_type(0)));
+        8:  226:	    _M_capacity(__dnew);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  227:	  }
         -:  228:	else
         -:  229:	  _M_use_local_data();
@@ -304,6 +395,7 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  232:	struct _Guard
         -:  233:	{
         -:  234:	  _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
         4:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
         -:  236:
         -:  237:	  _GLIBCXX20_CONSTEXPR
@@ -318,6 +410,22 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  246:
         4:  247:	_M_set_length(__dnew);
         4:  248:      }
+=======
+       16:  235:	  explicit _Guard(basic_string* __s) : _M_guarded(__s) { }
+        -:  236:
+        -:  237:	  _GLIBCXX20_CONSTEXPR
+       16:  238:	  ~_Guard() { if (_M_guarded) _M_guarded->_M_dispose(); }
+        -:  239:
+        -:  240:	  basic_string* _M_guarded;
+       16:  241:	} __guard(this);
+        -:  242:
+       16:  243:	this->_S_copy_chars(_M_data(), __beg, __end);
+        -:  244:
+       16:  245:	__guard._M_guarded = 0;
+        -:  246:
+       16:  247:	_M_set_length(__dnew);
+       16:  248:      }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
 ------------------
         -:  249:
         -:  250:  template<typename _CharT, typename _Traits, typename _Alloc>
@@ -516,6 +624,7 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  443:  template<typename _CharT, typename _Traits, typename _Alloc>
         -:  444:    _GLIBCXX20_CONSTEXPR
         -:  445:    basic_string<_CharT, _Traits, _Alloc>&
+<<<<<<< HEAD
         4:  446:    basic_string<_CharT, _Traits, _Alloc>::
         -:  447:    _M_replace_aux(size_type __pos1, size_type __n1, size_type __n2,
         -:  448:		   _CharT __c)
@@ -531,21 +640,47 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  458:
         4:  459:	  const size_type __how_much = __old_size - __pos1 - __n1;
         4:  460:	  if (__how_much && __n1 != __n2)
+=======
+       31:  446:    basic_string<_CharT, _Traits, _Alloc>::
+        -:  447:    _M_replace_aux(size_type __pos1, size_type __n1, size_type __n2,
+        -:  448:		   _CharT __c)
+        -:  449:    {
+       31:  450:      _M_check_length(__n1, __n2, "basic_string::_M_replace_aux");
+        -:  451:
+       31:  452:      const size_type __old_size = this->size();
+       31:  453:      const size_type __new_size = __old_size + __n2 - __n1;
+        -:  454:
+       31:  455:      if (__new_size <= this->capacity())
+        -:  456:	{
+       31:  457:	  pointer __p = this->_M_data() + __pos1;
+        -:  458:
+       31:  459:	  const size_type __how_much = __old_size - __pos1 - __n1;
+       31:  460:	  if (__how_much && __n1 != __n2)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  461:	    this->_S_move(__p + __n2, __p + __n1, __how_much);
         -:  462:	}
         -:  463:      else
     #####:  464:	this->_M_mutate(__pos1, __n1, 0, __n2);
         -:  465:
+<<<<<<< HEAD
         4:  466:      if (__n2)
         4:  467:	this->_S_assign(this->_M_data() + __pos1, __n2, __c);
         -:  468:
         4:  469:      this->_M_set_length(__new_size);
         4:  470:      return *this;
+=======
+       31:  466:      if (__n2)
+       31:  467:	this->_S_assign(this->_M_data() + __pos1, __n2, __c);
+        -:  468:
+       31:  469:      this->_M_set_length(__new_size);
+       31:  470:      return *this;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  471:    }
         -:  472:
         -:  473:  template<typename _CharT, typename _Traits, typename _Alloc>
         -:  474:    _GLIBCXX20_CONSTEXPR
         -:  475:    basic_string<_CharT, _Traits, _Alloc>&
+<<<<<<< HEAD
         1:  476:    basic_string<_CharT, _Traits, _Alloc>::
         -:  477:    _M_replace(size_type __pos, size_type __len1, const _CharT* __s,
         -:  478:	       const size_type __len2)
@@ -560,6 +695,22 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         1:  487:	  pointer __p = this->_M_data() + __pos;
         -:  488:
         1:  489:	  const size_type __how_much = __old_size - __pos - __len1;
+=======
+        4:  476:    basic_string<_CharT, _Traits, _Alloc>::
+        -:  477:    _M_replace(size_type __pos, size_type __len1, const _CharT* __s,
+        -:  478:	       const size_type __len2)
+        -:  479:    {
+        4:  480:      _M_check_length(__len1, __len2, "basic_string::_M_replace");
+        -:  481:
+        4:  482:      const size_type __old_size = this->size();
+        4:  483:      const size_type __new_size = __old_size + __len2 - __len1;
+        -:  484:
+        4:  485:      if (__new_size <= this->capacity())
+        -:  486:	{
+        4:  487:	  pointer __p = this->_M_data() + __pos;
+        -:  488:
+        4:  489:	  const size_type __how_much = __old_size - __pos - __len1;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  490:#if __cpp_lib_is_constant_evaluated
         -:  491:	  if (std::is_constant_evaluated())
         -:  492:	    {
@@ -573,12 +724,21 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  500:	    }
         -:  501:	  else
         -:  502:#endif
+<<<<<<< HEAD
        1*:  503:	  if (_M_disjunct(__s))
         -:  504:	    {
         1:  505:	      if (__how_much && __len1 != __len2)
     #####:  506:		this->_S_move(__p + __len2, __p + __len1, __how_much);
         1:  507:	      if (__len2)
         1:  508:		this->_S_copy(__p, __s, __len2);
+=======
+       4*:  503:	  if (_M_disjunct(__s))
+        -:  504:	    {
+        4:  505:	      if (__how_much && __len1 != __len2)
+    #####:  506:		this->_S_move(__p + __len2, __p + __len1, __how_much);
+        4:  507:	      if (__len2)
+        4:  508:		this->_S_copy(__p, __s, __len2);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  509:	    }
         -:  510:	  else
         -:  511:	    {
@@ -611,8 +771,13 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  538:      else
     #####:  539:	this->_M_mutate(__pos, __len1, __s, __len2);
         -:  540:
+<<<<<<< HEAD
         1:  541:      this->_M_set_length(__new_size);
         1:  542:      return *this;
+=======
+        4:  541:      this->_M_set_length(__new_size);
+        4:  542:      return *this;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  543:    }
         -:  544:
         -:  545:  template<typename _CharT, typename _Traits, typename _Alloc>
@@ -753,6 +918,7 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  680:  template<typename _CharT, typename _Traits, typename _Alloc>
         -:  681:    _GLIBCXX_STRING_CONSTEXPR
         -:  682:    typename basic_string<_CharT, _Traits, _Alloc>::size_type
+<<<<<<< HEAD
         5:  683:    basic_string<_CharT, _Traits, _Alloc>::
         -:  684:    find(_CharT __c, size_type __pos) const _GLIBCXX_NOEXCEPT
         -:  685:    {
@@ -767,6 +933,22 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         3:  694:	    __ret = __p - __data;
         -:  695:	}
         5:  696:      return __ret;
+=======
+       35:  683:    basic_string<_CharT, _Traits, _Alloc>::
+        -:  684:    find(_CharT __c, size_type __pos) const _GLIBCXX_NOEXCEPT
+        -:  685:    {
+       35:  686:      size_type __ret = npos;
+       35:  687:      const size_type __size = this->size();
+       35:  688:      if (__pos < __size)
+        -:  689:	{
+       35:  690:	  const _CharT* __data = _M_data();
+       35:  691:	  const size_type __n = __size - __pos;
+       35:  692:	  const _CharT* __p = traits_type::find(__data + __pos, __n, __c);
+       35:  693:	  if (__p)
+       27:  694:	    __ret = __p - __data;
+        -:  695:	}
+       35:  696:      return __ret;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  697:    }
         -:  698:
         -:  699:  template<typename _CharT, typename _Traits, typename _Alloc>
@@ -867,11 +1049,19 @@ _ZNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEE12_M_constructIPKcEEvT_S8_S
         -:  794:  template<typename _CharT, typename _Traits, typename _Alloc>
         -:  795:    _GLIBCXX_STRING_CONSTEXPR
         -:  796:    typename basic_string<_CharT, _Traits, _Alloc>::size_type
+<<<<<<< HEAD
        1*:  797:    basic_string<_CharT, _Traits, _Alloc>::
         -:  798:    find_first_not_of(_CharT __c, size_type __pos) const _GLIBCXX_NOEXCEPT
         -:  799:    {
        1*:  800:      for (; __pos < this->size(); ++__pos)
        1*:  801:	if (!traits_type::eq(_M_data()[__pos], __c))
+=======
+       4*:  797:    basic_string<_CharT, _Traits, _Alloc>::
+        -:  798:    find_first_not_of(_CharT __c, size_type __pos) const _GLIBCXX_NOEXCEPT
+        -:  799:    {
+       4*:  800:      for (; __pos < this->size(); ++__pos)
+       4*:  801:	if (!traits_type::eq(_M_data()[__pos], __c))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  802:	  return __pos;
         -:  803:      return npos;
         -:  804:    }

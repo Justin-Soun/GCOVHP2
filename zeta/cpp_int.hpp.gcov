@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/cpp_int.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1://////////////////3/////////////////////////////////////////////
         -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -223,9 +227,15 @@
         -:  219:      limb_type        first;
         -:  220:      double_limb_type double_first;
         -:  221:
+<<<<<<< HEAD
      349*:  222:      BOOST_CONSTEXPR data_type() BOOST_NOEXCEPT : first(0) {}
     #####:  223:      BOOST_CONSTEXPR data_type(limb_type i) BOOST_NOEXCEPT : first(i) {}
        1*:  224:      BOOST_CONSTEXPR data_type(signed_limb_type i) BOOST_NOEXCEPT : first(i < 0 ? static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(i)) : i) {}
+=======
+  300895*:  222:      BOOST_CONSTEXPR data_type() BOOST_NOEXCEPT : first(0) {}
+    5813*:  223:      BOOST_CONSTEXPR data_type(limb_type i) BOOST_NOEXCEPT : first(i) {}
+       4*:  224:      BOOST_CONSTEXPR data_type(signed_limb_type i) BOOST_NOEXCEPT : first(i < 0 ? static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(i)) : i) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  225:#if BOOST_ENDIAN_LITTLE_BYTE
         -:  226:      BOOST_CONSTEXPR data_type(double_limb_type i) BOOST_NOEXCEPT : double_first(i)
         -:  227:      {}
@@ -251,6 +261,7 @@
         -:  247:   //
         -:  248:   // Direct construction:
         -:  249:   //
+<<<<<<< HEAD
     #####:  250:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_base(limb_type i) BOOST_NOEXCEPT
     #####:  251:       : m_data(i),
     #####:  252:         m_limbs(1),
@@ -263,6 +274,20 @@
        3*:  259:         m_sign(i < 0),
        3*:  260:         m_internal(true),
        2*:  261:         m_alias(false) {}
+=======
+    5813*:  250:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_base(limb_type i) BOOST_NOEXCEPT
+    5813*:  251:       : m_data(i),
+    5813*:  252:         m_limbs(1),
+    5813*:  253:         m_sign(false),
+    5813*:  254:         m_internal(true),
+    5813*:  255:         m_alias(false) {}
+    5821*:  256:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_base(signed_limb_type i) BOOST_NOEXCEPT
+    5825*:  257:       : m_data(i),
+    5825*:  258:         m_limbs(1),
+    5825*:  259:         m_sign(i < 0),
+    5825*:  260:         m_internal(true),
+    5821*:  261:         m_alias(false) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  262:#if BOOST_ENDIAN_LITTLE_BYTE && !defined(BOOST_MP_TEST_NO_LE)
         -:  263:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_base(double_limb_type i) BOOST_NOEXCEPT
         -:  264:       : m_data(i),
@@ -341,6 +366,7 @@
         -:  337:   //
     #####:  338:   BOOST_MP_FORCEINLINE allocator_type&       allocator() BOOST_NOEXCEPT { return base_type::get(); }
         -:  339:   BOOST_MP_FORCEINLINE const allocator_type& allocator() const BOOST_NOEXCEPT { return base_type::get(); }
+<<<<<<< HEAD
     2402*:  340:   BOOST_MP_FORCEINLINE unsigned              size() const BOOST_NOEXCEPT { return m_limbs; }
      649*:  341:   BOOST_MP_FORCEINLINE limb_pointer          limbs() BOOST_NOEXCEPT { return m_internal ? m_data.la : m_data.ld.data; }
     3466*:  342:   BOOST_MP_FORCEINLINE const_limb_pointer    limbs() const BOOST_NOEXCEPT { return m_internal ? m_data.la : m_data.ld.data; }
@@ -351,10 +377,23 @@
     #####:  347:      m_sign = b;
         -:  348:      // Check for zero value:
       95*:  349:      if (m_sign && (m_limbs == 1))
+=======
+199443834*:  340:   BOOST_MP_FORCEINLINE unsigned              size() const BOOST_NOEXCEPT { return m_limbs; }
+ 1636848*:  341:   BOOST_MP_FORCEINLINE limb_pointer          limbs() BOOST_NOEXCEPT { return m_internal ? m_data.la : m_data.ld.data; }
+200206284*:  342:   BOOST_MP_FORCEINLINE const_limb_pointer    limbs() const BOOST_NOEXCEPT { return m_internal ? m_data.la : m_data.ld.data; }
+    #####:  343:   BOOST_MP_FORCEINLINE unsigned              capacity() const BOOST_NOEXCEPT { return m_internal ? internal_limb_count : m_data.ld.capacity; }
+199602507*:  344:   BOOST_MP_FORCEINLINE bool                  sign() const BOOST_NOEXCEPT { return m_sign; }
+ 1401953*:  345:   void                                       sign(bool b) BOOST_NOEXCEPT
+        -:  346:   {
+  340534*:  347:      m_sign = b;
+        -:  348:      // Check for zero value:
+  763776*:  349:      if (m_sign && (m_limbs == 1))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  350:      {
     #####:  351:         if (limbs()[0] == 0)
     #####:  352:            m_sign = false;
         -:  353:      }
+<<<<<<< HEAD
        95:  354:   }
       440:  355:   void resize(unsigned new_size, unsigned min_size)
         -:  356:   {
@@ -366,6 +405,19 @@
         -:  362:      // See if we have enough capacity already:
       440:  363:      unsigned cap = capacity();
       440:  364:      if (new_size > cap)
+=======
+   763776:  354:   }
+  1076912:  355:   void resize(unsigned new_size, unsigned min_size)
+        -:  356:   {
+        -:  357:      static const unsigned max_limbs = MaxBits / (CHAR_BIT * sizeof(limb_type)) + ((MaxBits % (CHAR_BIT * sizeof(limb_type))) ? 1 : 0);
+        -:  358:      // We never resize beyond MaxSize:
+  1076912:  359:      if (new_size > max_limbs)
+    #####:  360:         new_size = max_limbs;
+  1076912:  361:      detail::verify_new_size(new_size, min_size, checked_type());
+        -:  362:      // See if we have enough capacity already:
+  1076912:  363:      unsigned cap = capacity();
+  1076912:  364:      if (new_size > cap)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  365:      {
         -:  366:         // We must not be an alias, memory allocation here defeats the whole point of aliasing:
     #####:  367:         BOOST_ASSERT(!m_alias);
@@ -383,6 +435,7 @@
         -:  379:      }
         -:  380:      else
         -:  381:      {
+<<<<<<< HEAD
       440:  382:         m_limbs = new_size;
         -:  383:      }
       440:  384:   }
@@ -396,11 +449,27 @@
      347*:  392:   BOOST_MP_FORCEINLINE                 cpp_int_base(const cpp_int_base& o) : base_type(o), m_limbs(o.m_alias ? o.m_limbs : 0), m_sign(o.m_sign), m_internal(o.m_alias ? false : true), m_alias(o.m_alias)
         -:  393:   {
       347:  394:      if (m_alias)
+=======
+  1076912:  382:         m_limbs = new_size;
+        -:  383:      }
+  1076912:  384:   }
+        8:  385:   BOOST_MP_FORCEINLINE void normalize() BOOST_NOEXCEPT
+        -:  386:   {
+        8:  387:      limb_pointer p = limbs();
+       8*:  388:      while ((m_limbs - 1) && !p[m_limbs - 1])
+    #####:  389:         --m_limbs;
+        8:  390:   }
+   23260*:  391:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_base() BOOST_NOEXCEPT : m_data(), m_limbs(1), m_sign(false), m_internal(true), m_alias(false){}
+  277635*:  392:   BOOST_MP_FORCEINLINE                 cpp_int_base(const cpp_int_base& o) : base_type(o), m_limbs(o.m_alias ? o.m_limbs : 0), m_sign(o.m_sign), m_internal(o.m_alias ? false : true), m_alias(o.m_alias)
+        -:  393:   {
+   277635:  394:      if (m_alias)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  395:      {
     #####:  396:         m_data.ld = o.m_data.ld;
         -:  397:      }
         -:  398:      else
         -:  399:      {
+<<<<<<< HEAD
       347:  400:         resize(o.size(), o.size());
       694:  401:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
         -:  402:      }
@@ -412,6 +481,19 @@
        33:  408:      if (m_internal)
         -:  409:      {
        33:  410:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+=======
+   277635:  400:         resize(o.size(), o.size());
+   555270:  401:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+        -:  402:      }
+   277635:  403:   }
+        -:  404:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    10564:  405:   cpp_int_base(cpp_int_base&& o)
+    10564:  406:       : base_type(static_cast<base_type&&>(o)), m_limbs(o.m_limbs), m_sign(o.m_sign), m_internal(o.m_internal), m_alias(o.m_alias)
+        -:  407:   {
+    10564:  408:      if (m_internal)
+        -:  409:      {
+    10564:  410:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  411:      }
         -:  412:      else
         -:  413:      {
@@ -419,6 +501,7 @@
     #####:  415:         o.m_limbs    = 0;
     #####:  416:         o.m_internal = true;
         -:  417:      }
+<<<<<<< HEAD
        33:  418:   }
     #####:  419:   cpp_int_base& operator=(cpp_int_base&& o) BOOST_NOEXCEPT
         -:  420:   {
@@ -432,6 +515,21 @@
     #####:  428:      if (m_internal)
         -:  429:      {
     #####:  430:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+=======
+    10564:  418:   }
+     5813:  419:   cpp_int_base& operator=(cpp_int_base&& o) BOOST_NOEXCEPT
+        -:  420:   {
+    5813*:  421:      if (!m_internal && !m_alias)
+    #####:  422:         allocator().deallocate(m_data.ld.data, m_data.ld.capacity);
+        -:  423:      *static_cast<base_type*>(this) = static_cast<base_type&&>(o);
+     5813:  424:      m_limbs                        = o.m_limbs;
+     5813:  425:      m_sign                         = o.m_sign;
+     5813:  426:      m_internal                     = o.m_internal;
+     5813:  427:      m_alias                        = o.m_alias;
+     5813:  428:      if (m_internal)
+        -:  429:      {
+    11626:  430:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  431:      }
         -:  432:      else
         -:  433:      {
@@ -439,6 +537,7 @@
     #####:  435:         o.m_limbs    = 0;
     #####:  436:         o.m_internal = true;
         -:  437:      }
+<<<<<<< HEAD
     #####:  438:      return *this;
         -:  439:   }
         -:  440:#endif
@@ -458,6 +557,27 @@
     #####:  454:         m_sign = o.m_sign;
         -:  455:      }
     #####:  456:   }
+=======
+     5813:  438:      return *this;
+        -:  439:   }
+        -:  440:#endif
+   457782:  441:   BOOST_MP_FORCEINLINE ~cpp_int_base() BOOST_NOEXCEPT
+        -:  442:   {
+  457782*:  443:      if (!m_internal && !m_alias)
+    #####:  444:         allocator().deallocate(limbs(), capacity());
+   457782:  445:   }
+   340534:  446:   void assign(const cpp_int_base& o)
+        -:  447:   {
+   340534:  448:      if (this != &o)
+        -:  449:      {
+        -:  450:         static_cast<base_type&>(*this) = static_cast<const base_type&>(o);
+   340534:  451:         m_limbs                        = 0;
+   340534:  452:         resize(o.size(), o.size());
+   340534:  453:         std::memcpy(limbs(), o.limbs(), o.size() * sizeof(limbs()[0]));
+   340534:  454:         m_sign = o.m_sign;
+        -:  455:      }
+   340534:  456:   }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  457:   BOOST_MP_FORCEINLINE void negate() BOOST_NOEXCEPT
         -:  458:   {
     #####:  459:      m_sign = !m_sign;
@@ -472,6 +592,7 @@
         -:  468:   {
         -:  469:      return m_sign;
         -:  470:   }
+<<<<<<< HEAD
         2:  471:   BOOST_MP_FORCEINLINE void do_swap(cpp_int_base& o) BOOST_NOEXCEPT
         -:  472:   {
         2:  473:      std::swap(m_data, o.m_data);
@@ -479,6 +600,15 @@
         2:  475:      std::swap(m_internal, o.m_internal);
         2:  476:      std::swap(m_limbs, o.m_limbs);
         2:  477:   }
+=======
+        8:  471:   BOOST_MP_FORCEINLINE void do_swap(cpp_int_base& o) BOOST_NOEXCEPT
+        -:  472:   {
+        8:  473:      std::swap(m_data, o.m_data);
+        8:  474:      std::swap(m_sign, o.m_sign);
+        8:  475:      std::swap(m_internal, o.m_internal);
+        8:  476:      std::swap(m_limbs, o.m_limbs);
+        8:  477:   }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  478:
         -:  479: protected:
         -:  480:   template <class A>
@@ -1288,7 +1418,11 @@
         -: 1284:// Now the actual backend, normalising parameters passed to the base class:
         -: 1285://
         -: 1286:template <unsigned MinBits, unsigned MaxBits, cpp_integer_type SignType, cpp_int_check_type Checked, class Allocator>
+<<<<<<< HEAD
      382*: 1287:struct cpp_int_backend
+=======
+  353061*: 1287:struct cpp_int_backend
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1288:    : public cpp_int_base<
         -: 1289:          min_precision<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator> >::value,
         -: 1290:          max_precision<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator> >::value,
@@ -1326,19 +1460,32 @@
         -: 1322:       mpl::list<long double> >::type float_types;
         -: 1323:   typedef mpl::int_<Checked>         checked_type;
         -: 1324:
+<<<<<<< HEAD
        2*: 1325:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend() BOOST_NOEXCEPT {}
      346*: 1326:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(const cpp_int_backend& o) BOOST_MP_NOEXCEPT_IF(boost::is_void<Allocator>::value) : base_type(o) {}
         -: 1327:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
       33*: 1328:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(cpp_int_backend&& o) BOOST_NOEXCEPT
       33*: 1329:       : base_type(static_cast<base_type&&>(o))
+=======
+   23260*: 1325:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend() BOOST_NOEXCEPT {}
+  242753*: 1326:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(const cpp_int_backend& o) BOOST_MP_NOEXCEPT_IF(boost::is_void<Allocator>::value) : base_type(o) {}
+        -: 1327:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+   10564*: 1328:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(cpp_int_backend&& o) BOOST_NOEXCEPT
+   10564*: 1329:       : base_type(static_cast<base_type&&>(o))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1330:   {}
         -: 1331:#endif
         -: 1332:   //
         -: 1333:   // Direct construction from arithmetic type:
         -: 1334:   //
         -: 1335:   template <class Arg>
+<<<<<<< HEAD
        2*: 1336:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(Arg i, typename boost::enable_if_c<is_allowed_cpp_int_base_conversion<Arg, base_type>::value>::type const* = 0) BOOST_MP_NOEXCEPT_IF(noexcept(base_type(std::declval<Arg>())))
        3*: 1337:       : base_type(i) {}
+=======
+   11634*: 1336:   BOOST_MP_FORCEINLINE BOOST_CONSTEXPR cpp_int_backend(Arg i, typename boost::enable_if_c<is_allowed_cpp_int_base_conversion<Arg, base_type>::value>::type const* = 0) BOOST_MP_NOEXCEPT_IF(noexcept(base_type(std::declval<Arg>())))
+   11638*: 1337:       : base_type(i) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1338:   //
         -: 1339:   // Aliasing constructor: the result will alias the memory referenced, unless
         -: 1340:   // we have fixed precision and storage, in which case we copy the memory:
@@ -1441,6 +1588,7 @@
         -: 1437:   {}
         -: 1438:#endif
         -: 1439:
+<<<<<<< HEAD
     #####: 1440:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_backend& operator=(const cpp_int_backend& o) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().assign(std::declval<const cpp_int_backend&>())))
         -: 1441:   {
     #####: 1442:      this->assign(o);
@@ -1450,6 +1598,17 @@
     #####: 1446:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_backend& operator=(cpp_int_backend&& o) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<base_type&>() = std::declval<base_type>()))
         -: 1447:   {
     #####: 1448:      *static_cast<base_type*>(this) = static_cast<base_type&&>(o);
+=======
+  340534*: 1440:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_backend& operator=(const cpp_int_backend& o) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().assign(std::declval<const cpp_int_backend&>())))
+        -: 1441:   {
+  340534*: 1442:      this->assign(o);
+    #####: 1443:      return *this;
+        -: 1444:   }
+        -: 1445:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    5813*: 1446:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR cpp_int_backend& operator=(cpp_int_backend&& o) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<base_type&>() = std::declval<base_type>()))
+        -: 1447:   {
+    5813*: 1448:      *static_cast<base_type*>(this) = static_cast<base_type&&>(o);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1449:      return *this;
         -: 1450:   }
         -: 1451:#endif
@@ -1480,18 +1639,28 @@
         -: 1476:      this->sign(val < 0);
         -: 1477:      this->normalize();
         -: 1478:   }
+<<<<<<< HEAD
         3: 1479:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(limb_type i, const mpl::false_&) BOOST_NOEXCEPT
         -: 1480:   {
         3: 1481:      this->resize(1, 1);
         3: 1482:      *this->limbs() = i;
         3: 1483:      this->sign(false);
         3: 1484:   }
+=======
+    32940: 1479:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(limb_type i, const mpl::false_&) BOOST_NOEXCEPT
+        -: 1480:   {
+    32940: 1481:      this->resize(1, 1);
+    32940: 1482:      *this->limbs() = i;
+    32940: 1483:      this->sign(false);
+    32940: 1484:   }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1485:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(signed_limb_type i, const mpl::false_&) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().sign(true)))
         -: 1486:   {
         -: 1487:      this->resize(1, 1);
         -: 1488:      *this->limbs() = static_cast<limb_type>(boost::multiprecision::detail::unsigned_abs(i));
         -: 1489:      this->sign(i < 0);
         -: 1490:   }
+<<<<<<< HEAD
        89: 1491:   BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(double_limb_type i, const mpl::false_&) BOOST_NOEXCEPT
         -: 1492:   {
         -: 1493:      BOOST_STATIC_ASSERT(sizeof(i) == 2 * sizeof(limb_type));
@@ -1506,6 +1675,22 @@
       178: 1502:      this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
        89: 1503:      this->sign(false);
        89: 1504:   }
+=======
+   264703: 1491:   BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(double_limb_type i, const mpl::false_&) BOOST_NOEXCEPT
+        -: 1492:   {
+        -: 1493:      BOOST_STATIC_ASSERT(sizeof(i) == 2 * sizeof(limb_type));
+        -: 1494:      BOOST_STATIC_ASSERT(base_type::internal_limb_count >= 2);
+   264703: 1495:      typename base_type::limb_pointer p = this->limbs();
+        -: 1496:#ifdef __MSVC_RUNTIME_CHECKS
+        -: 1497:      *p = static_cast<limb_type>(i & ~static_cast<limb_type>(0));
+        -: 1498:#else
+   264703: 1499:      *p                        = static_cast<limb_type>(i);
+        -: 1500:#endif
+   264703: 1501:      p[1] = static_cast<limb_type>(i >> base_type::limb_bits);
+   529406: 1502:      this->resize(p[1] ? 2 : 1, p[1] ? 2 : 1);
+   264703: 1503:      this->sign(false);
+   264703: 1504:   }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1505:   BOOST_MP_CXX14_CONSTEXPR void do_assign_arithmetic(signed_double_limb_type i, const mpl::false_&) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().sign(true)))
         -: 1506:   {
         -: 1507:      BOOST_STATIC_ASSERT(sizeof(i) == 2 * sizeof(limb_type));
@@ -1588,10 +1773,17 @@
         -: 1584:
         -: 1585: public:
         -: 1586:   template <class Arithmetic>
+<<<<<<< HEAD
       92*: 1587:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<!boost::multiprecision::detail::is_byte_container<Arithmetic>::value, cpp_int_backend&>::type operator=(Arithmetic val) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().do_assign_arithmetic(std::declval<Arithmetic>(), trivial_tag())))
         -: 1588:   {
       90*: 1589:      do_assign_arithmetic(val, trivial_tag());
     #####: 1590:      return *this;
+=======
+  297643*: 1587:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<!boost::multiprecision::detail::is_byte_container<Arithmetic>::value, cpp_int_backend&>::type operator=(Arithmetic val) BOOST_MP_NOEXCEPT_IF(noexcept(std::declval<cpp_int_backend>().do_assign_arithmetic(std::declval<Arithmetic>(), trivial_tag())))
+        -: 1588:   {
+  297635*: 1589:      do_assign_arithmetic(val, trivial_tag());
+  254378*: 1590:      return *this;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1591:   }
         -: 1592:
         -: 1593: private:
@@ -1646,6 +1838,7 @@
         -: 1642:      if (isneg)
         -: 1643:         this->negate();
         -: 1644:   }
+<<<<<<< HEAD
         2: 1645:   void do_assign_string(const char* s, const mpl::false_&)
         -: 1646:   {
         -: 1647:      using default_ops::eval_add;
@@ -1655,12 +1848,27 @@
         2: 1651:      unsigned radix = 10;
         2: 1652:      bool     isneg = false;
         2: 1653:      if (n && (*s == '-'))
+=======
+        8: 1645:   void do_assign_string(const char* s, const mpl::false_&)
+        -: 1646:   {
+        -: 1647:      using default_ops::eval_add;
+        -: 1648:      using default_ops::eval_multiply;
+        8: 1649:      std::size_t n  = s ? std::strlen(s) : 0;
+        8: 1650:      *this          = static_cast<limb_type>(0u);
+        8: 1651:      unsigned radix = 10;
+        8: 1652:      bool     isneg = false;
+        8: 1653:      if (n && (*s == '-'))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1654:      {
     #####: 1655:         --n;
     #####: 1656:         ++s;
     #####: 1657:         isneg = true;
         -: 1658:      }
+<<<<<<< HEAD
         2: 1659:      if (n && (*s == '0'))
+=======
+        8: 1659:      if (n && (*s == '0'))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1660:      {
     #####: 1661:         if ((n > 1) && ((s[1] == 'x') || (s[1] == 'X')))
         -: 1662:         {
@@ -1679,10 +1887,17 @@
         -: 1675:      // then do a swap at the end.  In the event of a throw, *this will
         -: 1676:      // be left unchanged.
         -: 1677:      //
+<<<<<<< HEAD
         2: 1678:      cpp_int_backend result;
         2: 1679:      if (n)
         -: 1680:      {
         2: 1681:         if (radix == 16)
+=======
+        8: 1678:      cpp_int_backend result;
+        8: 1679:      if (n)
+        -: 1680:      {
+        8: 1681:         if (radix == 16)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1682:         {
     #####: 1683:            while (*s == '0')
     #####: 1684:               ++s;
@@ -1720,7 +1935,11 @@
         -: 1716:            }
     #####: 1717:            result.normalize();
         -: 1718:         }
+<<<<<<< HEAD
         2: 1719:         else if (radix == 8)
+=======
+        8: 1719:         else if (radix == 8)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1720:         {
     #####: 1721:            while (*s == '0')
     #####: 1722:               ++s;
@@ -1772,6 +1991,7 @@
         -: 1768:         {
         -: 1769:            // Base 10, we extract blocks of size 10^9 at a time, that way
         -: 1770:            // the number of multiplications is kept to a minimum:
+<<<<<<< HEAD
         2: 1771:            limb_type block_mult = max_block_10;
         4: 1772:            while (*s)
         -: 1773:            {
@@ -1810,6 +2030,46 @@
        2*: 1806:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void swap(cpp_int_backend& o) BOOST_NOEXCEPT
         -: 1807:   {
        2*: 1808:      this->do_swap(o);
+=======
+        8: 1771:            limb_type block_mult = max_block_10;
+       16: 1772:            while (*s)
+        -: 1773:            {
+        8: 1774:               limb_type block = 0;
+       27: 1775:               for (unsigned i = 0; i < digits_per_block_10; ++i)
+        -: 1776:               {
+        -: 1777:                  limb_type val;
+       27: 1778:                  if (*s >= '0' && *s <= '9')
+       27: 1779:                     val = *s - '0';
+        -: 1780:                  else
+    #####: 1781:                     BOOST_THROW_EXCEPTION(std::runtime_error("Unexpected character encountered in input."));
+       27: 1782:                  block *= 10;
+       27: 1783:                  block += val;
+       27: 1784:                  if (!*++s)
+        -: 1785:                  {
+        8: 1786:                     block_mult = block_multiplier(i);
+        8: 1787:                     break;
+        -: 1788:                  }
+        -: 1789:               }
+        8: 1790:               eval_multiply(result, block_mult);
+        8: 1791:               eval_add(result, block);
+        -: 1792:            }
+        -: 1793:         }
+        -: 1794:      }
+        8: 1795:      if (isneg)
+    #####: 1796:         result.negate();
+        8: 1797:      result.swap(*this);
+        8: 1798:   }
+        -: 1799:
+        -: 1800: public:
+        8: 1801:   cpp_int_backend& operator=(const char* s)
+        -: 1802:   {
+        8: 1803:      do_assign_string(s, trivial_tag());
+        -: 1804:      return *this;
+        -: 1805:   }
+       8*: 1806:   BOOST_MP_FORCEINLINE BOOST_MP_CXX14_CONSTEXPR void swap(cpp_int_backend& o) BOOST_NOEXCEPT
+        -: 1807:   {
+       8*: 1808:      this->do_swap(o);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1809:   }
         -: 1810:
         -: 1811: private:
@@ -1915,6 +2175,7 @@
         -: 1911:      return do_get_trivial_string(f, mpl::bool_<false>());
         -: 1912:#endif
         -: 1913:   }
+<<<<<<< HEAD
         1: 1914:   std::string do_get_string(std::ios_base::fmtflags f, const mpl::false_&) const
         -: 1915:   {
         -: 1916:      using default_ops::eval_get_sign;
@@ -1928,6 +2189,21 @@
         1: 1924:      unsigned Bits = this->size() * base_type::limb_bits;
         -: 1925:
         1: 1926:      if (base == 8 || base == 16)
+=======
+        4: 1914:   std::string do_get_string(std::ios_base::fmtflags f, const mpl::false_&) const
+        -: 1915:   {
+        -: 1916:      using default_ops::eval_get_sign;
+        4: 1917:      int base = 10;
+        4: 1918:      if ((f & std::ios_base::oct) == std::ios_base::oct)
+        -: 1919:         base = 8;
+        4: 1920:      else if ((f & std::ios_base::hex) == std::ios_base::hex)
+    #####: 1921:         base = 16;
+        4: 1922:      std::string result;
+        -: 1923:
+        4: 1924:      unsigned Bits = this->size() * base_type::limb_bits;
+        -: 1925:
+        4: 1926:      if (base == 8 || base == 16)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1927:      {
     #####: 1928:         if (this->sign())
     #####: 1929:            BOOST_THROW_EXCEPTION(std::runtime_error("Base 8 or 16 printing of negative numbers is not supported."));
@@ -1968,19 +2244,34 @@
     #####: 1964:      }
         -: 1965:      else
         -: 1966:      {
+<<<<<<< HEAD
         1: 1967:         result.assign(Bits / 3 + 1, '0');
         1: 1968:         std::string::difference_type pos = result.size() - 1;
         1: 1969:         cpp_int_backend              t(*this);
         1: 1970:         cpp_int_backend              r;
         1: 1971:         bool                         neg = false;
         1: 1972:         if (t.sign())
+=======
+        4: 1967:         result.assign(Bits / 3 + 1, '0');
+        4: 1968:         std::string::difference_type pos = result.size() - 1;
+        4: 1969:         cpp_int_backend              t(*this);
+        4: 1970:         cpp_int_backend              r;
+        4: 1971:         bool                         neg = false;
+        4: 1972:         if (t.sign())
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1973:         {
     #####: 1974:            t.negate();
     #####: 1975:            neg = true;
         -: 1976:         }
+<<<<<<< HEAD
         1: 1977:         if (this->size() == 1)
         -: 1978:         {
         1: 1979:            result = boost::lexical_cast<std::string>(t.limbs()[0]);
+=======
+        4: 1977:         if (this->size() == 1)
+        -: 1978:         {
+        4: 1979:            result = boost::lexical_cast<std::string>(t.limbs()[0]);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1980:         }
         -: 1981:         else
         -: 1982:         {
@@ -2002,6 +2293,7 @@
         -: 1998:               }
         -: 1999:            }
     #####: 2000:         }
+<<<<<<< HEAD
         1: 2001:         std::string::size_type n = result.find_first_not_of('0');
         1: 2002:         result.erase(0, n);
         1: 2003:         if (result.empty())
@@ -2018,6 +2310,24 @@
         1: 2014:   std::string str(std::streamsize /*digits*/, std::ios_base::fmtflags f) const
         -: 2015:   {
         1: 2016:      return do_get_string(f, trivial_tag());
+=======
+        4: 2001:         std::string::size_type n = result.find_first_not_of('0');
+        4: 2002:         result.erase(0, n);
+        4: 2003:         if (result.empty())
+        4: 2004:            result = "0";
+        4: 2005:         if (neg)
+    #####: 2006:            result.insert(static_cast<std::string::size_type>(0), 1, '-');
+        4: 2007:         else if (f & std::ios_base::showpos)
+    #####: 2008:            result.insert(static_cast<std::string::size_type>(0), 1, '+');
+        4: 2009:      }
+        4: 2010:      return result;
+        4: 2011:   }
+        -: 2012:
+        -: 2013: public:
+        4: 2014:   std::string str(std::streamsize /*digits*/, std::ios_base::fmtflags f) const
+        -: 2015:   {
+        4: 2016:      return do_get_string(f, trivial_tag());
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 2017:   }
         -: 2018:
         -: 2019: private:
@@ -2083,6 +2393,7 @@
         -: 2079:      construct_from_container(c, trivial_tag());
         -: 2080:   }
         -: 2081:   template <unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+<<<<<<< HEAD
       359: 2082:   BOOST_MP_CXX14_CONSTEXPR int compare_imp(const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o, const mpl::false_&, const mpl::false_&) const BOOST_NOEXCEPT
         -: 2083:   {
       359: 2084:      if (this->sign() != o.sign())
@@ -2092,6 +2403,17 @@
       359: 2088:      int result = compare_unsigned(o);
         -: 2089:
       359: 2090:      if (this->sign())
+=======
+   155597: 2082:   BOOST_MP_CXX14_CONSTEXPR int compare_imp(const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o, const mpl::false_&, const mpl::false_&) const BOOST_NOEXCEPT
+        -: 2083:   {
+   155597: 2084:      if (this->sign() != o.sign())
+    #####: 2085:         return this->sign() ? -1 : 1;
+        -: 2086:
+        -: 2087:      // Only do the compare if the same sign:
+   155597: 2088:      int result = compare_unsigned(o);
+        -: 2089:
+   155597: 2090:      if (this->sign())
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####: 2091:         result = -result;
         -: 2092:      return result;
         -: 2093:   }
@@ -2127,6 +2449,7 @@
         -: 2123:      }
         -: 2124:   }
         -: 2125:   template <unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+<<<<<<< HEAD
      359*: 2126:   BOOST_MP_CXX14_CONSTEXPR int compare(const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o) const BOOST_NOEXCEPT
         -: 2127:   {
         -: 2128:      typedef mpl::bool_<is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator> >::value>      t1;
@@ -2146,6 +2469,27 @@
         -: 2142:      {
       359: 2143:         if (pa[i] != pb[i])
       619: 2144:            return pa[i] > pb[i] ? 1 : -1;
+=======
+  155597*: 2126:   BOOST_MP_CXX14_CONSTEXPR int compare(const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o) const BOOST_NOEXCEPT
+        -: 2127:   {
+        -: 2128:      typedef mpl::bool_<is_trivial_cpp_int<cpp_int_backend<MinBits, MaxBits, SignType, Checked, Allocator> >::value>      t1;
+        -: 2129:      typedef mpl::bool_<is_trivial_cpp_int<cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2> >::value> t2;
+  135596*: 2130:      return compare_imp(o, t1(), t2());
+        -: 2131:   }
+        -: 2132:   template <unsigned MinBits2, unsigned MaxBits2, cpp_integer_type SignType2, cpp_int_check_type Checked2, class Allocator2>
+   155597: 2133:   BOOST_MP_CXX14_CONSTEXPR int compare_unsigned(const cpp_int_backend<MinBits2, MaxBits2, SignType2, Checked2, Allocator2>& o) const BOOST_NOEXCEPT
+        -: 2134:   {
+   155597: 2135:      if (this->size() != o.size())
+        -: 2136:      {
+    #####: 2137:         return this->size() > o.size() ? 1 : -1;
+        -: 2138:      }
+   155597: 2139:      typename base_type::const_limb_pointer pa = this->limbs();
+   155597: 2140:      typename base_type::const_limb_pointer pb = o.limbs();
+   155613: 2141:      for (int i = this->size() - 1; i >= 0; --i)
+        -: 2142:      {
+   155597: 2143:         if (pa[i] != pb[i])
+   291153: 2144:            return pa[i] > pb[i] ? 1 : -1;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 2145:      }
         -: 2146:      return 0;
         -: 2147:   }

@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/new_allocator.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Allocator that wraps operator new -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -81,10 +85,17 @@
         -:   77:#endif
         -:   78:
         -:   79:      _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
       13*:   80:      __new_allocator() _GLIBCXX_USE_NOEXCEPT { }
         -:   81:
         -:   82:      _GLIBCXX20_CONSTEXPR
      393*:   83:      __new_allocator(const __new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+=======
+   34930*:   80:      __new_allocator() _GLIBCXX_USE_NOEXCEPT { }
+        -:   81:
+        -:   82:      _GLIBCXX20_CONSTEXPR
+  288251*:   83:      __new_allocator(const __new_allocator&) _GLIBCXX_USE_NOEXCEPT { }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   84:
         -:   85:      template<typename _Tp1>
         -:   86:	_GLIBCXX20_CONSTEXPR
@@ -113,7 +124,11 @@
         -:  109:      // NB: __n is permitted to be 0.  The C++ standard says nothing
         -:  110:      // about what the return value is when __n == 0.
         -:  111:      _GLIBCXX_NODISCARD _Tp*
+<<<<<<< HEAD
       11*:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+=======
+      62*:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  113:      {
         -:  114:#if __cplusplus >= 201103L
         -:  115:	// _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -121,7 +136,11 @@
         -:  117:	static_assert(sizeof(_Tp) != 0, "cannot allocate incomplete types");
         -:  118:#endif
         -:  119:
+<<<<<<< HEAD
       11*:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+=======
+      62*:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  121:	  {
         -:  122:	    // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  123:	    // 3190. allocator::allocate sometimes returns too little storage
@@ -138,11 +157,19 @@
         -:  134:							   __al));
         -:  135:	  }
         -:  136:#endif
+<<<<<<< HEAD
       11*:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
         -:  138:      }
 ------------------
 _ZNSt15__new_allocatorIN5boost14multiprecision6numberINS1_8backends15cpp_int_backendILj0ELj0ELNS1_16cpp_integer_typeE1ELNS1_18cpp_int_check_typeE0ESaImEEELNS1_26expression_template_optionE1EEEE8allocateEjPKv:
         7:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+=======
+      62*:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+        -:  138:      }
+------------------
+_ZNSt15__new_allocatorIN5boost14multiprecision6numberINS1_8backends15cpp_int_backendILj0ELj0ELNS1_16cpp_integer_typeE1ELNS1_18cpp_int_check_typeE0ESaImEEELNS1_26expression_template_optionE1EEEE8allocateEjPKv:
+       46:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  113:      {
         -:  114:#if __cplusplus >= 201103L
         -:  115:	// _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -150,7 +177,11 @@ _ZNSt15__new_allocatorIN5boost14multiprecision6numberINS1_8backends15cpp_int_bac
         -:  117:	static_assert(sizeof(_Tp) != 0, "cannot allocate incomplete types");
         -:  118:#endif
         -:  119:
+<<<<<<< HEAD
         7:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+=======
+       46:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  121:	  {
         -:  122:	    // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  123:	    // 3190. allocator::allocate sometimes returns too little storage
@@ -167,11 +198,19 @@ _ZNSt15__new_allocatorIN5boost14multiprecision6numberINS1_8backends15cpp_int_bac
         -:  134:							   __al));
         -:  135:	  }
         -:  136:#endif
+<<<<<<< HEAD
         7:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
         -:  138:      }
 ------------------
 _ZNSt15__new_allocatorIcE8allocateEjPKv:
         4:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+=======
+       46:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+        -:  138:      }
+------------------
+_ZNSt15__new_allocatorIcE8allocateEjPKv:
+       16:  112:      allocate(size_type __n, const void* = static_cast<const void*>(0))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  113:      {
         -:  114:#if __cplusplus >= 201103L
         -:  115:	// _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -179,7 +218,11 @@ _ZNSt15__new_allocatorIcE8allocateEjPKv:
         -:  117:	static_assert(sizeof(_Tp) != 0, "cannot allocate incomplete types");
         -:  118:#endif
         -:  119:
+<<<<<<< HEAD
         4:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+=======
+       16:  120:	if (__builtin_expect(__n > this->_M_max_size(), false))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  121:	  {
         -:  122:	    // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  123:	    // 3190. allocator::allocate sometimes returns too little storage
@@ -196,7 +239,11 @@ _ZNSt15__new_allocatorIcE8allocateEjPKv:
         -:  134:							   __al));
         -:  135:	  }
         -:  136:#endif
+<<<<<<< HEAD
         4:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+=======
+       16:  137:	return static_cast<_Tp*>(_GLIBCXX_OPERATOR_NEW(__n * sizeof(_Tp)));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  138:      }
 ------------------
 _ZNSt15__new_allocatorImE8allocateEjPKv:
@@ -231,7 +278,11 @@ _ZNSt15__new_allocatorImE8allocateEjPKv:
         -:  139:
         -:  140:      // __p is not permitted to be a null pointer.
         -:  141:      void
+<<<<<<< HEAD
       11*:  142:      deallocate(_Tp* __p, size_type __n __attribute__ ((__unused__)))
+=======
+      62*:  142:      deallocate(_Tp* __p, size_type __n __attribute__ ((__unused__)))
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  143:      {
         -:  144:#if __cpp_sized_deallocation
         -:  145:# define _GLIBCXX_SIZED_DEALLOC(p, n) (p), (n) * sizeof(_Tp)
@@ -247,7 +298,11 @@ _ZNSt15__new_allocatorImE8allocateEjPKv:
         -:  155:	    return;
         -:  156:	  }
         -:  157:#endif
+<<<<<<< HEAD
       11*:  158:	_GLIBCXX_OPERATOR_DELETE(_GLIBCXX_SIZED_DEALLOC(__p, __n));
+=======
+      62*:  158:	_GLIBCXX_OPERATOR_DELETE(_GLIBCXX_SIZED_DEALLOC(__p, __n));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  159:      }
         -:  160:
         -:  161:#undef _GLIBCXX_SIZED_DEALLOC

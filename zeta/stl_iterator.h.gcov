@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_iterator.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Iterators -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -1073,14 +1077,23 @@
         -: 1069:      : _M_current(_Iterator()) { }
         -: 1070:
         -: 1071:      explicit _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
        14: 1072:      __normal_iterator(const _Iterator& __i) _GLIBCXX_NOEXCEPT
        90: 1073:      : _M_current(__i) { }
+=======
+       92: 1072:      __normal_iterator(const _Iterator& __i) _GLIBCXX_NOEXCEPT
+    54889: 1073:      : _M_current(__i) { }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1074:
         -: 1075:      // Allow iterator to const_iterator conversion
         -: 1076:#if __cplusplus >= 201103L
         -: 1077:      template<typename _Iter, typename = __convertible_from<_Iter>>
         -: 1078:	_GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
         1: 1079:	__normal_iterator(const __normal_iterator<_Iter, _Container>& __i)
+=======
+        4: 1079:	__normal_iterator(const __normal_iterator<_Iter, _Container>& __i)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1080:	noexcept
         -: 1081:#else
         -: 1082:      // N.B. _Container::pointer is not actually in container requirements,
@@ -1091,7 +1104,11 @@
         -: 1087:	       (std::__are_same<_Iter, typename _Container::pointer>::__value),
         -: 1088:		      _Container>::__type>& __i)
         -: 1089:#endif
+<<<<<<< HEAD
         1: 1090:        : _M_current(__i.base()) { }
+=======
+        4: 1090:        : _M_current(__i.base()) { }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1091:
         -: 1092:      // Forward iterator requirements
         -: 1093:      _GLIBCXX20_CONSTEXPR
@@ -1106,10 +1123,17 @@
         -: 1102:
         -: 1103:      _GLIBCXX20_CONSTEXPR
         -: 1104:      __normal_iterator&
+<<<<<<< HEAD
     1860*: 1105:      operator++() _GLIBCXX_NOEXCEPT
         -: 1106:      {
     1925*: 1107:	++_M_current;
     #####: 1108:	return *this;
+=======
+198042401: 1105:      operator++() _GLIBCXX_NOEXCEPT
+        -: 1106:      {
+198012089: 1107:	++_M_current;
+    79188: 1108:	return *this;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1109:      }
         -: 1110:
         -: 1111:      _GLIBCXX20_CONSTEXPR
@@ -1159,7 +1183,11 @@
         -: 1155:
         -: 1156:      _GLIBCXX20_CONSTEXPR
         -: 1157:      const _Iterator&
+<<<<<<< HEAD
         1: 1158:      base() const _GLIBCXX_NOEXCEPT
+=======
+        4: 1158:      base() const _GLIBCXX_NOEXCEPT
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1159:      { return _M_current; }
         -: 1160:    };
         -: 1161:
@@ -1194,13 +1222,21 @@
         -: 1190:  template<typename _Iterator, typename _Container>
         -: 1191:    [[nodiscard]]
         -: 1192:    constexpr bool
+<<<<<<< HEAD
       114: 1193:    operator==(const __normal_iterator<_Iterator, _Container>& __lhs,
+=======
+    60898: 1193:    operator==(const __normal_iterator<_Iterator, _Container>& __lhs,
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1194:	       const __normal_iterator<_Iterator, _Container>& __rhs)
         -: 1195:    noexcept(noexcept(__lhs.base() == __rhs.base()))
         -: 1196:    requires requires {
         -: 1197:      { __lhs.base() == __rhs.base() } -> std::convertible_to<bool>;
         -: 1198:    }
+<<<<<<< HEAD
       114: 1199:    { return __lhs.base() == __rhs.base(); }
+=======
+    60898: 1199:    { return __lhs.base() == __rhs.base(); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1200:
         -: 1201:  template<typename _Iterator, typename _Container>
         -: 1202:    [[nodiscard]]
@@ -1318,7 +1354,11 @@
         -: 1314:    // DR 685.
         -: 1315:    [[__nodiscard__]] _GLIBCXX20_CONSTEXPR
         -: 1316:    inline auto
+<<<<<<< HEAD
         1: 1317:    operator-(const __normal_iterator<_IteratorL, _Container>& __lhs,
+=======
+        4: 1317:    operator-(const __normal_iterator<_IteratorL, _Container>& __lhs,
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1318:	      const __normal_iterator<_IteratorR, _Container>& __rhs) noexcept
         -: 1319:    -> decltype(__lhs.base() - __rhs.base())
         -: 1320:#else
@@ -1326,15 +1366,26 @@
         -: 1322:    operator-(const __normal_iterator<_IteratorL, _Container>& __lhs,
         -: 1323:	      const __normal_iterator<_IteratorR, _Container>& __rhs)
         -: 1324:#endif
+<<<<<<< HEAD
         1: 1325:    { return __lhs.base() - __rhs.base(); }
+=======
+        4: 1325:    { return __lhs.base() - __rhs.base(); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1326:
         -: 1327:  template<typename _Iterator, typename _Container>
         -: 1328:    _GLIBCXX_NODISCARD _GLIBCXX20_CONSTEXPR
         -: 1329:    inline typename __normal_iterator<_Iterator, _Container>::difference_type
+<<<<<<< HEAD
       161: 1330:    operator-(const __normal_iterator<_Iterator, _Container>& __lhs,
         -: 1331:	      const __normal_iterator<_Iterator, _Container>& __rhs)
         -: 1332:    _GLIBCXX_NOEXCEPT
       161: 1333:    { return __lhs.base() - __rhs.base(); }
+=======
+   103816: 1330:    operator-(const __normal_iterator<_Iterator, _Container>& __lhs,
+        -: 1331:	      const __normal_iterator<_Iterator, _Container>& __rhs)
+        -: 1332:    _GLIBCXX_NOEXCEPT
+   103816: 1333:    { return __lhs.base() - __rhs.base(); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1334:
         -: 1335:  template<typename _Iterator, typename _Container>
         -: 1336:    _GLIBCXX_NODISCARD _GLIBCXX20_CONSTEXPR

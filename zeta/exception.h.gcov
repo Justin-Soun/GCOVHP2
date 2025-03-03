@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/exception.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Exception Handling support header for -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2016-2022 Free Software Foundation, Inc.

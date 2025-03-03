@@ -1,7 +1,11 @@
         -:    0:Source:main.cc
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:#include "/public/read.h"
         -:    2:#include <vector>
         -:    3:#include <algorithm>
@@ -45,6 +49,7 @@
     #####:   41:	exit(EXIT_FAILURE);
         -:   42:}
         -:   43:
+<<<<<<< HEAD
        89:   44:bool isPrime(cpp_int x) {
        89:   45:	if (x <= 1) {
         -:   46:		return false;
@@ -99,13 +104,76 @@
       180:   95:	for (cpp_int i = minOfUser; i <= max; i++) {
       178:   96:		if (isPrime(i) == true) {
        24:   97:			primeNumbers.push_back(i);
+=======
+    54885:   44:bool isPrime(cpp_int x) {
+    54885:   45:	if (x <= 1) {
+        -:   46:		return false;
+        -:   47:	}
+    54885:   48:	return miller_rabin_test(x, 1);
+        -:   49:}
+        -:   50:
+        4:   51:cpp_int calculate_sum(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, int min, cpp_int primeAmount, cpp_int printOrNot){
+        4:   52:  cpp_int sum = 0;
+        -:   53:
+    54893:   54:      for (cpp_int i = min; i <= max; i++) {
+    54885:   55:                   auto it = find(primeNumbers.begin(), primeNumbers.end(), i);
+    54885:   56:                   if (it == primeNumbers.end()) {
+    48876:   57:                         primeAmount += 0;
+        -:   58:                   } else {
+    12018:   59:                         primeAmount++;
+        -:   60:                  }
+    54885:   61:                   if (i >= minOfUser and i <= max) {
+    20001:   62:                         sum += primeAmount;
+    20001:   63:                         if (printOrNot <= 10) {
+   54885*:   64:                           cout << "pi(" << i << ") = " << primeAmount << endl;
+        -:   65:                         }
+        -:   66:                       }
+    #####:   67:                 }
+        4:   68:    return sum;
+    =====:   69:}
+        -:   70:
+        4:   71:int main() {
+        4:   72:	cpp_int primeAmount = 0;
+        4:   73:	int min = 2;
+        -:   74:
+        4:   75:	cout << "Welcome to Zeta World!\nWe will compute the sum of all pi(x) from x = i to j\n";
+        -:   76:
+       12:   77:	cpp_int minOfUser = read("Please enter i:\n");
+       12:   78:	cpp_int max = read("Please enter j:\n");
+        4:   79:	cpp_int printOrNot = max - minOfUser;
+        -:   80:	
+        4:   81:	vector<cpp_int> primeNumbers;
+        -:   82:
+        4:   83:	if (minOfUser < 2 or max < 2) {
+    #####:   84:		die();
+        4:   85:	} else if (max < minOfUser) {
+    #####:   86:		die();
+        -:   87:	}
+        4:   88:	clock_t start_time = clock();
+    69772:   89:	for (cpp_int i = minOfUser - 1; i >= 2; i--) {
+    69768:   90:		if (isPrime(i) == true) {
+     3758:   91:			primeNumbers.push_back(i);
+        -:   92:		}
+    #####:   93:	}
+        -:   94:
+    40010:   95:	for (cpp_int i = minOfUser; i <= max; i++) {
+    40002:   96:		if (isPrime(i) == true) {
+     2251:   97:			primeNumbers.push_back(i);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   98:			
         -:   99:		}
     #####:  100:	}
         -:  101:
+<<<<<<< HEAD
         6:  102:  cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
         1:  103:	cout << "The answer is: " << sum << endl;
         1:  104:	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
         1:  105:}
+=======
+       24:  102:  cpp_int sum = calculate_sum(minOfUser, max, primeNumbers, min, primeAmount, printOrNot);
+        4:  103:	cout << "The answer is: " << sum << endl;
+        4:  104:	cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
+        4:  105:}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  106:
         -:  107:

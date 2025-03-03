@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_function.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Functor implementations -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -452,13 +456,21 @@
         -:  448:    struct less<_Tp*> : public binary_function<_Tp*, _Tp*, bool>
         -:  449:    {
         -:  450:      _GLIBCXX14_CONSTEXPR bool
+<<<<<<< HEAD
        1*:  451:      operator()(_Tp* __x, _Tp* __y) const _GLIBCXX_NOTHROW
+=======
+       4*:  451:      operator()(_Tp* __x, _Tp* __y) const _GLIBCXX_NOTHROW
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  452:      {
         -:  453:#if __cplusplus >= 201402L
         -:  454:	if (std::__is_constant_evaluated())
         -:  455:	  return __x < __y;
         -:  456:#endif
+<<<<<<< HEAD
        1*:  457:	return (__UINTPTR_TYPE__)__x < (__UINTPTR_TYPE__)__y;
+=======
+       4*:  457:	return (__UINTPTR_TYPE__)__x < (__UINTPTR_TYPE__)__y;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  458:      }
         -:  459:    };
         -:  460:

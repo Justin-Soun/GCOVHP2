@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/vector.tcc
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Vector implementation (out of line) -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -440,7 +444,11 @@
         -:  436:    template<typename... _Args>
         -:  437:      _GLIBCXX20_CONSTEXPR
         -:  438:      void
+<<<<<<< HEAD
         6:  439:      vector<_Tp, _Alloc>::
+=======
+       42:  439:      vector<_Tp, _Alloc>::
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  440:      _M_realloc_insert(iterator __position, _Args&&... __args)
         -:  441:#else
         -:  442:  template<typename _Tp, typename _Alloc>
@@ -450,12 +458,21 @@
         -:  446:#endif
         -:  447:    {
         -:  448:      const size_type __len =
+<<<<<<< HEAD
         6:  449:	_M_check_len(size_type(1), "vector::_M_realloc_insert");
         6:  450:      pointer __old_start = this->_M_impl._M_start;
         6:  451:      pointer __old_finish = this->_M_impl._M_finish;
         6:  452:      const size_type __elems_before = __position - begin();
         6:  453:      pointer __new_start(this->_M_allocate(__len));
         6:  454:      pointer __new_finish(__new_start);
+=======
+       42:  449:	_M_check_len(size_type(1), "vector::_M_realloc_insert");
+       42:  450:      pointer __old_start = this->_M_impl._M_start;
+       42:  451:      pointer __old_finish = this->_M_impl._M_finish;
+       42:  452:      const size_type __elems_before = __position - begin();
+       42:  453:      pointer __new_start(this->_M_allocate(__len));
+       42:  454:      pointer __new_finish(__new_start);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  455:      __try
         -:  456:	{
         -:  457:	  // The order of the three operations is dictated by the C++11
@@ -463,18 +480,28 @@
         -:  459:	  // to the existing vector.  This is an issue only for callers
         -:  460:	  // taking the element by lvalue ref (see last bullet of C++11
         -:  461:	  // [res.on.arguments]).
+<<<<<<< HEAD
        12:  462:	  _Alloc_traits::construct(this->_M_impl,
         6:  463:				   __new_start + __elems_before,
+=======
+       84:  462:	  _Alloc_traits::construct(this->_M_impl,
+       42:  463:				   __new_start + __elems_before,
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  464:#if __cplusplus >= 201103L
         -:  465:				   std::forward<_Args>(__args)...);
         -:  466:#else
         -:  467:				   __x);
         -:  468:#endif
+<<<<<<< HEAD
         6:  469:	  __new_finish = pointer();
+=======
+       42:  469:	  __new_finish = pointer();
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  470:
         -:  471:#if __cplusplus >= 201103L
         -:  472:	  if _GLIBCXX17_CONSTEXPR (_S_use_relocate())
         -:  473:	    {
+<<<<<<< HEAD
        12:  474:	      __new_finish = _S_relocate(__old_start, __position.base(),
         6:  475:					 __new_start, _M_get_Tp_allocator());
         -:  476:
@@ -482,6 +509,15 @@
         -:  478:
        12:  479:	      __new_finish = _S_relocate(__position.base(), __old_finish,
         6:  480:					 __new_finish, _M_get_Tp_allocator());
+=======
+       84:  474:	      __new_finish = _S_relocate(__old_start, __position.base(),
+       42:  475:					 __new_start, _M_get_Tp_allocator());
+        -:  476:
+       42:  477:	      ++__new_finish;
+        -:  478:
+       84:  479:	      __new_finish = _S_relocate(__position.base(), __old_finish,
+       42:  480:					 __new_finish, _M_get_Tp_allocator());
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  481:	    }
         -:  482:	  else
         -:  483:#endif
@@ -514,12 +550,21 @@
         -:  510:#endif
         -:  511:	std::_Destroy(__old_start, __old_finish, _M_get_Tp_allocator());
         -:  512:      _GLIBCXX_ASAN_ANNOTATE_REINIT;
+<<<<<<< HEAD
        12:  513:      _M_deallocate(__old_start,
         6:  514:		    this->_M_impl._M_end_of_storage - __old_start);
         6:  515:      this->_M_impl._M_start = __new_start;
         6:  516:      this->_M_impl._M_finish = __new_finish;
         6:  517:      this->_M_impl._M_end_of_storage = __new_start + __len;
         6:  518:    }
+=======
+       84:  513:      _M_deallocate(__old_start,
+       42:  514:		    this->_M_impl._M_end_of_storage - __old_start);
+       42:  515:      this->_M_impl._M_start = __new_start;
+       42:  516:      this->_M_impl._M_finish = __new_finish;
+       42:  517:      this->_M_impl._M_end_of_storage = __new_start + __len;
+       42:  518:    }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  519:
         -:  520:  template<typename _Tp, typename _Alloc>
         -:  521:    _GLIBCXX20_CONSTEXPR

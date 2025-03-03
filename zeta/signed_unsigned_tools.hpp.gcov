@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/random/detail/signed_unsigned_tools.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:/* boost random/detail/signed_unsigned_tools.hpp header file
         -:    2: *
         -:    3: * Copyright Jens Maurer 2006
@@ -35,7 +39,11 @@
         -:   31:struct subtract<T, /* signed */ false>
         -:   32:{
         -:   33:  typedef T result_type;
+<<<<<<< HEAD
     #####:   34:  result_type operator()(T x, T y) { return x - y; }
+=======
+     5813:   34:  result_type operator()(T x, T y) { return x - y; }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   35:};
         -:   36:
         -:   37:template<class T>
@@ -65,7 +73,11 @@
         -:   61:struct add<T1, T2, /* signed or else T2 has more digits than T1 so the cast always works - needed when T2 is a multiprecision type and T1 is a native integer */ false>
         -:   62:{
         -:   63:  typedef T2 result_type;
+<<<<<<< HEAD
     #####:   64:  result_type operator()(T1 x, T2 y) { return T2(x) + y; }
+=======
+     5813:   64:  result_type operator()(T1 x, T2 y) { return T2(x) + y; }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   65:};
         -:   66:
         -:   67:template<class T1, class T2>

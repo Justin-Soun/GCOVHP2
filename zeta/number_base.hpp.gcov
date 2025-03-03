@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/detail/number_base.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:///////////////////////////////////////////////////////////////////////////////
         -:    2://  Copyright 2011 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -227,12 +231,20 @@
         -:  223:#define BOOST_MP_USING_ABS using boost::multiprecision::detail::abs;
         -:  224:
         -:  225:template <class T>
+<<<<<<< HEAD
      314*:  226:BOOST_CONSTEXPR typename enable_if_c<(is_signed<T>::value || is_floating_point<T>::value), typename make_unsigned<T>::type>::type unsigned_abs(T t) BOOST_NOEXCEPT
+=======
+  203769*:  226:BOOST_CONSTEXPR typename enable_if_c<(is_signed<T>::value || is_floating_point<T>::value), typename make_unsigned<T>::type>::type unsigned_abs(T t) BOOST_NOEXCEPT
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  227:{
         -:  228:   // This strange expression avoids a hardware trap in the corner case
         -:  229:   // that val is the most negative value permitted in boost::long_long_type.
         -:  230:   // See https://svn.boost.org/trac/boost/ticket/9740.
+<<<<<<< HEAD
      314*:  231:   return t < 0 ? static_cast<typename make_unsigned<T>::type>(1u) + static_cast<typename make_unsigned<T>::type>(-(t + 1)) : static_cast<typename make_unsigned<T>::type>(t);
+=======
+  203769*:  231:   return t < 0 ? static_cast<typename make_unsigned<T>::type>(1u) + static_cast<typename make_unsigned<T>::type>(-(t + 1)) : static_cast<typename make_unsigned<T>::type>(t);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  232:}
         -:  233:template <class T>
         -:  234:BOOST_CONSTEXPR typename enable_if_c<(is_unsigned<T>::value), T>::type unsigned_abs(T t) BOOST_NOEXCEPT
@@ -710,7 +722,11 @@
         -:  706:   typedef Arg1         result_type;
         -:  707:   typedef terminal     tag_type;
         -:  708:
+<<<<<<< HEAD
       89*:  709:   explicit BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a) : arg(a) {}
+=======
+   20001*:  709:   explicit BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a) : arg(a) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  710:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg(e.arg) {}
         -:  711:
         -:  712:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
@@ -897,7 +913,11 @@
         -:  893:   typedef typename combine_expression<left_result_type, right_result_type>::type result_type;
         -:  894:   typedef tag                                                                    tag_type;
         -:  895:
+<<<<<<< HEAD
        2*:  896:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2) : arg1(a1), arg2(a2) {}
+=======
+   29073*:  896:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2) : arg1(a1), arg2(a2) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  897:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg1(e.arg1), arg2(e.arg2) {}
         -:  898:
         -:  899:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
@@ -1008,11 +1028,19 @@
         -: 1004:   }
         -: 1005:#endif
         -: 1006:
+<<<<<<< HEAD
        2*: 1007:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
         -: 1008:   {
        2*: 1009:      return left_type(arg1);
         -: 1010:   }
        2*: 1011:   BOOST_MP_CXX14_CONSTEXPR right_type  right() const { return right_type(arg2); }
+=======
+   29073*: 1007:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -: 1008:   {
+   23260*: 1009:      return left_type(arg1);
+        -: 1010:   }
+   29073*: 1011:   BOOST_MP_CXX14_CONSTEXPR right_type  right() const { return right_type(arg2); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1012:   BOOST_MP_CXX14_CONSTEXPR const Arg1& left_ref() const BOOST_NOEXCEPT { return arg1; }
         -: 1013:   BOOST_MP_CXX14_CONSTEXPR const Arg2& right_ref() const BOOST_NOEXCEPT { return arg2; }
         -: 1014:
@@ -1299,7 +1327,11 @@
         -: 1295:           typename combine_expression<right_middle_result_type, right_result_type>::type>::type>::type result_type;
         -: 1296:   typedef tag                                                                                          tag_type;
         -: 1297:
+<<<<<<< HEAD
     #####: 1298:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2, const Arg3& a3, const Arg4& a4) : arg1(a1), arg2(a2), arg3(a3), arg4(a4) {}
+=======
+    15489: 1298:   BOOST_MP_CXX14_CONSTEXPR expression(const Arg1& a1, const Arg2& a2, const Arg3& a3, const Arg4& a4) : arg1(a1), arg2(a2), arg3(a3), arg4(a4) {}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1299:   BOOST_MP_CXX14_CONSTEXPR expression(const expression& e) : arg1(e.arg1), arg2(e.arg2), arg3(e.arg3), arg4(e.arg4) {}
         -: 1300:
         -: 1301:#ifndef BOOST_NO_CXX11_STATIC_ASSERT
@@ -1410,17 +1442,29 @@
         -: 1406:   }
         -: 1407:#endif
         -: 1408:
+<<<<<<< HEAD
     #####: 1409:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
         -: 1410:   {
     #####: 1411:      return left_type(arg1);
+=======
+    15489: 1409:   BOOST_MP_CXX14_CONSTEXPR left_type left() const
+        -: 1410:   {
+    15489: 1411:      return left_type(arg1);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1412:   }
         -: 1413:   BOOST_MP_CXX14_CONSTEXPR left_middle_type  left_middle() const { return left_middle_type(arg2); }
         -: 1414:   BOOST_MP_CXX14_CONSTEXPR right_middle_type right_middle() const { return right_middle_type(arg3); }
         -: 1415:   BOOST_MP_CXX14_CONSTEXPR right_type        right() const { return right_type(arg4); }
         -: 1416:   BOOST_MP_CXX14_CONSTEXPR const Arg1&       left_ref() const BOOST_NOEXCEPT { return arg1; }
+<<<<<<< HEAD
     #####: 1417:   BOOST_MP_CXX14_CONSTEXPR const Arg2&       left_middle_ref() const BOOST_NOEXCEPT { return arg2; }
     #####: 1418:   BOOST_MP_CXX14_CONSTEXPR const Arg3&       right_middle_ref() const BOOST_NOEXCEPT { return arg3; }
     #####: 1419:   BOOST_MP_CXX14_CONSTEXPR const Arg4&       right_ref() const BOOST_NOEXCEPT { return arg4; }
+=======
+    15489: 1417:   BOOST_MP_CXX14_CONSTEXPR const Arg2&       left_middle_ref() const BOOST_NOEXCEPT { return arg2; }
+    15489: 1418:   BOOST_MP_CXX14_CONSTEXPR const Arg3&       right_middle_ref() const BOOST_NOEXCEPT { return arg3; }
+    15489: 1419:   BOOST_MP_CXX14_CONSTEXPR const Arg4&       right_ref() const BOOST_NOEXCEPT { return arg4; }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -: 1420:
         -: 1421:#ifndef BOOST_MP_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
         -: 1422:#if (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 7) && !defined(__clang__)) || (defined(BOOST_INTEL) && (BOOST_INTEL <= 1500))

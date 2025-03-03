@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/cpp_int/bitwise.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:///////////////////////////////////////////////////////////////
         -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -507,6 +511,7 @@
         -:  503:}
         -:  504:
         -:  505:template <class Int>
+<<<<<<< HEAD
     #####:  506:inline void right_shift_byte(Int& result, double_limb_type s)
         -:  507:{
     #####:  508:   limb_type offset = static_cast<limb_type>(s / Int::limb_bits);
@@ -514,10 +519,20 @@
     #####:  510:   unsigned ors = result.size();
     #####:  511:   unsigned rs  = ors;
     #####:  512:   if (offset >= rs)
+=======
+       23:  506:inline void right_shift_byte(Int& result, double_limb_type s)
+        -:  507:{
+       23:  508:   limb_type offset = static_cast<limb_type>(s / Int::limb_bits);
+      23*:  509:   BOOST_ASSERT((s % CHAR_BIT) == 0);
+       23:  510:   unsigned ors = result.size();
+       23:  511:   unsigned rs  = ors;
+       23:  512:   if (offset >= rs)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  513:   {
     #####:  514:      result = limb_type(0);
     #####:  515:      return;
         -:  516:   }
+<<<<<<< HEAD
     #####:  517:   rs -= offset;
     #####:  518:   typename Int::limb_pointer pr = result.limbs();
     #####:  519:   unsigned char*             pc = reinterpret_cast<unsigned char*>(pr);
@@ -531,6 +546,21 @@
     #####:  527:         --rs;
         -:  528:   }
     #####:  529:   result.resize(rs, rs);
+=======
+       23:  517:   rs -= offset;
+       23:  518:   typename Int::limb_pointer pr = result.limbs();
+       23:  519:   unsigned char*             pc = reinterpret_cast<unsigned char*>(pr);
+       23:  520:   limb_type                  shift = static_cast<limb_type>(s / CHAR_BIT);
+       23:  521:   std::memmove(pc, pc + shift, ors * sizeof(pr[0]) - shift);
+       23:  522:   shift = (sizeof(limb_type) - shift % sizeof(limb_type)) * CHAR_BIT;
+       23:  523:   if (shift < Int::limb_bits)
+        -:  524:   {
+       23:  525:      pr[ors - offset - 1] &= (static_cast<limb_type>(1u) << shift) - 1;
+      23*:  526:      if (!pr[ors - offset - 1] && (rs > 1))
+    #####:  527:         --rs;
+        -:  528:   }
+       23:  529:   result.resize(rs, rs);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  530:}
         -:  531:
         -:  532:template <class Int>
@@ -554,6 +584,7 @@
         -:  550:}
         -:  551:
         -:  552:template <class Int>
+<<<<<<< HEAD
     #####:  553:inline BOOST_MP_CXX14_CONSTEXPR void right_shift_generic(Int& result, double_limb_type s)
         -:  554:{
     #####:  555:   limb_type offset = static_cast<limb_type>(s / Int::limb_bits);
@@ -561,10 +592,20 @@
     #####:  557:   unsigned  ors    = result.size();
     #####:  558:   unsigned  rs     = ors;
     #####:  559:   if (offset >= rs)
+=======
+   155260:  553:inline BOOST_MP_CXX14_CONSTEXPR void right_shift_generic(Int& result, double_limb_type s)
+        -:  554:{
+   155260:  555:   limb_type offset = static_cast<limb_type>(s / Int::limb_bits);
+   155260:  556:   limb_type shift  = static_cast<limb_type>(s % Int::limb_bits);
+   155260:  557:   unsigned  ors    = result.size();
+   155260:  558:   unsigned  rs     = ors;
+   155260:  559:   if (offset >= rs)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  560:   {
     #####:  561:      result = limb_type(0);
     #####:  562:      return;
         -:  563:   }
+<<<<<<< HEAD
     #####:  564:   rs -= offset;
     #####:  565:   typename Int::limb_pointer pr = result.limbs();
     #####:  566:   if ((pr[ors - 1] >> shift) == 0)
@@ -580,12 +621,34 @@
         -:  576:   // This code only works for non-zero shift, otherwise we invoke undefined behaviour!
     #####:  577:   BOOST_ASSERT(shift);
     #####:  578:   for (; i + offset + 1 < ors; ++i)
+=======
+   155260:  564:   rs -= offset;
+   155260:  565:   typename Int::limb_pointer pr = result.limbs();
+   155260:  566:   if ((pr[ors - 1] >> shift) == 0)
+        -:  567:   {
+    11626:  568:      if (--rs == 0)
+        -:  569:      {
+    11626:  570:         result = limb_type(0);
+    11626:  571:         return;
+        -:  572:      }
+        -:  573:   }
+   143634:  574:   unsigned i = 0;
+        -:  575:
+        -:  576:   // This code only works for non-zero shift, otherwise we invoke undefined behaviour!
+  143634*:  577:   BOOST_ASSERT(shift);
+  143634*:  578:   for (; i + offset + 1 < ors; ++i)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  579:   {
     #####:  580:      pr[i] = pr[i + offset] >> shift;
     #####:  581:      pr[i] |= pr[i + offset + 1] << (Int::limb_bits - shift);
         -:  582:   }
+<<<<<<< HEAD
     #####:  583:   pr[i] = pr[i + offset] >> shift;
     #####:  584:   result.resize(rs, rs);
+=======
+   143634:  583:   pr[i] = pr[i + offset] >> shift;
+   143634:  584:   result.resize(rs, rs);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  585:}
         -:  586:
         -:  587:template <unsigned MinBits1, unsigned MaxBits1, cpp_int_check_type Checked1, class Allocator1>
@@ -643,16 +706,28 @@
         -:  639:}
         -:  640:template <unsigned MinBits1, unsigned MaxBits1, cpp_int_check_type Checked1, class Allocator1>
         -:  641:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBits1, signed_magnitude, Checked1, Allocator1> >::value>::type
+<<<<<<< HEAD
     #####:  642:eval_right_shift(
+=======
+   155283:  642:eval_right_shift(
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  643:    cpp_int_backend<MinBits1, MaxBits1, signed_magnitude, Checked1, Allocator1>& result,
         -:  644:    double_limb_type                                                             s) BOOST_MP_NOEXCEPT_IF((is_non_throwing_cpp_int<cpp_int_backend<MinBits1, MaxBits1, signed_magnitude, Checked1, Allocator1> >::value))
         -:  645:{
         -:  646:   is_valid_bitwise_op(result, typename cpp_int_backend<MinBits1, MaxBits1, signed_magnitude, Checked1, Allocator1>::checked_type());
+<<<<<<< HEAD
     #####:  647:   if (!s)
         -:  648:      return;
         -:  649:
     #####:  650:   bool is_neg = result.sign();
     #####:  651:   if (is_neg)
+=======
+   155283:  647:   if (!s)
+        -:  648:      return;
+        -:  649:
+   155283:  650:   bool is_neg = result.sign();
+   155283:  651:   if (is_neg)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  652:      eval_increment(result);
         -:  653:
         -:  654:#if BOOST_ENDIAN_LITTLE_BYTE && defined(BOOST_MP_USE_LIMB_SHIFT)
@@ -671,10 +746,17 @@
         -:  667:#ifdef BOOST_NO_CXX14_CONSTEXPR
         -:  668:   static const limb_type byte_shift_mask = CHAR_BIT - 1;
         -:  669:#else
+<<<<<<< HEAD
     #####:  670:   constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
         -:  671:#endif
     #####:  672:   if ((s & byte_shift_mask) == 0)
     #####:  673:      right_shift_byte(result, s);
+=======
+   155283:  670:   constexpr const limb_type byte_shift_mask = CHAR_BIT - 1;
+        -:  671:#endif
+   155283:  672:   if ((s & byte_shift_mask) == 0)
+       23:  673:      right_shift_byte(result, s);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  674:#else
         -:  675:#ifdef BOOST_NO_CXX14_CONSTEXPR
         -:  676:   static const limb_type limb_shift_mask = cpp_int_backend<MinBits1, MaxBits1, signed_magnitude, Checked1, Allocator1>::limb_bits - 1;
@@ -685,8 +767,13 @@
         -:  681:      right_shift_limb(result, s);
         -:  682:#endif
         -:  683:   else
+<<<<<<< HEAD
     #####:  684:      right_shift_generic(result, s);
     #####:  685:   if (is_neg)
+=======
+   155260:  684:      right_shift_generic(result, s);
+   155283:  685:   if (is_neg)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
     #####:  686:      eval_decrement(result);
         -:  687:}
         -:  688:

@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/stl_construct.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// nonstandard construct and destroy functions -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -81,7 +85,11 @@
         -:   77:#if __cplusplus >= 201703L
         -:   78:  template <typename _Tp>
         -:   79:    _GLIBCXX20_CONSTEXPR inline void
+<<<<<<< HEAD
        31:   80:    destroy_at(_Tp* __location)
+=======
+    10556:   80:    destroy_at(_Tp* __location)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   81:    {
         -:   82:      if constexpr (__cplusplus > 201703L && is_array_v<_Tp>)
         -:   83:	{
@@ -89,16 +97,27 @@
         -:   85:	    std::destroy_at(std::__addressof(__x));
         -:   86:	}
         -:   87:      else
+<<<<<<< HEAD
        31:   88:	__location->~_Tp();
+=======
+    10556:   88:	__location->~_Tp();
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   89:    }
         -:   90:
         -:   91:#if __cplusplus >= 202002L
         -:   92:  template<typename _Tp, typename... _Args>
         -:   93:    constexpr auto
+<<<<<<< HEAD
        55:   94:    construct_at(_Tp* __location, _Args&&... __args)
         -:   95:    noexcept(noexcept(::new((void*)0) _Tp(std::declval<_Args>()...)))
         -:   96:    -> decltype(::new((void*)0) _Tp(std::declval<_Args>()...))
        61:   97:    { return ::new((void*)__location) _Tp(std::forward<_Args>(__args)...); }
+=======
+    16565:   94:    construct_at(_Tp* __location, _Args&&... __args)
+        -:   95:    noexcept(noexcept(::new((void*)0) _Tp(std::declval<_Args>()...)))
+        -:   96:    -> decltype(::new((void*)0) _Tp(std::declval<_Args>()...))
+    16607:   97:    { return ::new((void*)__location) _Tp(std::forward<_Args>(__args)...); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   98:#endif // C++20
         -:   99:#endif// C++17
         -:  100:
@@ -110,7 +129,11 @@
         -:  106:  template<typename _Tp, typename... _Args>
         -:  107:    _GLIBCXX20_CONSTEXPR
         -:  108:    inline void
+<<<<<<< HEAD
        24:  109:    _Construct(_Tp* __p, _Args&&... __args)
+=======
+     6009:  109:    _Construct(_Tp* __p, _Args&&... __args)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  110:    {
         -:  111:#if __cplusplus >= 202002L
         -:  112:      if (std::__is_constant_evaluated())
@@ -120,7 +143,11 @@
         -:  116:	  return;
         -:  117:	}
         -:  118:#endif
+<<<<<<< HEAD
        24:  119:      ::new((void*)__p) _Tp(std::forward<_Args>(__args)...);
+=======
+     6009:  119:      ::new((void*)__p) _Tp(std::forward<_Args>(__args)...);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  120:    }
         -:  121:#else
         -:  122:  template<typename _T1, typename _T2>
@@ -147,10 +174,17 @@
         -:  143:   */
         -:  144:  template<typename _Tp>
         -:  145:    _GLIBCXX14_CONSTEXPR inline void
+<<<<<<< HEAD
        48:  146:    _Destroy(_Tp* __pointer)
         -:  147:    {
         -:  148:#if __cplusplus > 201703L
        48:  149:      std::destroy_at(__pointer);
+=======
+    12018:  146:    _Destroy(_Tp* __pointer)
+        -:  147:    {
+        -:  148:#if __cplusplus > 201703L
+    12018:  149:      std::destroy_at(__pointer);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  150:#else
         -:  151:      __pointer->~_Tp();
         -:  152:#endif
@@ -163,8 +197,13 @@
         -:  159:	static _GLIBCXX20_CONSTEXPR void
         -:  160:	__destroy(_ForwardIterator __first, _ForwardIterator __last)
         -:  161:	{
+<<<<<<< HEAD
        50:  162:	  for (; __first != __last; ++__first)
        48:  163:	    std::_Destroy(std::__addressof(*__first));
+=======
+    12026:  162:	  for (; __first != __last; ++__first)
+    12018:  163:	    std::_Destroy(std::__addressof(*__first));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  164:	}
         -:  165:    };
         -:  166:

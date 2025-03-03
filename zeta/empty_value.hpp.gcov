@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/core/empty_value.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:/*
         -:    2:Copyright 2018 Glen Joseph Fernandes
         -:    3:(glenjofe@gmail.com)
@@ -95,13 +99,21 @@
         -:   91:
         -:   92:#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
         -:   93:template<class T, unsigned N>
+<<<<<<< HEAD
      380*:   94:class empty_value<T, N, true>
+=======
+  288199*:   94:class empty_value<T, N, true>
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   95:    : T {
         -:   96:public:
         -:   97:    typedef T type;
         -:   98:
         -:   99:#if !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)
+<<<<<<< HEAD
        4*:  100:    empty_value() = default;
+=======
+   34894*:  100:    empty_value() = default;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  101:#else
         -:  102:    empty_value() { }
         -:  103:#endif

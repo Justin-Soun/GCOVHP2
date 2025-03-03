@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/random/mersenne_twister.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:/* boost random/mersenne_twister.hpp header file
         -:    2: *
         -:    3: * Copyright Jens Maurer 2000-2001
@@ -108,7 +112,11 @@
         -:  104:    /**
         -:  105:     * Constructs a @c mersenne_twister_engine and calls @c seed().
         -:  106:     */
+<<<<<<< HEAD
         1:  107:    mersenne_twister_engine() { seed(); }
+=======
+        4:  107:    mersenne_twister_engine() { seed(); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  108:
         -:  109:    /**
         -:  110:     * Constructs a @c mersenne_twister_engine and calls @c seed(value).
@@ -134,7 +142,11 @@
         -:  130:    // compiler-generated copy ctor and assignment operator are fine
         -:  131:
         -:  132:    /** Calls @c seed(default_seed). */
+<<<<<<< HEAD
         1:  133:    void seed() { seed(default_seed); }
+=======
+        4:  133:    void seed() { seed(default_seed); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  134:
         -:  135:    /**
         -:  136:     * Sets the state x(0) to v mod 2w. Then, iteratively,
@@ -142,12 +154,17 @@
         -:  138:     * (i + f * (x(i-1) xor (x(i-1) rshift w-2))) mod 2<sup>w</sup>
         -:  139:     * for i = 1 .. n-1. x(n) is the first value to be returned by operator().
         -:  140:     */
+<<<<<<< HEAD
         1:  141:    BOOST_RANDOM_DETAIL_ARITHMETIC_SEED(mersenne_twister_engine, UIntType, value)
+=======
+        4:  141:    BOOST_RANDOM_DETAIL_ARITHMETIC_SEED(mersenne_twister_engine, UIntType, value)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  142:    {
         -:  143:        // New seeding algorithm from
         -:  144:        // http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html
         -:  145:        // In the previous versions, MSBs of the seed affected only MSBs of the
         -:  146:        // state x[].
+<<<<<<< HEAD
         1:  147:        const UIntType mask = (max)();
         1:  148:        x[0] = value & mask;
       624:  149:        for (i = 1; i < n; i++) {
@@ -158,6 +175,18 @@
         -:  154:
         1:  155:        normalize_state();
         1:  156:    }
+=======
+        4:  147:        const UIntType mask = (max)();
+        4:  148:        x[0] = value & mask;
+     2496:  149:        for (i = 1; i < n; i++) {
+        -:  150:            // See Knuth "The Art of Computer Programming"
+        -:  151:            // Vol. 2, 3rd ed., page 106
+     2492:  152:            x[i] = (f * (x[i-1] ^ (x[i-1] >> (w-2))) + i) & mask;
+        -:  153:        }
+        -:  154:
+        4:  155:        normalize_state();
+        4:  156:    }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  157:
         -:  158:    /**
         -:  159:     * Seeds a mersenne_twister_engine using values produced by seq.generate().
@@ -347,6 +376,7 @@
         -:  343:     * be called by seed, since the state transform preserves
         -:  344:     * this relationship.
         -:  345:     */
+<<<<<<< HEAD
         1:  346:    void normalize_state()
         -:  347:    {
         1:  348:        const UIntType upper_mask = (~static_cast<UIntType>(0)) << r;
@@ -362,6 +392,23 @@
         -:  358:        // fix up the state if it's all zeroes.
        1*:  359:        for(std::size_t j = 0; j < n; ++j) {
         1:  360:            if(x[j] != 0) return;
+=======
+        4:  346:    void normalize_state()
+        -:  347:    {
+        4:  348:        const UIntType upper_mask = (~static_cast<UIntType>(0)) << r;
+        4:  349:        const UIntType lower_mask = ~upper_mask;
+        4:  350:        UIntType y0 = x[m-1] ^ x[n-1];
+        4:  351:        if(y0 & (static_cast<UIntType>(1) << (w-1))) {
+    #####:  352:            y0 = ((y0 ^ a) << 1) | 1;
+        -:  353:        } else {
+        4:  354:            y0 = y0 << 1;
+        -:  355:        }
+        4:  356:        x[0] = (x[0] & upper_mask) | (y0 & lower_mask);
+        -:  357:
+        -:  358:        // fix up the state if it's all zeroes.
+       4*:  359:        for(std::size_t j = 0; j < n; ++j) {
+        4:  360:            if(x[j] != 0) return;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  361:        }
     #####:  362:        x[0] = static_cast<UIntType>(1) << (w-1);
         -:  363:    }
@@ -537,6 +584,7 @@
         -:  533:         UIntType b, std::size_t t,
         -:  534:         UIntType c, std::size_t l, UIntType f>
         -:  535:void
+<<<<<<< HEAD
     #####:  536:mersenne_twister_engine<UIntType,w,n,m,r,a,u,d,s,b,t,c,l,f>::twist()
         -:  537:{
     #####:  538:    const UIntType upper_mask = (~static_cast<UIntType>(0)) << r;
@@ -567,15 +615,54 @@
         -:  563:    }
         -:  564:    {
     #####:  565:        for(std::size_t j = n-1-unroll_extra2; j < n-1; j++) {
+=======
+       12:  536:mersenne_twister_engine<UIntType,w,n,m,r,a,u,d,s,b,t,c,l,f>::twist()
+        -:  537:{
+       12:  538:    const UIntType upper_mask = (~static_cast<UIntType>(0)) << r;
+       12:  539:    const UIntType lower_mask = ~upper_mask;
+        -:  540:
+       12:  541:    const std::size_t unroll_factor = 6;
+       12:  542:    const std::size_t unroll_extra1 = (n-m) % unroll_factor;
+       12:  543:    const std::size_t unroll_extra2 = (m-1) % unroll_factor;
+        -:  544:
+        -:  545:    // split loop to avoid costly modulo operations
+        -:  546:    {  // extra scope for MSVC brokenness w.r.t. for scope
+     2676:  547:        for(std::size_t j = 0; j < n-m-unroll_extra1; j++) {
+     2664:  548:            UIntType y = (x[j] & upper_mask) | (x[j+1] & lower_mask);
+     2664:  549:            x[j] = x[j+m] ^ (y >> 1) ^ ((x[j+1]&1) * a);
+        -:  550:        }
+        -:  551:    }
+        -:  552:    {
+       72:  553:        for(std::size_t j = n-m-unroll_extra1; j < n-m; j++) {
+       60:  554:            UIntType y = (x[j] & upper_mask) | (x[j+1] & lower_mask);
+       60:  555:            x[j] = x[j+m] ^ (y >> 1) ^ ((x[j+1]&1) * a);
+        -:  556:        }
+        -:  557:    }
+        -:  558:    {
+     4764:  559:        for(std::size_t j = n-m; j < n-1-unroll_extra2; j++) {
+     4752:  560:            UIntType y = (x[j] & upper_mask) | (x[j+1] & lower_mask);
+     4752:  561:            x[j] = x[j-(n-m)] ^ (y >> 1) ^ ((x[j+1]&1) * a);
+        -:  562:        }
+        -:  563:    }
+        -:  564:    {
+       12:  565:        for(std::size_t j = n-1-unroll_extra2; j < n-1; j++) {
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  566:            UIntType y = (x[j] & upper_mask) | (x[j+1] & lower_mask);
         -:  567:            x[j] = x[j-(n-m)] ^ (y >> 1) ^ ((x[j+1]&1) * a);
         -:  568:        }
         -:  569:    }
         -:  570:    // last iteration
+<<<<<<< HEAD
     #####:  571:    UIntType y = (x[n-1] & upper_mask) | (x[0] & lower_mask);
     #####:  572:    x[n-1] = x[m-1] ^ (y >> 1) ^ ((x[0]&1) * a);
     #####:  573:    i = 0;
     #####:  574:}
+=======
+       12:  571:    UIntType y = (x[n-1] & upper_mask) | (x[0] & lower_mask);
+       12:  572:    x[n-1] = x[m-1] ^ (y >> 1) ^ ((x[0]&1) * a);
+       12:  573:    i = 0;
+       12:  574:}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  575:/// \endcond
         -:  576:
         -:  577:template<class UIntType,
@@ -585,6 +672,7 @@
         -:  581:         UIntType c, std::size_t l, UIntType f>
         -:  582:inline typename
         -:  583:mersenne_twister_engine<UIntType,w,n,m,r,a,u,d,s,b,t,c,l,f>::result_type
+<<<<<<< HEAD
     #####:  584:mersenne_twister_engine<UIntType,w,n,m,r,a,u,d,s,b,t,c,l,f>::operator()()
         -:  585:{
     #####:  586:    if(i == n)
@@ -597,6 +685,20 @@
     #####:  593:    z ^= ((z << t) & c);
     #####:  594:    z ^= (z >> l);
     #####:  595:    return z;
+=======
+     5813:  584:mersenne_twister_engine<UIntType,w,n,m,r,a,u,d,s,b,t,c,l,f>::operator()()
+        -:  585:{
+     5813:  586:    if(i == n)
+       12:  587:        twist();
+        -:  588:    // Step 4
+     5813:  589:    UIntType z = x[i];
+     5813:  590:    ++i;
+     5813:  591:    z ^= ((z >> u) & d);
+     5813:  592:    z ^= ((z << s) & b);
+     5813:  593:    z ^= ((z << t) & c);
+     5813:  594:    z ^= (z >> l);
+     5813:  595:    return z;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  596:}
         -:  597:
         -:  598:/**

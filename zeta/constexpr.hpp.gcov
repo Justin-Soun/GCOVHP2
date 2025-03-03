@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/detail/constexpr.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:///////////////////////////////////////////////////////////////
         -:    2://  Copyright 2019 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -27,9 +31,15 @@
     #####:   23:}
         -:   24:
         -:   25:template <class InputIterator, class OutputIterator>
+<<<<<<< HEAD
        1*:   26:inline BOOST_CXX14_CONSTEXPR OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
         -:   27:{
        1*:   28:   while (first != last)
+=======
+   17443*:   26:inline BOOST_CXX14_CONSTEXPR OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result)
+        -:   27:{
+   17443*:   28:   while (first != last)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   29:   {
     #####:   30:      *result = *first;
     #####:   31:      ++first;
@@ -41,12 +51,21 @@
         -:   37:template <class I>
         -:   38:inline BOOST_CXX14_CONSTEXPR bool equal(const I* first, const I* last, const I* other)
         -:   39:{
+<<<<<<< HEAD
      1884:   40:   while (first != last)
         -:   41:   {
      1860:   42:      if (*first != *other)
         -:   43:         return false;
        24:   44:      ++first;
        24:   45:      ++other;
+=======
+198110790:   40:   while (first != last)
+        -:   41:   {
+198100953:   42:      if (*first != *other)
+        -:   43:         return false;
+     9837:   44:      ++first;
+     9837:   45:      ++other;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   46:   }
         -:   47:   return true;
         -:   48:}

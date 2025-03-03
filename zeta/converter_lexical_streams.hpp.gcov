@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/lexical_cast/detail/converter_lexical_streams.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Copyright Kevlin Henney, 2000-2005.
         -:    2:// Copyright Alexander Nasonov, 2006-2010.
         -:    3:// Copyright Antony Polukhin, 2011-2020.
@@ -113,7 +117,11 @@
         -:  109:    {
         -:  110:        struct do_not_construct_out_buffer_t{};
         -:  111:        struct do_not_construct_out_stream_t{
+<<<<<<< HEAD
         1:  112:            do_not_construct_out_stream_t(do_not_construct_out_buffer_t*){}
+=======
+        4:  112:            do_not_construct_out_stream_t(do_not_construct_out_buffer_t*){}
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  113:        };
         -:  114:
         -:  115:        template <class CharT, class Traits>
@@ -163,6 +171,7 @@
         -:  159:            const CharT*  finish;
         -:  160:
         -:  161:        public:
+<<<<<<< HEAD
         1:  162:            lexical_istream_limited_src() BOOST_NOEXCEPT
         -:  163:              : out_buffer()
         1:  164:              , out_stream(&out_buffer)
@@ -176,6 +185,21 @@
         -:  172:
         1:  173:            const CharT* cend() const BOOST_NOEXCEPT {
         1:  174:                return finish;
+=======
+        4:  162:            lexical_istream_limited_src() BOOST_NOEXCEPT
+        -:  163:              : out_buffer()
+        4:  164:              , out_stream(&out_buffer)
+        4:  165:              , start(buffer)
+        4:  166:              , finish(buffer + CharacterBufferSize)
+        -:  167:            {}
+        -:  168:    
+        4:  169:            const CharT* cbegin() const BOOST_NOEXCEPT {
+        4:  170:                return start;
+        -:  171:            }
+        -:  172:
+        4:  173:            const CharT* cend() const BOOST_NOEXCEPT {
+        4:  174:                return finish;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  175:            }
         -:  176:
         -:  177:        private:
@@ -251,11 +275,19 @@
         -:  247:            }
         -:  248:
         -:  249:            template <class T>
+<<<<<<< HEAD
         1:  250:            inline bool shl_unsigned(const T n) {
         1:  251:                CharT* tmp_finish = buffer + CharacterBufferSize;
         1:  252:                start = lcast_put_unsigned<Traits, T, CharT>(n, tmp_finish).convert();
         1:  253:                finish = tmp_finish;
         1:  254:                return true;
+=======
+        4:  250:            inline bool shl_unsigned(const T n) {
+        4:  251:                CharT* tmp_finish = buffer + CharacterBufferSize;
+        4:  252:                start = lcast_put_unsigned<Traits, T, CharT>(n, tmp_finish).convert();
+        4:  253:                finish = tmp_finish;
+        4:  254:                return true;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  255:            }
         -:  256:
         -:  257:            template <class T>
@@ -435,7 +467,11 @@
         -:  431:            bool operator<<(long n)                     { return shl_signed(n); }
         -:  432:            bool operator<<(unsigned short n)           { return shl_unsigned(n); }
         -:  433:            bool operator<<(unsigned int n)             { return shl_unsigned(n); }
+<<<<<<< HEAD
         1:  434:            bool operator<<(unsigned long n)            { return shl_unsigned(n); }
+=======
+        4:  434:            bool operator<<(unsigned long n)            { return shl_unsigned(n); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  435:
         -:  436:#if defined(BOOST_HAS_LONG_LONG)
         -:  437:            bool operator<<(boost::ulong_long_type n)   { return shl_unsigned(n); }
@@ -509,9 +545,15 @@
         -:  505:            const CharT* const  finish;
         -:  506:
         -:  507:        public:
+<<<<<<< HEAD
         1:  508:            lexical_ostream_limited_src(const CharT* begin, const CharT* end) BOOST_NOEXCEPT
         1:  509:              : start(begin)
         1:  510:              , finish(end)
+=======
+        4:  508:            lexical_ostream_limited_src(const CharT* begin, const CharT* end) BOOST_NOEXCEPT
+        4:  509:              : start(begin)
+        4:  510:              , finish(end)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  511:            {}
         -:  512:
         -:  513:/************************************ HELPER FUNCTIONS FOR OPERATORS >> ( ... ) ********************************/
@@ -672,8 +714,13 @@
         -:  668:            bool operator>>(char32_t& output)                   { return shr_xchar(output); }
         -:  669:#endif
         -:  670:            template<class Alloc>
+<<<<<<< HEAD
         1:  671:            bool operator>>(std::basic_string<CharT,Traits,Alloc>& str) { 
         1:  672:                str.assign(start, finish); return true; 
+=======
+        4:  671:            bool operator>>(std::basic_string<CharT,Traits,Alloc>& str) { 
+        4:  672:                str.assign(start, finish); return true; 
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  673:            }
         -:  674:
         -:  675:            template<class Alloc>

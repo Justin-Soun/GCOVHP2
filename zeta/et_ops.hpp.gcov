@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/detail/et_ops.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:///////////////////////////////////////////////////////////////////////////////
         -:    2://  Copyright 2011 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -74,9 +78,15 @@
         -:   70:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
         -:   71:template <class B>
         -:   72:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+<<<<<<< HEAD
     #####:   73:operator+(number<B, et_on>&& a, const number<B, et_on>& b)
         -:   74:{
     #####:   75:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+=======
+    5813*:   73:operator+(number<B, et_on>&& a, const number<B, et_on>& b)
+        -:   74:{
+    5813*:   75:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   76:}
         -:   77:template <class B>
         -:   78:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
@@ -359,9 +369,15 @@
         -:  355://
         -:  356:template <class B>
         -:  357:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >
+<<<<<<< HEAD
        1*:  358:operator-(const number<B, et_on>& a, const number<B, et_on>& b)
         -:  359:{
        1*:  360:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+=======
+    5817*:  358:operator-(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:  359:{
+    5817*:  360:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  361:}
         -:  362:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
         -:  363:template <class B>
@@ -385,9 +401,15 @@
         -:  381:#endif
         -:  382:template <class B, class V>
         -:  383:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::subtract_immediates, number<B, et_on>, V> >::type
+<<<<<<< HEAD
        1*:  384:operator-(const number<B, et_on>& a, const V& b)
         -:  385:{
        1*:  386:   return detail::expression<detail::subtract_immediates, number<B, et_on>, V>(a, b);
+=======
+    17443:  384:operator-(const number<B, et_on>& a, const V& b)
+        -:  385:{
+    17443:  386:   return detail::expression<detail::subtract_immediates, number<B, et_on>, V>(a, b);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  387:}
         -:  388:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
         -:  389:template <class B, class V>

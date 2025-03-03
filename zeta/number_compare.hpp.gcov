@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/boost/multiprecision/detail/number_compare.hpp
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:///////////////////////////////////////////////////////////////////////////////
         -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
         -:    3://  Software License, Version 1.0. (See accompanying file
@@ -50,9 +54,15 @@
         -:   46:}
         -:   47:
         -:   48:template <class B>
+<<<<<<< HEAD
       90*:   49:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt(const B& a, const B& b)
         -:   50:{
       90*:   51:   return a.compare(b) < 0;
+=======
+   54889*:   49:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt(const B& a, const B& b)
+        -:   50:{
+   54889*:   51:   return a.compare(b) < 0;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   52:}
         -:   53:template <class T, class U>
         -:   54:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt_imp(const T& a, const U& b, const mpl::true_&)
@@ -74,9 +84,15 @@
         -:   70:}
         -:   71:
         -:   72:template <class B>
+<<<<<<< HEAD
      269*:   73:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt(const B& a, const B& b)
         -:   74:{
      269*:   75:   return a.compare(b) > 0;
+=======
+  100708*:   73:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt(const B& a, const B& b)
+        -:   74:{
+  100708*:   75:   return a.compare(b) > 0;
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:   76:}
         -:   77:template <class T, class U>
         -:   78:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt_imp(const T& a, const U& b, const mpl::true_&)
@@ -174,30 +190,54 @@
         -:  170:} // namespace detail
         -:  171:
         -:  172:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+<<<<<<< HEAD
     1860*:  173:inline BOOST_MP_CXX14_CONSTEXPR bool operator==(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+=======
+198100953*:  173:inline BOOST_MP_CXX14_CONSTEXPR bool operator==(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  174:{
         -:  175:   using default_ops::eval_eq;
         -:  176:   if (detail::is_unordered_comparison(a, b))
         -:  177:      return false;
+<<<<<<< HEAD
     1860*:  178:   return eval_eq(a.backend(), b.backend());
         -:  179:}
         -:  180:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
         -:  181:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
       89*:  182:operator==(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+=======
+198100953*:  178:   return eval_eq(a.backend(), b.backend());
+        -:  179:}
+        -:  180:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  181:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+   66546*:  182:operator==(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  183:{
         -:  184:   using default_ops::eval_eq;
         -:  185:   if (detail::is_unordered_comparison(a, b))
         -:  186:      return false;
+<<<<<<< HEAD
       89*:  187:   return eval_eq(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
         -:  188:}
         -:  189:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
         -:  190:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
     #####:  191:operator==(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+=======
+   66546*:  187:   return eval_eq(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  188:}
+        -:  189:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  190:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+     5813:  191:operator==(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  192:{
         -:  193:   using default_ops::eval_eq;
         -:  194:   if (detail::is_unordered_comparison(a, b))
         -:  195:      return false;
+<<<<<<< HEAD
     #####:  196:   return eval_eq(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+=======
+     5813:  196:   return eval_eq(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  197:}
         -:  198:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
         -:  199:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
@@ -243,12 +283,20 @@
         -:  239:}
         -:  240:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
         -:  241:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+<<<<<<< HEAD
     #####:  242:operator!=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+=======
+     5813:  242:operator!=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  243:{
         -:  244:   using default_ops::eval_eq;
         -:  245:   if (detail::is_unordered_comparison(a, b))
         -:  246:      return true;
+<<<<<<< HEAD
     #####:  247:   return !eval_eq(a.backend(), number<Backend, et_on>::canonical_value(b));
+=======
+     5813:  247:   return !eval_eq(a.backend(), number<Backend, et_on>::canonical_value(b));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  248:}
         -:  249:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
         -:  250:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
@@ -295,30 +343,54 @@
         -:  291:
         -:  292:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
         -:  293:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+<<<<<<< HEAD
        1*:  294:operator<(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+=======
+       4*:  294:operator<(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  295:{
         -:  296:   using default_ops::eval_lt;
         -:  297:   if (detail::is_unordered_comparison(a, b))
         -:  298:      return false;
+<<<<<<< HEAD
        1*:  299:   return eval_lt(a.backend(), b.backend());
         -:  300:}
         -:  301:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
         -:  302:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
         1:  303:operator<(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+=======
+       4*:  299:   return eval_lt(a.backend(), b.backend());
+        -:  300:}
+        -:  301:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  302:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        4:  303:operator<(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  304:{
         -:  305:   using default_ops::eval_lt;
         -:  306:   if (detail::is_unordered_comparison(a, b))
         -:  307:      return false;
+<<<<<<< HEAD
         1:  308:   return eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
         -:  309:}
         -:  310:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
         -:  311:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
     #####:  312:operator<(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+=======
+        4:  308:   return eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  309:}
+        -:  310:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  311:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+     5813:  312:operator<(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  313:{
         -:  314:   using default_ops::eval_gt;
         -:  315:   if (detail::is_unordered_comparison(a, b))
         -:  316:      return false;
+<<<<<<< HEAD
     #####:  317:   return eval_gt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+=======
+     5813:  317:   return eval_gt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  318:}
         -:  319:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
         -:  320:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
@@ -417,21 +489,37 @@
         -:  413:
         -:  414:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
         -:  415:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+<<<<<<< HEAD
      269*:  416:operator<=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+=======
+  100708*:  416:operator<=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  417:{
         -:  418:   using default_ops::eval_gt;
         -:  419:   if (detail::is_unordered_comparison(a, b))
         -:  420:      return false;
+<<<<<<< HEAD
      269*:  421:   return !eval_gt(a.backend(), b.backend());
         -:  422:}
         -:  423:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
         -:  424:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
       178:  425:operator<=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+=======
+  100708*:  421:   return !eval_gt(a.backend(), b.backend());
+        -:  422:}
+        -:  423:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  424:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+    74886:  425:operator<=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  426:{
         -:  427:   using default_ops::eval_gt;
         -:  428:   if (detail::is_unordered_comparison(a, b))
         -:  429:      return false;
+<<<<<<< HEAD
       222:  430:   return !eval_gt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+=======
+   102327:  430:   return !eval_gt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  431:}
         -:  432:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
         -:  433:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
@@ -480,21 +568,37 @@
         -:  476:
         -:  477:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
         -:  478:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+<<<<<<< HEAD
        89:  479:operator>=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+=======
+    54885:  479:operator>=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  480:{
         -:  481:   using default_ops::eval_lt;
         -:  482:   if (detail::is_unordered_comparison(a, b))
         -:  483:      return false;
+<<<<<<< HEAD
        89:  484:   return !eval_lt(a.backend(), b.backend());
         -:  485:}
         -:  486:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
         -:  487:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
        1*:  488:operator>=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+=======
+    54885:  484:   return !eval_lt(a.backend(), b.backend());
+        -:  485:}
+        -:  486:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  487:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+   34888*:  488:operator>=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  489:{
         -:  490:   using default_ops::eval_lt;
         -:  491:   if (detail::is_unordered_comparison(a, b))
         -:  492:      return false;
+<<<<<<< HEAD
        1*:  493:   return !eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+=======
+   34888*:  493:   return !eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  494:}
         -:  495:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
         -:  496:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type

@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/allocator.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Allocators -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2001-2022 Free Software Foundation, Inc.
@@ -157,11 +161,19 @@
         -:  153:      // _GLIBCXX_RESOLVE_LIB_DEFECTS
         -:  154:      // 3035. std::allocator's constructors should be constexpr
         -:  155:      _GLIBCXX20_CONSTEXPR
+<<<<<<< HEAD
       13*:  156:      allocator() _GLIBCXX_NOTHROW { }
         -:  157:
         -:  158:      _GLIBCXX20_CONSTEXPR
      393*:  159:      allocator(const allocator& __a) _GLIBCXX_NOTHROW
      393*:  160:      : __allocator_base<_Tp>(__a) { }
+=======
+   34930*:  156:      allocator() _GLIBCXX_NOTHROW { }
+        -:  157:
+        -:  158:      _GLIBCXX20_CONSTEXPR
+  288251*:  159:      allocator(const allocator& __a) _GLIBCXX_NOTHROW
+  288251*:  160:      : __allocator_base<_Tp>(__a) { }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  161:
         -:  162:#if __cplusplus >= 201103L
         -:  163:      // Avoid implicit deprecation.
@@ -175,12 +187,20 @@
         -:  171:#if __cpp_constexpr_dynamic_alloc
         -:  172:      constexpr
         -:  173:#endif
+<<<<<<< HEAD
       17*:  174:      ~allocator() _GLIBCXX_NOTHROW { }
+=======
+      68*:  174:      ~allocator() _GLIBCXX_NOTHROW { }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  175:
         -:  176:#if __cplusplus > 201703L
         -:  177:      [[nodiscard,__gnu__::__always_inline__]]
         -:  178:      constexpr _Tp*
+<<<<<<< HEAD
       11*:  179:      allocate(size_t __n)
+=======
+      62*:  179:      allocate(size_t __n)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  180:      {
         -:  181:	if (std::__is_constant_evaluated())
         -:  182:	  {
@@ -189,7 +209,11 @@
         -:  185:	    return static_cast<_Tp*>(::operator new(__n));
         -:  186:	  }
         -:  187:
+<<<<<<< HEAD
       11*:  188:	return __allocator_base<_Tp>::allocate(__n, 0);
+=======
+      62*:  188:	return __allocator_base<_Tp>::allocate(__n, 0);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  189:      }
         -:  190:
         -:  191:      [[__gnu__::__always_inline__]]
@@ -201,7 +225,11 @@
         -:  197:	    ::operator delete(__p);
         -:  198:	    return;
         -:  199:	  }
+<<<<<<< HEAD
       11*:  200:	__allocator_base<_Tp>::deallocate(__p, __n);
+=======
+      62*:  200:	__allocator_base<_Tp>::deallocate(__p, __n);
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  201:      }
         -:  202:#endif // C++20
         -:  203:

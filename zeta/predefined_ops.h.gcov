@@ -1,7 +1,11 @@
         -:    0:Source:/usr/include/c++/12/bits/predefined_ops.h
         -:    0:Graph:main.gcno
         -:    0:Data:main.gcda
+<<<<<<< HEAD
         -:    0:Runs:1
+=======
+        -:    0:Runs:4
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:    1:// Default predicates for internal use -*- C++ -*-
         -:    2:
         -:    3:// Copyright (C) 2013-2022 Free Software Foundation, Inc.
@@ -263,22 +267,36 @@
         -:  259:
         -:  260:      _GLIBCXX20_CONSTEXPR
         -:  261:      explicit
+<<<<<<< HEAD
        89:  262:      _Iter_equals_val(_Value& __value)
+=======
+    54885:  262:      _Iter_equals_val(_Value& __value)
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  263:	: _M_value(__value)
         -:  264:      { }
         -:  265:
         -:  266:      template<typename _Iterator>
         -:  267:	_GLIBCXX20_CONSTEXPR
         -:  268:	bool
+<<<<<<< HEAD
     1860*:  269:	operator()(_Iterator __it)
      474*:  270:	{ return *__it == _M_value; }
+=======
+198091277:  269:	operator()(_Iterator __it)
+ 49621124:  270:	{ return *__it == _M_value; }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  271:    };
         -:  272:
         -:  273:  template<typename _Value>
         -:  274:    _GLIBCXX20_CONSTEXPR
         -:  275:    inline _Iter_equals_val<_Value>
+<<<<<<< HEAD
        89:  276:    __iter_equals_val(_Value& __val)
        89:  277:    { return _Iter_equals_val<_Value>(__val); }
+=======
+    54885:  276:    __iter_equals_val(_Value& __val)
+    54885:  277:    { return _Iter_equals_val<_Value>(__val); }
+>>>>>>> bf91227e0c6e59222de38990c994107e0e707234
         -:  278:
         -:  279:  template<typename _Iterator1>
         -:  280:    struct _Iter_equals_iter
