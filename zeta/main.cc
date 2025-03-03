@@ -9,6 +9,8 @@
 using namespace boost::multiprecision;
 using namespace std;
 
+#include "functions.h"
+
 //YOU: Maybe write a function to see if a number is prime here?
 // (Or not, I'm not your boss.)
 //The Boost Multiprecision Miller-Rabin primality test is installed somewhere on the server.

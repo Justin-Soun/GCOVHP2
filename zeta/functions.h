@@ -14,7 +14,7 @@ using namespace std;
 
 void die();
 
-bool isPrime();
+bool isPrime(cpp_int x);
 
 string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, cpp_int printOrNot);
 

@@ -1,4 +1,4 @@
-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#include <array>
+#include <array>
 #include "/public/read.h"
 #include <vector>
 #include <algorithm>
@@ -37,22 +37,22 @@ int main(){
 
 void testIsPrime1(){
   assertTrue(isPrime(0) == false,
-             "isPrime(0) = false")
+             "isPrime(0) = false");
 }
 
 void testIsPrime2(){
   assertTrue(isPrime(97) == 1,
-             "isPrime(97) = 1")
+             "isPrime(97) = 1");
 }
 
 void testIsPrime3(){
   assertTrue(isPrime(198722) == 0,
-             "isPrime(198722) = 0")
+             "isPrime(198722) = 0");
 }
 
 void testIsPrime4(){
   assertTrue(isPrime(1987) == 1,
-             "isPrime(1987) = 1")
+             "isPrime(1987) = 1");
 }
 
 void testCalculateSum1(){
