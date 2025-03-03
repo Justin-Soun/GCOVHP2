@@ -1,0 +1,756 @@
+        -:    0:Source:/usr/include/boost/multiprecision/detail/number_compare.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:///////////////////////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+        -:    5:
+        -:    6:#ifndef BOOST_MP_COMPARE_HPP
+        -:    7:#define BOOST_MP_COMPARE_HPP
+        -:    8:
+        -:    9:#include <boost/multiprecision/traits/is_backend.hpp>
+        -:   10:
+        -:   11://
+        -:   12:// Comparison operators for number.
+        -:   13://
+        -:   14:
+        -:   15:namespace boost { namespace multiprecision {
+        -:   16:
+        -:   17:namespace default_ops {
+        -:   18:
+        -:   19://
+        -:   20:// The dispatching mechanism used here to deal with differently typed arguments
+        -:   21:// could be better replaced with enable_if overloads, but that breaks MSVC-12
+        -:   22:// under strange and hard to reproduce circumstances.
+        -:   23://
+        -:   24:template <class B>
+        -:   25:inline BOOST_MP_CXX14_CONSTEXPR bool eval_eq(const B& a, const B& b)
+        -:   26:{
+        -:   27:   return a.compare(b) == 0;
+        -:   28:}
+        -:   29:template <class T, class U>
+    #####:   30:inline BOOST_MP_CXX14_CONSTEXPR bool eval_eq_imp(const T& a, const U& b, const mpl::true_&)
+        -:   31:{
+    #####:   32:   typename boost::multiprecision::detail::number_from_backend<T, U>::type t(b);
+    #####:   33:   return eval_eq(a, t.backend());
+    #####:   34:}
+        -:   35:template <class T, class U>
+        -:   36:inline BOOST_MP_CXX14_CONSTEXPR bool eval_eq_imp(const T& a, const U& b, const mpl::false_&)
+        -:   37:{
+        -:   38:   typename boost::multiprecision::detail::number_from_backend<U, T>::type t(a);
+        -:   39:   return eval_eq(t.backend(), b);
+        -:   40:}
+        -:   41:template <class T, class U>
+    #####:   42:inline BOOST_MP_CXX14_CONSTEXPR bool eval_eq(const T& a, const U& b)
+        -:   43:{
+        -:   44:   typedef mpl::bool_<boost::multiprecision::detail::is_first_backend<T, U>::value> tag_type;
+    #####:   45:   return eval_eq_imp(a, b, tag_type());
+        -:   46:}
+        -:   47:
+        -:   48:template <class B>
+      90*:   49:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt(const B& a, const B& b)
+        -:   50:{
+      90*:   51:   return a.compare(b) < 0;
+        -:   52:}
+        -:   53:template <class T, class U>
+        -:   54:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt_imp(const T& a, const U& b, const mpl::true_&)
+        -:   55:{
+        -:   56:   typename boost::multiprecision::detail::number_from_backend<T, U>::type t(b);
+        -:   57:   return eval_lt(a, t.backend());
+        -:   58:}
+        -:   59:template <class T, class U>
+        -:   60:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt_imp(const T& a, const U& b, const mpl::false_&)
+        -:   61:{
+        -:   62:   typename boost::multiprecision::detail::number_from_backend<U, T>::type t(a);
+        -:   63:   return eval_lt(t.backend(), b);
+        -:   64:}
+        -:   65:template <class T, class U>
+        -:   66:inline BOOST_MP_CXX14_CONSTEXPR bool eval_lt(const T& a, const U& b)
+        -:   67:{
+        -:   68:   typedef mpl::bool_<boost::multiprecision::detail::is_first_backend<T, U>::value> tag_type;
+        -:   69:   return eval_lt_imp(a, b, tag_type());
+        -:   70:}
+        -:   71:
+        -:   72:template <class B>
+     269*:   73:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt(const B& a, const B& b)
+        -:   74:{
+     269*:   75:   return a.compare(b) > 0;
+        -:   76:}
+        -:   77:template <class T, class U>
+        -:   78:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt_imp(const T& a, const U& b, const mpl::true_&)
+        -:   79:{
+        -:   80:   typename boost::multiprecision::detail::number_from_backend<T, U>::type t(b);
+        -:   81:   return eval_gt(a, t.backend());
+        -:   82:}
+        -:   83:template <class T, class U>
+        -:   84:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt_imp(const T& a, const U& b, const mpl::false_&)
+        -:   85:{
+        -:   86:   typename boost::multiprecision::detail::number_from_backend<U, T>::type t(a);
+        -:   87:   return eval_gt(t.backend(), b);
+        -:   88:}
+        -:   89:template <class T, class U>
+        -:   90:inline BOOST_MP_CXX14_CONSTEXPR bool eval_gt(const T& a, const U& b)
+        -:   91:{
+        -:   92:   typedef mpl::bool_<boost::multiprecision::detail::is_first_backend<T, U>::value> tag_type;
+        -:   93:   return eval_gt_imp(a, b, tag_type());
+        -:   94:}
+        -:   95:
+        -:   96:} // namespace default_ops
+        -:   97:
+        -:   98:namespace detail {
+        -:   99:
+        -:  100:template <class Num, class Val>
+        -:  101:struct is_valid_mixed_compare : public mpl::false_
+        -:  102:{};
+        -:  103:
+        -:  104:template <class B, expression_template_option ET, class Val>
+        -:  105:struct is_valid_mixed_compare<number<B, ET>, Val> : public is_convertible<Val, number<B, ET> >
+        -:  106:{};
+        -:  107:
+        -:  108:template <class B, expression_template_option ET>
+        -:  109:struct is_valid_mixed_compare<number<B, ET>, number<B, ET> > : public mpl::false_
+        -:  110:{};
+        -:  111:
+        -:  112:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  113:struct is_valid_mixed_compare<number<B, ET>, expression<tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  114:    : public mpl::bool_<is_convertible<expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::value>
+        -:  115:{};
+        -:  116:
+        -:  117:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  118:struct is_valid_mixed_compare<expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >
+        -:  119:    : public mpl::bool_<is_convertible<expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::value>
+        -:  120:{};
+        -:  121:
+        -:  122:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  123:inline BOOST_CONSTEXPR typename boost::enable_if_c<number_category<Backend>::value != number_kind_floating_point, bool>::type is_unordered_value(const number<Backend, ExpressionTemplates>&)
+        -:  124:{
+        -:  125:   return false;
+        -:  126:}
+        -:  127:template <class Backend, expression_template_option ExpressionTemplates>
+        -:  128:inline
+        -:  129:#if !BOOST_WORKAROUND(BOOST_GCC_VERSION, < 40700)
+        -:  130:    BOOST_CONSTEXPR
+        -:  131:#endif
+        -:  132:    typename boost::enable_if_c<number_category<Backend>::value == number_kind_floating_point, bool>::type
+        -:  133:    is_unordered_value(const number<Backend, ExpressionTemplates>& a)
+        -:  134:{
+        -:  135:   using default_ops::eval_fpclassify;
+        -:  136:   return eval_fpclassify(a.backend()) == FP_NAN;
+        -:  137:}
+        -:  138:
+        -:  139:template <class Arithmetic>
+        -:  140:inline BOOST_CONSTEXPR typename boost::enable_if_c<number_category<Arithmetic>::value != number_kind_floating_point, bool>::type is_unordered_value(const Arithmetic&)
+        -:  141:{
+        -:  142:   return false;
+        -:  143:}
+        -:  144:template <class Arithmetic>
+        -:  145:inline 
+        -:  146:#ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
+        -:  147:    BOOST_MP_CXX14_CONSTEXPR 
+        -:  148:#endif
+        -:  149:   typename boost::enable_if_c < number_category < Arithmetic> ::value == number_kind_floating_point, bool> ::type
+        -:  150:    is_unordered_value(const Arithmetic& a)
+        -:  151:{
+        -:  152:#ifndef BOOST_MP_NO_CONSTEXPR_DETECTION
+        -:  153:   if (BOOST_MP_IS_CONST_EVALUATED(a))
+        -:  154:   {
+        -:  155:      return a != a;
+        -:  156:   }
+        -:  157:   else
+        -:  158:#endif
+        -:  159:   {
+        -:  160:      return (boost::math::isnan)(a);
+        -:  161:   }
+        -:  162:}
+        -:  163:
+        -:  164:template <class T, class U>
+        -:  165:inline BOOST_CONSTEXPR bool is_unordered_comparison(const T& a, const U& b)
+        -:  166:{
+        -:  167:   return is_unordered_value(a) || is_unordered_value(b);
+        -:  168:}
+        -:  169:
+        -:  170:} // namespace detail
+        -:  171:
+        -:  172:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+    1860*:  173:inline BOOST_MP_CXX14_CONSTEXPR bool operator==(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  174:{
+        -:  175:   using default_ops::eval_eq;
+        -:  176:   if (detail::is_unordered_comparison(a, b))
+        -:  177:      return false;
+    1860*:  178:   return eval_eq(a.backend(), b.backend());
+        -:  179:}
+        -:  180:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  181:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+      89*:  182:operator==(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  183:{
+        -:  184:   using default_ops::eval_eq;
+        -:  185:   if (detail::is_unordered_comparison(a, b))
+        -:  186:      return false;
+      89*:  187:   return eval_eq(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  188:}
+        -:  189:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  190:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+    #####:  191:operator==(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  192:{
+        -:  193:   using default_ops::eval_eq;
+        -:  194:   if (detail::is_unordered_comparison(a, b))
+        -:  195:      return false;
+    #####:  196:   return eval_eq(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+        -:  197:}
+        -:  198:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  199:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  200:operator==(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  201:{
+        -:  202:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  203:   using default_ops::eval_eq;
+        -:  204:   result_type t(b);
+        -:  205:   if (detail::is_unordered_comparison(a, t))
+        -:  206:      return false;
+        -:  207:   return eval_eq(t.backend(), result_type::canonical_value(a));
+        -:  208:}
+        -:  209:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  210:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  211:operator==(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  212:{
+        -:  213:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  214:   using default_ops::eval_eq;
+        -:  215:   result_type t(a);
+        -:  216:   if (detail::is_unordered_comparison(t, b))
+        -:  217:      return false;
+        -:  218:   return eval_eq(t.backend(), result_type::canonical_value(b));
+        -:  219:}
+        -:  220:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  221:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  222:operator==(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  223:{
+        -:  224:   using default_ops::eval_eq;
+        -:  225:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  226:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  227:   if (detail::is_unordered_comparison(t, t2))
+        -:  228:      return false;
+        -:  229:   return eval_eq(t.backend(), t2.backend());
+        -:  230:}
+        -:  231:
+        -:  232:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  233:inline BOOST_MP_CXX14_CONSTEXPR bool operator!=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  234:{
+        -:  235:   using default_ops::eval_eq;
+        -:  236:   if (detail::is_unordered_comparison(a, b))
+        -:  237:      return true;
+        -:  238:   return !eval_eq(a.backend(), b.backend());
+        -:  239:}
+        -:  240:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  241:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+    #####:  242:operator!=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  243:{
+        -:  244:   using default_ops::eval_eq;
+        -:  245:   if (detail::is_unordered_comparison(a, b))
+        -:  246:      return true;
+    #####:  247:   return !eval_eq(a.backend(), number<Backend, et_on>::canonical_value(b));
+        -:  248:}
+        -:  249:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  250:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  251:operator!=(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  252:{
+        -:  253:   using default_ops::eval_eq;
+        -:  254:   if (detail::is_unordered_comparison(a, b))
+        -:  255:      return true;
+        -:  256:   return !eval_eq(b.backend(), number<Backend, et_on>::canonical_value(a));
+        -:  257:}
+        -:  258:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  259:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  260:operator!=(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  261:{
+        -:  262:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  263:   using default_ops::eval_eq;
+        -:  264:   result_type t(b);
+        -:  265:   if (detail::is_unordered_comparison(a, t))
+        -:  266:      return true;
+        -:  267:   return !eval_eq(t.backend(), result_type::canonical_value(a));
+        -:  268:}
+        -:  269:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  270:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  271:operator!=(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  272:{
+        -:  273:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  274:   using default_ops::eval_eq;
+        -:  275:   result_type t(a);
+        -:  276:   if (detail::is_unordered_comparison(t, b))
+        -:  277:      return true;
+        -:  278:   return !eval_eq(t.backend(), result_type::canonical_value(b));
+        -:  279:}
+        -:  280:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  281:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  282:operator!=(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  283:{
+        -:  284:   using default_ops::eval_eq;
+        -:  285:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  286:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  287:   if (detail::is_unordered_comparison(t, t2))
+        -:  288:      return true;
+        -:  289:   return !eval_eq(t.backend(), t2.backend());
+        -:  290:}
+        -:  291:
+        -:  292:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  293:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+       1*:  294:operator<(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  295:{
+        -:  296:   using default_ops::eval_lt;
+        -:  297:   if (detail::is_unordered_comparison(a, b))
+        -:  298:      return false;
+       1*:  299:   return eval_lt(a.backend(), b.backend());
+        -:  300:}
+        -:  301:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  302:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        1:  303:operator<(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  304:{
+        -:  305:   using default_ops::eval_lt;
+        -:  306:   if (detail::is_unordered_comparison(a, b))
+        -:  307:      return false;
+        1:  308:   return eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  309:}
+        -:  310:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  311:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+    #####:  312:operator<(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  313:{
+        -:  314:   using default_ops::eval_gt;
+        -:  315:   if (detail::is_unordered_comparison(a, b))
+        -:  316:      return false;
+    #####:  317:   return eval_gt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+        -:  318:}
+        -:  319:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  320:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  321:operator<(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  322:{
+        -:  323:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  324:   using default_ops::eval_gt;
+        -:  325:   result_type t(b);
+        -:  326:   if (detail::is_unordered_comparison(a, t))
+        -:  327:      return false;
+        -:  328:   return eval_gt(t.backend(), result_type::canonical_value(a));
+        -:  329:}
+        -:  330:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  331:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  332:operator<(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  333:{
+        -:  334:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  335:   using default_ops::eval_lt;
+        -:  336:   result_type t(a);
+        -:  337:   if (detail::is_unordered_comparison(t, b))
+        -:  338:      return false;
+        -:  339:   return eval_lt(t.backend(), result_type::canonical_value(b));
+        -:  340:}
+        -:  341:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  342:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  343:operator<(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  344:{
+        -:  345:   using default_ops::eval_lt;
+        -:  346:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  347:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  348:   if (detail::is_unordered_comparison(t, t2))
+        -:  349:      return false;
+        -:  350:   return eval_lt(t.backend(), t2.backend());
+        -:  351:}
+        -:  352:
+        -:  353:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  354:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+    #####:  355:operator>(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  356:{
+        -:  357:   using default_ops::eval_gt;
+        -:  358:   if (detail::is_unordered_comparison(a, b))
+        -:  359:      return false;
+    #####:  360:   return eval_gt(a.backend(), b.backend());
+        -:  361:}
+        -:  362:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  363:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        -:  364:operator>(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  365:{
+        -:  366:   using default_ops::eval_gt;
+        -:  367:   if (detail::is_unordered_comparison(a, b))
+        -:  368:      return false;
+        -:  369:   return eval_gt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  370:}
+        -:  371:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  372:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        -:  373:operator>(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  374:{
+        -:  375:   using default_ops::eval_lt;
+        -:  376:   if (detail::is_unordered_comparison(a, b))
+        -:  377:      return false;
+        -:  378:   return eval_lt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+        -:  379:}
+        -:  380:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  381:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  382:operator>(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  383:{
+        -:  384:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  385:   using default_ops::eval_lt;
+        -:  386:   result_type t(b);
+        -:  387:   if (detail::is_unordered_comparison(a, t))
+        -:  388:      return false;
+        -:  389:   return a > t;
+        -:  390:}
+        -:  391:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  392:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  393:operator>(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  394:{
+        -:  395:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  396:   using default_ops::eval_gt;
+        -:  397:   result_type t(a);
+        -:  398:   if (detail::is_unordered_comparison(t, b))
+        -:  399:      return false;
+        -:  400:   return t > b;
+        -:  401:}
+        -:  402:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  403:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  404:operator>(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  405:{
+        -:  406:   using default_ops::eval_gt;
+        -:  407:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  408:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  409:   if (detail::is_unordered_comparison(t, t2))
+        -:  410:      return false;
+        -:  411:   return t > t2;
+        -:  412:}
+        -:  413:
+        -:  414:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  415:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+     269*:  416:operator<=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  417:{
+        -:  418:   using default_ops::eval_gt;
+        -:  419:   if (detail::is_unordered_comparison(a, b))
+        -:  420:      return false;
+     269*:  421:   return !eval_gt(a.backend(), b.backend());
+        -:  422:}
+        -:  423:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  424:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+      178:  425:operator<=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  426:{
+        -:  427:   using default_ops::eval_gt;
+        -:  428:   if (detail::is_unordered_comparison(a, b))
+        -:  429:      return false;
+      222:  430:   return !eval_gt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  431:}
+        -:  432:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  433:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        -:  434:operator<=(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  435:{
+        -:  436:   using default_ops::eval_lt;
+        -:  437:   if (detail::is_unordered_comparison(a, b))
+        -:  438:      return false;
+        -:  439:   return !eval_lt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+        -:  440:}
+        -:  441:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  442:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  443:operator<=(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  444:{
+        -:  445:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  446:   using default_ops::eval_lt;
+        -:  447:   if (detail::is_unordered_value(a) || detail::is_unordered_value(b))
+        -:  448:      return false;
+        -:  449:   result_type t(b);
+        -:  450:   if (detail::is_unordered_comparison(a, t))
+        -:  451:      return false;
+        -:  452:   return !eval_lt(t.backend(), result_type::canonical_value(a));
+        -:  453:}
+        -:  454:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  455:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  456:operator<=(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  457:{
+        -:  458:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  459:   using default_ops::eval_gt;
+        -:  460:   result_type t(a);
+        -:  461:   if (detail::is_unordered_comparison(t, b))
+        -:  462:      return false;
+        -:  463:   return !eval_gt(t.backend(), result_type::canonical_value(b));
+        -:  464:}
+        -:  465:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  466:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  467:operator<=(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  468:{
+        -:  469:   using default_ops::eval_gt;
+        -:  470:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  471:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  472:   if (detail::is_unordered_comparison(t, t2))
+        -:  473:      return false;
+        -:  474:   return !eval_gt(t.backend(), t2.backend());
+        -:  475:}
+        -:  476:
+        -:  477:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  478:inline BOOST_MP_CXX14_CONSTEXPR typename boost::enable_if_c<(number_category<Backend>::value != number_kind_complex) && (number_category<Backend2>::value != number_kind_complex), bool>::type
+       89:  479:operator>=(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  480:{
+        -:  481:   using default_ops::eval_lt;
+        -:  482:   if (detail::is_unordered_comparison(a, b))
+        -:  483:      return false;
+       89:  484:   return !eval_lt(a.backend(), b.backend());
+        -:  485:}
+        -:  486:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  487:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+       1*:  488:operator>=(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  489:{
+        -:  490:   using default_ops::eval_lt;
+        -:  491:   if (detail::is_unordered_comparison(a, b))
+        -:  492:      return false;
+       1*:  493:   return !eval_lt(a.backend(), number<Backend, ExpressionTemplates>::canonical_value(b));
+        -:  494:}
+        -:  495:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  496:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value && (number_category<Backend>::value != number_kind_complex), bool>::type
+        -:  497:operator>=(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  498:{
+        -:  499:   using default_ops::eval_gt;
+        -:  500:   if (detail::is_unordered_comparison(a, b))
+        -:  501:      return false;
+        -:  502:   return !eval_gt(b.backend(), number<Backend, ExpressionTemplates>::canonical_value(a));
+        -:  503:}
+        -:  504:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  505:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  506:operator>=(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b)
+        -:  507:{
+        -:  508:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  509:   using default_ops::eval_gt;
+        -:  510:   result_type t(b);
+        -:  511:   if (detail::is_unordered_comparison(a, t))
+        -:  512:      return false;
+        -:  513:   return !eval_gt(t.backend(), result_type::canonical_value(a));
+        -:  514:}
+        -:  515:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  516:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  517:operator>=(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b)
+        -:  518:{
+        -:  519:   typedef typename detail::expression<Tag, A1, A2, A3, A4>::result_type result_type;
+        -:  520:   using default_ops::eval_lt;
+        -:  521:   result_type t(a);
+        -:  522:   if (detail::is_unordered_comparison(t, b))
+        -:  523:      return false;
+        -:  524:   return !eval_lt(t.backend(), result_type::canonical_value(b));
+        -:  525:}
+        -:  526:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  527:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>::value && (number_category<typename detail::expression<Tag, A1, A2, A3, A4>::result_type>::value != number_kind_complex), bool>::type
+        -:  528:operator>=(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b)
+        -:  529:{
+        -:  530:   using default_ops::eval_lt;
+        -:  531:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      t(a);
+        -:  532:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type t2(b);
+        -:  533:   if (detail::is_unordered_comparison(t, t2))
+        -:  534:      return false;
+        -:  535:   return !eval_lt(t.backend(), t2.backend());
+        -:  536:}
+        -:  537:
+        -:  538://
+        -:  539:// C99 comparison macros as functions:
+        -:  540://
+        -:  541:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  542:inline BOOST_MP_CXX14_CONSTEXPR bool isgreater BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b) { return a > b; }
+        -:  543:
+        -:  544:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  545:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  546:    isgreater
+        -:  547:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b) { return a > b; }
+        -:  548:
+        -:  549:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  550:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  551:    isgreater
+        -:  552:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b) { return a > b; }
+        -:  553:
+        -:  554:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  555:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  556:    isgreater
+        -:  557:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b) { return a > b; }
+        -:  558:
+        -:  559:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  560:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  561:    isgreater
+        -:  562:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b) { return a > b; }
+        -:  563:
+        -:  564:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  565:inline BOOST_MP_CXX14_CONSTEXPR  typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  566:    isgreater
+        -:  567:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b) { return a > b; }
+        -:  568:
+        -:  569:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  570:inline BOOST_MP_CXX14_CONSTEXPR bool isgreaterequal BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b) { return a >= b; }
+        -:  571:
+        -:  572:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  573:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  574:    isgreaterequal
+        -:  575:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b) { return a >= b; }
+        -:  576:
+        -:  577:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  578:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  579:    isgreaterequal
+        -:  580:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b) { return a >= b; }
+        -:  581:
+        -:  582:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  583:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  584:    isgreaterequal
+        -:  585:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b) { return a >= b; }
+        -:  586:
+        -:  587:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  588:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  589:    isgreaterequal
+        -:  590:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b) { return a >= b; }
+        -:  591:
+        -:  592:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  593:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  594:    isgreaterequal
+        -:  595:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b) { return a >= b; }
+        -:  596:
+        -:  597:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  598:inline BOOST_MP_CXX14_CONSTEXPR bool islessequal BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b) { return a <= b; }
+        -:  599:
+        -:  600:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  601:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  602:    islessequal
+        -:  603:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b) { return a <= b; }
+        -:  604:
+        -:  605:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  606:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  607:    islessequal
+        -:  608:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b) { return a <= b; }
+        -:  609:
+        -:  610:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  611:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  612:    islessequal
+        -:  613:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b) { return a <= b; }
+        -:  614:
+        -:  615:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  616:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  617:    islessequal
+        -:  618:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b) { return a <= b; }
+        -:  619:
+        -:  620:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  621:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  622:    islessequal
+        -:  623:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b) { return a <= b; }
+        -:  624:
+        -:  625:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  626:inline BOOST_MP_CXX14_CONSTEXPR bool isless BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b) { return a < b; }
+        -:  627:
+        -:  628:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  629:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  630:    isless
+        -:  631:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b) { return a < b; }
+        -:  632:
+        -:  633:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  634:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  635:    isless
+        -:  636:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b) { return a < b; }
+        -:  637:
+        -:  638:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  639:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  640:    isless
+        -:  641:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& b) { return a < b; }
+        -:  642:
+        -:  643:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  644:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  645:    isless
+        -:  646:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const Arithmetic& b) { return a < b; }
+        -:  647:
+        -:  648:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  649:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  650:    isless
+        -:  651:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& a, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& b) { return a < b; }
+        -:  652:
+        -:  653:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  654:inline BOOST_MP_CXX14_CONSTEXPR bool islessgreater BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b)
+        -:  655:{
+        -:  656:   if (detail::is_unordered_comparison(a, b))
+        -:  657:      return false;
+        -:  658:   return a != b;
+        -:  659:}
+        -:  660:
+        -:  661:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  662:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  663:    islessgreater
+        -:  664:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b)
+        -:  665:{
+        -:  666:   if (detail::is_unordered_comparison(a, b))
+        -:  667:      return false;
+        -:  668:   return a != b;
+        -:  669:}
+        -:  670:
+        -:  671:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  672:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  673:    islessgreater
+        -:  674:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b)
+        -:  675:{
+        -:  676:   if (detail::is_unordered_comparison(a, b))
+        -:  677:      return false;
+        -:  678:   return a != b;
+        -:  679:}
+        -:  680:
+        -:  681:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  682:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  683:    islessgreater
+        -:  684:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& bb)
+        -:  685:{
+        -:  686:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type b(bb);
+        -:  687:   return islessgreater                                          BOOST_PREVENT_MACRO_SUBSTITUTION(a, b);
+        -:  688:}
+        -:  689:
+        -:  690:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  691:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  692:    islessgreater
+        -:  693:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& aa, const Arithmetic& b)
+        -:  694:{
+        -:  695:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type a(aa);
+        -:  696:   return islessgreater                                          BOOST_PREVENT_MACRO_SUBSTITUTION(a, b);
+        -:  697:}
+        -:  698:
+        -:  699:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  700:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  701:    islessgreater
+        -:  702:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& aa, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& bb)
+        -:  703:{
+        -:  704:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      a(aa);
+        -:  705:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type b(bb);
+        -:  706:   return islessgreater                                               BOOST_PREVENT_MACRO_SUBSTITUTION(a, b);
+        -:  707:}
+        -:  708:
+        -:  709:template <class Backend, expression_template_option ExpressionTemplates, class Backend2, expression_template_option ExpressionTemplates2>
+        -:  710:inline BOOST_MP_CXX14_CONSTEXPR bool isunordered BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const number<Backend2, ExpressionTemplates2>& b) { return detail::is_unordered_comparison(a, b); }
+        -:  711:
+        -:  712:template <class Backend, expression_template_option ExpressionTemplates, class Arithmetic>
+        -:  713:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  714:    isunordered
+        -:  715:    BOOST_PREVENT_MACRO_SUBSTITUTION(const number<Backend, ExpressionTemplates>& a, const Arithmetic& b) { return detail::is_unordered_comparison(a, b); }
+        -:  716:
+        -:  717:template <class Arithmetic, class Backend, expression_template_option ExpressionTemplates>
+        -:  718:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<number<Backend, ExpressionTemplates>, Arithmetic>::value, bool>::type
+        -:  719:    isunordered
+        -:  720:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const number<Backend, ExpressionTemplates>& b) { return detail::is_unordered_comparison(a, b); }
+        -:  721:
+        -:  722:template <class Arithmetic, class Tag, class A1, class A2, class A3, class A4>
+        -:  723:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  724:    isunordered
+        -:  725:    BOOST_PREVENT_MACRO_SUBSTITUTION(const Arithmetic& a, const detail::expression<Tag, A1, A2, A3, A4>& bb)
+        -:  726:{
+        -:  727:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type b(bb);
+        -:  728:   return detail::is_unordered_comparison(a, b);
+        -:  729:}
+        -:  730:
+        -:  731:template <class Tag, class A1, class A2, class A3, class A4, class Arithmetic>
+        -:  732:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<detail::is_valid_mixed_compare<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, Arithmetic>::value, bool>::type
+        -:  733:    isunordered
+        -:  734:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& aa, const Arithmetic& b)
+        -:  735:{
+        -:  736:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type a(aa);
+        -:  737:   return detail::is_unordered_comparison(a, b);
+        -:  738:}
+        -:  739:
+        -:  740:template <class Tag, class A1, class A2, class A3, class A4, class Tagb, class A1b, class A2b, class A3b, class A4b>
+        -:  741:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_same<typename detail::expression<Tag, A1, A2, A3, A4>::result_type, typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type>, bool>::type
+        -:  742:    isunordered
+        -:  743:    BOOST_PREVENT_MACRO_SUBSTITUTION(const detail::expression<Tag, A1, A2, A3, A4>& aa, const detail::expression<Tagb, A1b, A2b, A3b, A4b>& bb)
+        -:  744:{
+        -:  745:   typename detail::expression<Tag, A1, A2, A3, A4>::result_type      a(aa);
+        -:  746:   typename detail::expression<Tagb, A1b, A2b, A3b, A4b>::result_type b(bb);
+        -:  747:   return detail::is_unordered_comparison(a, b);
+        -:  748:}
+        -:  749:
+        -:  750:}} // namespace boost::multiprecision
+        -:  751:
+        -:  752:#endif // BOOST_MP_COMPARE_HPP

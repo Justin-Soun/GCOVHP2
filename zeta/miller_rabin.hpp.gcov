@@ -1,0 +1,226 @@
+        -:    0:Source:/usr/include/boost/multiprecision/miller_rabin.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:///////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2012 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt
+        -:    5:
+        -:    6:#ifndef BOOST_MP_MR_HPP
+        -:    7:#define BOOST_MP_MR_HPP
+        -:    8:
+        -:    9:#include <boost/random.hpp>
+        -:   10:#include <boost/multiprecision/integer.hpp>
+        -:   11:
+        -:   12:namespace boost {
+        -:   13:namespace multiprecision {
+        -:   14:namespace detail {
+        -:   15:
+        -:   16:template <class I>
+    #####:   17:bool check_small_factors(const I& n)
+        -:   18:{
+        -:   19:   static const boost::uint32_t small_factors1[] = {
+        -:   20:       3u, 5u, 7u, 11u, 13u, 17u, 19u, 23u};
+        -:   21:   static const boost::uint32_t pp1 = 223092870u;
+        -:   22:
+    #####:   23:   boost::uint32_t m1 = integer_modulus(n, pp1);
+        -:   24:
+    #####:   25:   for (unsigned i = 0; i < sizeof(small_factors1) / sizeof(small_factors1[0]); ++i)
+        -:   26:   {
+    #####:   27:      BOOST_ASSERT(pp1 % small_factors1[i] == 0);
+    #####:   28:      if (m1 % small_factors1[i] == 0)
+        -:   29:         return false;
+        -:   30:   }
+        -:   31:
+        -:   32:   static const boost::uint32_t small_factors2[] = {
+        -:   33:       29u, 31u, 37u, 41u, 43u, 47u};
+        -:   34:   static const boost::uint32_t pp2 = 2756205443u;
+        -:   35:
+    #####:   36:   m1 = integer_modulus(n, pp2);
+        -:   37:
+    #####:   38:   for (unsigned i = 0; i < sizeof(small_factors2) / sizeof(small_factors2[0]); ++i)
+        -:   39:   {
+    #####:   40:      BOOST_ASSERT(pp2 % small_factors2[i] == 0);
+    #####:   41:      if (m1 % small_factors2[i] == 0)
+        -:   42:         return false;
+        -:   43:   }
+        -:   44:
+        -:   45:   static const boost::uint32_t small_factors3[] = {
+        -:   46:       53u, 59u, 61u, 67u, 71u};
+        -:   47:   static const boost::uint32_t pp3 = 907383479u;
+        -:   48:
+    #####:   49:   m1 = integer_modulus(n, pp3);
+        -:   50:
+    #####:   51:   for (unsigned i = 0; i < sizeof(small_factors3) / sizeof(small_factors3[0]); ++i)
+        -:   52:   {
+    #####:   53:      BOOST_ASSERT(pp3 % small_factors3[i] == 0);
+    #####:   54:      if (m1 % small_factors3[i] == 0)
+        -:   55:         return false;
+        -:   56:   }
+        -:   57:
+        -:   58:   static const boost::uint32_t small_factors4[] = {
+        -:   59:       73u, 79u, 83u, 89u, 97u};
+        -:   60:   static const boost::uint32_t pp4 = 4132280413u;
+        -:   61:
+    #####:   62:   m1 = integer_modulus(n, pp4);
+        -:   63:
+    #####:   64:   for (unsigned i = 0; i < sizeof(small_factors4) / sizeof(small_factors4[0]); ++i)
+        -:   65:   {
+    #####:   66:      BOOST_ASSERT(pp4 % small_factors4[i] == 0);
+    #####:   67:      if (m1 % small_factors4[i] == 0)
+        -:   68:         return false;
+        -:   69:   }
+        -:   70:
+        -:   71:   static const boost::uint32_t small_factors5[6][4] = {
+        -:   72:       {101u, 103u, 107u, 109u},
+        -:   73:       {113u, 127u, 131u, 137u},
+        -:   74:       {139u, 149u, 151u, 157u},
+        -:   75:       {163u, 167u, 173u, 179u},
+        -:   76:       {181u, 191u, 193u, 197u},
+        -:   77:       {199u, 211u, 223u, 227u}};
+        -:   78:   static const boost::uint32_t pp5[6] =
+        -:   79:       {
+        -:   80:           121330189u,
+        -:   81:           113u * 127u * 131u * 137u,
+        -:   82:           139u * 149u * 151u * 157u,
+        -:   83:           163u * 167u * 173u * 179u,
+        -:   84:           181u * 191u * 193u * 197u,
+        -:   85:           199u * 211u * 223u * 227u};
+        -:   86:
+    #####:   87:   for (unsigned k = 0; k < sizeof(pp5) / sizeof(*pp5); ++k)
+        -:   88:   {
+    #####:   89:      m1 = integer_modulus(n, pp5[k]);
+        -:   90:
+    #####:   91:      for (unsigned i = 0; i < 4; ++i)
+        -:   92:      {
+    #####:   93:         BOOST_ASSERT(pp5[k] % small_factors5[k][i] == 0);
+    #####:   94:         if (m1 % small_factors5[k][i] == 0)
+        -:   95:            return false;
+        -:   96:      }
+        -:   97:   }
+        -:   98:   return true;
+        -:   99:}
+        -:  100:
+        -:  101:inline bool is_small_prime(unsigned n)
+        -:  102:{
+        -:  103:   static const unsigned char p[] =
+        -:  104:       {
+        -:  105:           3u, 5u, 7u, 11u, 13u, 17u, 19u, 23u, 29u, 31u,
+        -:  106:           37u, 41u, 43u, 47u, 53u, 59u, 61u, 67u, 71u, 73u,
+        -:  107:           79u, 83u, 89u, 97u, 101u, 103u, 107u, 109u, 113u,
+        -:  108:           127u, 131u, 137u, 139u, 149u, 151u, 157u, 163u,
+        -:  109:           167u, 173u, 179u, 181u, 191u, 193u, 197u, 199u,
+        -:  110:           211u, 223u, 227u};
+     1305:  111:   for (unsigned i = 0; i < sizeof(p) / sizeof(*p); ++i)
+        -:  112:   {
+     1284:  113:      if (n == p[i])
+        -:  114:         return true;
+        -:  115:   }
+        -:  116:   return false;
+        -:  117:}
+        -:  118:
+        -:  119:template <class I>
+        -:  120:typename enable_if_c<is_convertible<I, unsigned>::value, unsigned>::type
+        -:  121:cast_to_unsigned(const I& val)
+        -:  122:{
+        -:  123:   return static_cast<unsigned>(val);
+        -:  124:}
+        -:  125:template <class I>
+        -:  126:typename disable_if_c<is_convertible<I, unsigned>::value, unsigned>::type
+       44:  127:cast_to_unsigned(const I& val)
+        -:  128:{
+       44:  129:   return val.template convert_to<unsigned>();
+        -:  130:}
+        -:  131:
+        -:  132:} // namespace detail
+        -:  133:
+        -:  134:template <class I, class Engine>
+        -:  135:typename enable_if_c<number_category<I>::value == number_kind_integer, bool>::type
+       89:  136:miller_rabin_test(const I& n, unsigned trials, Engine& gen)
+        -:  137:{
+        -:  138:#ifdef BOOST_MSVC
+        -:  139:#pragma warning(push)
+        -:  140:#pragma warning(disable : 4127)
+        -:  141:#endif
+        -:  142:   typedef I number_type;
+        -:  143:
+       89:  144:   if (n == 2)
+        -:  145:      return true; // Trivial special case.
+       88:  146:   if (bit_test(n, 0) == 0)
+        -:  147:      return false; // n is even
+       44:  148:   if (n <= 227)
+       44:  149:      return detail::is_small_prime(detail::cast_to_unsigned(n));
+        -:  150:
+    #####:  151:   if (!detail::check_small_factors(n))
+        -:  152:      return false;
+        -:  153:
+    #####:  154:   number_type nm1 = n - 1;
+        -:  155:   //
+        -:  156:   // Begin with a single Fermat test - it excludes a lot of candidates:
+        -:  157:   //
+    #####:  158:   number_type q(228), x, y; // We know n is greater than this, as we've excluded small factors
+    #####:  159:   x = powm(q, nm1, n);
+    #####:  160:   if (x != 1u)
+        -:  161:      return false;
+        -:  162:
+    #####:  163:   q          = n - 1;
+    #####:  164:   unsigned k = lsb(q);
+    #####:  165:   q >>= k;
+        -:  166:
+        -:  167:   // Declare our random number generator:
+    #####:  168:   boost::random::uniform_int_distribution<number_type> dist(2, n - 2);
+        -:  169:   //
+        -:  170:   // Execute the trials:
+        -:  171:   //
+    #####:  172:   for (unsigned i = 0; i < trials; ++i)
+        -:  173:   {
+    #####:  174:      x          = dist(gen);
+    #####:  175:      y          = powm(x, q, n);
+    #####:  176:      unsigned j = 0;
+    #####:  177:      while (true)
+        -:  178:      {
+    #####:  179:         if (y == nm1)
+        -:  180:            break;
+    #####:  181:         if (y == 1)
+        -:  182:         {
+    #####:  183:            if (j == 0)
+        -:  184:               break;
+        -:  185:            return false; // test failed
+        -:  186:         }
+    #####:  187:         if (++j == k)
+        -:  188:            return false; // failed
+    #####:  189:         y = powm(y, 2, n);
+        -:  190:      }
+        -:  191:   }
+        -:  192:   return true; // Yeheh! probably prime.
+        -:  193:#ifdef BOOST_MSVC
+        -:  194:#pragma warning(pop)
+        -:  195:#endif
+      89*:  196:}
+        -:  197:
+        -:  198:template <class I>
+        -:  199:typename enable_if_c<number_category<I>::value == number_kind_integer, bool>::type
+       89:  200:miller_rabin_test(const I& x, unsigned trials)
+        -:  201:{
+       89:  202:   static mt19937 gen;
+       89:  203:   return miller_rabin_test(x, trials, gen);
+        -:  204:}
+        -:  205:
+        -:  206:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class Engine>
+        -:  207:bool miller_rabin_test(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& n, unsigned trials, Engine& gen)
+        -:  208:{
+        -:  209:   typedef typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type number_type;
+        -:  210:   return miller_rabin_test(number_type(n), trials, gen);
+        -:  211:}
+        -:  212:
+        -:  213:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  214:bool miller_rabin_test(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& n, unsigned trials)
+        -:  215:{
+        -:  216:   typedef typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type number_type;
+        -:  217:   return miller_rabin_test(number_type(n), trials);
+        -:  218:}
+        -:  219:
+        -:  220:}} // namespace boost::multiprecision
+        -:  221:
+        -:  222:#endif

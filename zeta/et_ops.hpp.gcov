@@ -1,0 +1,1519 @@
+        -:    0:Source:/usr/include/boost/multiprecision/detail/et_ops.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:///////////////////////////////////////////////////////////////////////////////
+        -:    2://  Copyright 2011 John Maddock. Distributed under the Boost
+        -:    3://  Software License, Version 1.0. (See accompanying file
+        -:    4://  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+        -:    5:
+        -:    6:#ifndef BOOST_MP_ET_OPS_HPP
+        -:    7:#define BOOST_MP_ET_OPS_HPP
+        -:    8:
+        -:    9:namespace boost { namespace multiprecision {
+        -:   10:
+        -:   11://
+        -:   12:// Non-member operators for number:
+        -:   13://
+        -:   14:// Unary operators first.
+        -:   15:// Note that these *must* return by value, even though that's somewhat against
+        -:   16:// existing practice.  The issue is that in C++11 land one could easily and legitimately
+        -:   17:// write:
+        -:   18://    auto x = +1234_my_user_defined_suffix;
+        -:   19:// which would result in a dangling-reference-to-temporary if unary + returned a reference
+        -:   20:// to it's argument.  While return-by-value is obviously inefficient in other situations
+        -:   21:// the reality is that no one ever uses unary operator+ anyway...!
+        -:   22://
+        -:   23:template <class B, expression_template_option ExpressionTemplates>
+        -:   24:inline BOOST_CONSTEXPR const number<B, ExpressionTemplates> operator+(const number<B, ExpressionTemplates>& v) { return v; }
+        -:   25:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:   26:inline BOOST_CONSTEXPR const detail::expression<tag, Arg1, Arg2, Arg3, Arg4> operator+(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& v) { return v; }
+        -:   27:template <class B>
+        -:   28:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, number<B, et_on> > operator-(const number<B, et_on>& v)
+        -:   29:{
+        -:   30:   BOOST_STATIC_ASSERT_MSG(is_signed_number<B>::value, "Negating an unsigned type results in ill-defined behavior.");
+        -:   31:   return detail::expression<detail::negate, number<B, et_on> >(v);
+        -:   32:}
+        -:   33:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:   34:template <class B>
+        -:   35:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on> operator-(number<B, et_on>&& v)
+        -:   36:{
+        -:   37:   BOOST_STATIC_ASSERT_MSG(is_signed_number<B>::value, "Negating an unsigned type results in ill-defined behavior.");
+        -:   38:   return detail::expression<detail::negate, number<B, et_on> >(v);
+        -:   39:}
+        -:   40:#endif
+        -:   41:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+    #####:   42:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > operator-(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& v)
+        -:   43:{
+        -:   44:   BOOST_STATIC_ASSERT_MSG((is_signed_number<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value), "Negating an unsigned type results in ill-defined behavior.");
+    #####:   45:   return detail::expression<detail::negate, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(v);
+        -:   46:}
+        -:   47:template <class B>
+        -:   48:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -:   49:                            detail::expression<detail::complement_immediates, number<B, et_on> > >::type
+        -:   50:operator~(const number<B, et_on>& v) { return detail::expression<detail::complement_immediates, number<B, et_on> >(v); }
+        -:   51:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:   52:template <class B>
+        -:   53:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -:   54:                            number<B, et_on> >::type
+        -:   55:operator~(number<B, et_on>&& v) { return detail::expression<detail::complement_immediates, number<B, et_on> >(v); }
+        -:   56:#endif
+        -:   57:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:   58:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer,
+        -:   59:                            detail::expression<detail::bitwise_complement, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -:   60:operator~(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& v) { return detail::expression<detail::bitwise_complement, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(v); }
+        -:   61://
+        -:   62:// Then addition:
+        -:   63://
+        -:   64:template <class B>
+        -:   65:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >
+        -:   66:operator+(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:   67:{
+        -:   68:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:   69:}
+        -:   70:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:   71:template <class B>
+        -:   72:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:   73:operator+(number<B, et_on>&& a, const number<B, et_on>& b)
+        -:   74:{
+    #####:   75:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:   76:}
+        -:   77:template <class B>
+        -:   78:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:   79:operator+(const number<B, et_on>& a, number<B, et_on>&& b)
+        -:   80:{
+        -:   81:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:   82:}
+        -:   83:template <class B>
+        -:   84:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:   85:operator+(number<B, et_on>&& a, number<B, et_on>&& b)
+        -:   86:{
+    #####:   87:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:   88:}
+        -:   89:#endif
+        -:   90:template <class B, class V>
+        -:   91:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::add_immediates, number<B, et_on>, V> >::type
+    #####:   92:operator+(const number<B, et_on>& a, const V& b)
+        -:   93:{
+    #####:   94:   return detail::expression<detail::add_immediates, number<B, et_on>, V>(a, b);
+        -:   95:}
+        -:   96:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:   97:template <class B, class V>
+        -:   98:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+    #####:   99:operator+(number<B, et_on>&& a, const V& b)
+        -:  100:{
+    #####:  101:   return detail::expression<detail::add_immediates, number<B, et_on>, V>(a, b);
+        -:  102:}
+        -:  103:#endif
+        -:  104:template <class V, class B>
+        -:  105:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::add_immediates, V, number<B, et_on> > >::type
+        -:  106:operator+(const V& a, const number<B, et_on>& b)
+        -:  107:{
+        -:  108:   return detail::expression<detail::add_immediates, V, number<B, et_on> >(a, b);
+        -:  109:}
+        -:  110:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  111:template <class V, class B>
+        -:  112:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  113:operator+(const V& a, number<B, et_on>&& b)
+        -:  114:{
+        -:  115:   return detail::expression<detail::add_immediates, V, number<B, et_on> >(a, b);
+        -:  116:}
+        -:  117:#endif
+        -:  118:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  119:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::plus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  120:operator+(const number<B, ET>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  121:{
+        -:  122:   return detail::expression<detail::plus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  123:}
+        -:  124:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  125:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  126:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::plus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type
+        -:  127:operator+(number<B, ET>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  128:{
+        -:  129:   return detail::expression<detail::plus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  130:}
+        -:  131:#endif
+        -:  132:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  133:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >
+        -:  134:operator+(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  135:{
+        -:  136:   return detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  137:}
+        -:  138:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  139:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  140:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::result_type
+        -:  141:operator+(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  142:{
+        -:  143:   return detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  144:}
+        -:  145:#endif
+        -:  146:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -:  147:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >
+        -:  148:operator+(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -:  149:{
+        -:  150:   return detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -:  151:}
+        -:  152:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  153:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+    #####:  154:operator+(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  155:{
+    #####:  156:   return detail::expression<detail::plus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -:  157:}
+        -:  158:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  159:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::plus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -:  160:operator+(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  161:{
+        -:  162:   return detail::expression<detail::plus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  163:}
+        -:  164://
+        -:  165:// Fused multiply add:
+        -:  166://
+        -:  167:template <class V, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  168:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::result_type>,
+        -:  169:                          detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V> >::type
+        -:  170:operator+(const V& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  171:{
+        -:  172:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V>(b.left(), b.right(), a);
+        -:  173:}
+        -:  174:template <class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  175:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::result_type>,
+        -:  176:                          detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V> >::type
+        -:  177:operator+(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  178:{
+        -:  179:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V>(a.left(), a.right(), b);
+        -:  180:}
+        -:  181:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  182:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >
+        -:  183:operator+(const number<B, ET>& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  184:{
+        -:  185:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(b.left(), b.right(), a);
+        -:  186:}
+        -:  187:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  188:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  189:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >::result_type
+        -:  190:operator+(number<B, ET>&& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  191:{
+        -:  192:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(b.left(), b.right(), a);
+        -:  193:}
+        -:  194:#endif
+        -:  195:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  196:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >
+        -:  197:operator+(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  198:{
+        -:  199:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(a.left(), a.right(), b);
+        -:  200:}
+        -:  201:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  202:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  203:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >::result_type
+        -:  204:operator+(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  205:{
+        -:  206:   return detail::expression<detail::multiply_add, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(a.left(), a.right(), b);
+        -:  207:}
+        -:  208:#endif
+        -:  209://
+        -:  210:// Fused multiply subtract:
+        -:  211://
+        -:  212:template <class V, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  213:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::result_type>,
+        -:  214:                          detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V> > >::type
+        -:  215:operator-(const V& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  216:{
+        -:  217:   return detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V> >(detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V>(b.left(), b.right(), a));
+        -:  218:}
+        -:  219:template <class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  220:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::result_type>,
+        -:  221:                          detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V> >::type
+        -:  222:operator-(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  223:{
+        -:  224:   return detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, V>(a.left(), a.right(), b);
+        -:  225:}
+        -:  226:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  227:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> > >
+        -:  228:operator-(const number<B, ET>& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  229:{
+        -:  230:   return detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> > >(detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(b.left(), b.right(), a));
+        -:  231:}
+        -:  232:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  233:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  234:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> > >::result_type
+        -:  235:operator-(number<B, ET>&& a, const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  236:{
+        -:  237:   return detail::expression<detail::negate, detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> > >(detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(b.left(), b.right(), a));
+        -:  238:}
+        -:  239:#endif
+        -:  240:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  241:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >
+        -:  242:operator-(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  243:{
+        -:  244:   return detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(a.left(), a.right(), b);
+        -:  245:}
+        -:  246:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  247:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  248:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >::result_type
+        -:  249:operator-(const detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  250:{
+        -:  251:   return detail::expression<detail::multiply_subtract, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::left_type, typename detail::expression<detail::multiply_immediates, Arg1, Arg2, Arg3, Arg4>::right_type, number<B, ET> >(a.left(), a.right(), b);
+        -:  252:}
+        -:  253:#endif
+        -:  254://
+        -:  255:// Repeat operator for negated arguments: propagate the negation to the top level to avoid temporaries:
+        -:  256://
+        -:  257:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  258:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::minus, number<B, ET>, Arg1>
+        -:  259:operator+(const number<B, ET>& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  260:{
+        -:  261:   return detail::expression<detail::minus, number<B, ET>, Arg1>(a, b.left_ref());
+        -:  262:}
+        -:  263:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  264:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  265:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::minus, number<B, ET>, Arg1>::result_type
+        -:  266:operator+(number<B, ET>&& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  267:{
+        -:  268:   return detail::expression<detail::minus, number<B, ET>, Arg1>(a, b.left_ref());
+        -:  269:}
+        -:  270:#endif
+        -:  271:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  272:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::minus, number<B, ET>, Arg1>
+        -:  273:operator+(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  274:{
+        -:  275:   return detail::expression<detail::minus, number<B, ET>, Arg1>(b, a.left_ref());
+        -:  276:}
+        -:  277:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  278:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  279:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::minus, number<B, ET>, Arg1>::result_type
+        -:  280:operator+(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  281:{
+        -:  282:   return detail::expression<detail::minus, number<B, ET>, Arg1>(b, a.left_ref());
+        -:  283:}
+        -:  284:#endif
+        -:  285:template <class B>
+        -:  286:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >
+        -:  287:operator+(const number<B, et_on>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  288:{
+        -:  289:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref());
+        -:  290:}
+        -:  291:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  292:template <class B>
+        -:  293:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >::result_type
+        -:  294:operator+(number<B, et_on>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  295:{
+        -:  296:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref());
+        -:  297:}
+        -:  298:#endif
+        -:  299:template <class B>
+        -:  300:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >
+        -:  301:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B, et_on>& b)
+        -:  302:{
+        -:  303:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref());
+        -:  304:}
+        -:  305:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  306:template <class B>
+        -:  307:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >::result_type
+        -:  308:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, number<B, et_on>&& b)
+        -:  309:{
+        -:  310:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref());
+        -:  311:}
+        -:  312:#endif
+        -:  313:template <class B, class V>
+        -:  314:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::subtract_immediates, V, number<B, et_on> > >::type
+        -:  315:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, const V& b)
+        -:  316:{
+        -:  317:   return detail::expression<detail::subtract_immediates, V, number<B, et_on> >(b, a.left_ref());
+        -:  318:}
+        -:  319:template <class B, class B2, expression_template_option ET>
+        -:  320:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> > >::type
+        -:  321:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B2, ET>& b)
+        -:  322:{
+        -:  323:   return detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >(b, a.left_ref());
+        -:  324:}
+        -:  325:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  326:template <class B, class B2, expression_template_option ET>
+        -:  327:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >::result_type>::type
+        -:  328:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, number<B2, ET>&& b)
+        -:  329:{
+        -:  330:   return detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >(b, a.left_ref());
+        -:  331:}
+        -:  332:#endif
+        -:  333:template <class B2, expression_template_option ET, class B>
+        -:  334:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> > >::type
+        -:  335:operator+(const number<B2, ET>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  336:{
+        -:  337:   return detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref());
+        -:  338:}
+        -:  339:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  340:template <class B2, expression_template_option ET, class B>
+        -:  341:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >::result_type>::type
+        -:  342:operator+(number<B2, ET>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  343:{
+        -:  344:   return detail::expression<detail::subtract_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref());
+        -:  345:}
+        -:  346:#endif
+        -:  347:template <class B>
+        -:  348:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  349:operator+(const detail::expression<detail::negate, number<B, et_on> >& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  350:{
+        -:  351:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >(detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a.left_ref(), b.left_ref()));
+        -:  352:}
+        -:  353://
+        -:  354:// Subtraction:
+        -:  355://
+        -:  356:template <class B>
+        -:  357:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >
+       1*:  358:operator-(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:  359:{
+       1*:  360:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  361:}
+        -:  362:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  363:template <class B>
+        -:  364:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:  365:operator-(number<B, et_on>&& a, const number<B, et_on>& b)
+        -:  366:{
+        -:  367:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  368:}
+        -:  369:template <class B>
+        -:  370:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:  371:operator-(const number<B, et_on>& a, number<B, et_on>&& b)
+        -:  372:{
+    #####:  373:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  374:}
+        -:  375:template <class B>
+        -:  376:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:  377:operator-(number<B, et_on>&& a, number<B, et_on>&& b)
+        -:  378:{
+        -:  379:   return detail::expression<detail::subtract_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  380:}
+        -:  381:#endif
+        -:  382:template <class B, class V>
+        -:  383:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::subtract_immediates, number<B, et_on>, V> >::type
+       1*:  384:operator-(const number<B, et_on>& a, const V& b)
+        -:  385:{
+       1*:  386:   return detail::expression<detail::subtract_immediates, number<B, et_on>, V>(a, b);
+        -:  387:}
+        -:  388:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  389:template <class B, class V>
+        -:  390:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+    #####:  391:operator-(number<B, et_on>&& a, const V& b)
+        -:  392:{
+    #####:  393:   return detail::expression<detail::subtract_immediates, number<B, et_on>, V>(a, b);
+        -:  394:}
+        -:  395:#endif
+        -:  396:template <class V, class B>
+        -:  397:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::subtract_immediates, V, number<B, et_on> > >::type
+        -:  398:operator-(const V& a, const number<B, et_on>& b)
+        -:  399:{
+        -:  400:   return detail::expression<detail::subtract_immediates, V, number<B, et_on> >(a, b);
+        -:  401:}
+        -:  402:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  403:template <class V, class B>
+        -:  404:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  405:operator-(const V& a, number<B, et_on>&& b)
+        -:  406:{
+        -:  407:   return detail::expression<detail::subtract_immediates, V, number<B, et_on> >(a, b);
+        -:  408:}
+        -:  409:#endif
+        -:  410:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  411:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::minus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  412:operator-(const number<B, ET>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  413:{
+        -:  414:   return detail::expression<detail::minus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  415:}
+        -:  416:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  417:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  418:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::minus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type
+        -:  419:operator-(number<B, ET>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  420:{
+        -:  421:   return detail::expression<detail::minus, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  422:}
+        -:  423:#endif
+        -:  424:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  425:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >
+        -:  426:operator-(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  427:{
+        -:  428:   return detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  429:}
+        -:  430:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  431:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  432:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::result_type
+        -:  433:operator-(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  434:{
+        -:  435:   return detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  436:}
+        -:  437:#endif
+        -:  438:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -:  439:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >
+        -:  440:operator-(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -:  441:{
+        -:  442:   return detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -:  443:}
+        -:  444:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  445:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -:  446:operator-(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  447:{
+        -:  448:   return detail::expression<detail::minus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -:  449:}
+        -:  450:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  451:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::minus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -:  452:operator-(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  453:{
+        -:  454:   return detail::expression<detail::minus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  455:}
+        -:  456://
+        -:  457:// Repeat operator for negated arguments: propagate the negation to the top level to avoid temporaries:
+        -:  458://
+        -:  459:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  460:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::plus, number<B, ET>, Arg1>
+        -:  461:operator-(const number<B, ET>& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  462:{
+        -:  463:   return detail::expression<detail::plus, number<B, ET>, Arg1>(a, b.left_ref());
+        -:  464:}
+        -:  465:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  466:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  467:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::plus, number<B, ET>, Arg1>::result_type
+        -:  468:operator-(number<B, ET>&& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  469:{
+        -:  470:   return detail::expression<detail::plus, number<B, ET>, Arg1>(a, b.left_ref());
+        -:  471:}
+        -:  472:#endif
+        -:  473:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  474:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::plus, number<B, ET>, Arg1> >
+        -:  475:operator-(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  476:{
+        -:  477:   return detail::expression<detail::negate, detail::expression<detail::plus, number<B, ET>, Arg1> >(
+        -:  478:       detail::expression<detail::plus, number<B, ET>, Arg1>(b, a.left_ref()));
+        -:  479:}
+        -:  480:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  481:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  482:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::plus, number<B, ET>, Arg1> >::result_type
+        -:  483:operator-(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  484:{
+        -:  485:   return detail::expression<detail::negate, detail::expression<detail::plus, number<B, ET>, Arg1> >(
+        -:  486:       detail::expression<detail::plus, number<B, ET>, Arg1>(b, a.left_ref()));
+        -:  487:}
+        -:  488:#endif
+        -:  489:template <class B>
+        -:  490:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >
+        -:  491:operator-(const number<B, et_on>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  492:{
+        -:  493:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref());
+        -:  494:}
+        -:  495:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  496:template <class B>
+        -:  497:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >::result_type
+        -:  498:operator-(number<B, et_on>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  499:{
+        -:  500:   return detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref());
+        -:  501:}
+        -:  502:#endif
+        -:  503:template <class B>
+        -:  504:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  505:operator-(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B, et_on>& b)
+        -:  506:{
+        -:  507:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  508:       detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref()));
+        -:  509:}
+        -:  510:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  511:template <class B>
+        -:  512:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >::result_type
+        -:  513:operator-(const detail::expression<detail::negate, number<B, et_on> >& a, number<B, et_on>&& b)
+        -:  514:{
+        -:  515:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  516:       detail::expression<detail::add_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref()));
+        -:  517:}
+        -:  518:#endif
+        -:  519:template <class B, class V>
+        -:  520:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, V> > >::type
+        -:  521:operator-(const detail::expression<detail::negate, number<B, et_on> >& a, const V& b)
+        -:  522:{
+        -:  523:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, V> >(detail::expression<detail::add_immediates, number<B, et_on>, V>(a.left_ref(), b));
+        -:  524:}
+        -:  525:template <class B, class B2, expression_template_option ET>
+        -:  526:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> > > >::type
+        -:  527:operator-(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B2, ET>& b)
+        -:  528:{
+        -:  529:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> > >(detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  530:}
+        -:  531:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  532:template <class B, class B2, expression_template_option ET>
+        -:  533:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> > >::result_type>::type
+        -:  534:operator-(const detail::expression<detail::negate, number<B, et_on> >& a, number<B2, ET>&& b)
+        -:  535:{
+        -:  536:   return detail::expression<detail::negate, detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> > >(detail::expression<detail::add_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  537:}
+        -:  538:#endif
+        -:  539:template <class V, class B>
+        -:  540:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::add_immediates, V, number<B, et_on> > >::type
+        -:  541:operator-(const V& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  542:{
+        -:  543:   return detail::expression<detail::add_immediates, V, number<B, et_on> >(a, b.left_ref());
+        -:  544:}
+        -:  545:template <class B2, expression_template_option ET, class B>
+        -:  546:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::add_immediates, number<B2, ET>, number<B, et_on> > >::type
+        -:  547:operator-(const number<B2, ET>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  548:{
+        -:  549:   return detail::expression<detail::add_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref());
+        -:  550:}
+        -:  551:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  552:template <class B2, expression_template_option ET, class B>
+        -:  553:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::add_immediates, number<B2, ET>, number<B, et_on> >::result_type>::type
+        -:  554:operator-(number<B2, ET>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  555:{
+        -:  556:   return detail::expression<detail::add_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref());
+        -:  557:}
+        -:  558:#endif
+        -:  559://
+        -:  560:// Multiplication:
+        -:  561://
+        -:  562:template <class B>
+        -:  563:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >
+        -:  564:operator*(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:  565:{
+        -:  566:   return detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  567:}
+        -:  568:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  569:template <class B>
+        -:  570:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:  571:operator*(number<B, et_on>&& a, const number<B, et_on>& b)
+        -:  572:{
+    #####:  573:   return detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  574:}
+        -:  575:template <class B>
+        -:  576:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:  577:operator*(const number<B, et_on>& a, number<B, et_on>&& b)
+        -:  578:{
+    #####:  579:   return detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  580:}
+        -:  581:template <class B>
+        -:  582:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:  583:operator*(number<B, et_on>&& a, number<B, et_on>&& b)
+        -:  584:{
+        -:  585:   return detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  586:}
+        -:  587:#endif
+        -:  588:template <class B, class V>
+        -:  589:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::multiply_immediates, number<B, et_on>, V> >::type
+        -:  590:operator*(const number<B, et_on>& a, const V& b)
+        -:  591:{
+        -:  592:   return detail::expression<detail::multiply_immediates, number<B, et_on>, V>(a, b);
+        -:  593:}
+        -:  594:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  595:template <class B, class V>
+        -:  596:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  597:operator*(number<B, et_on>&& a, const V& b)
+        -:  598:{
+        -:  599:   return detail::expression<detail::multiply_immediates, number<B, et_on>, V>(a, b);
+        -:  600:}
+        -:  601:#endif
+        -:  602:template <class V, class B>
+        -:  603:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::multiply_immediates, V, number<B, et_on> > >::type
+        -:  604:operator*(const V& a, const number<B, et_on>& b)
+        -:  605:{
+        -:  606:   return detail::expression<detail::multiply_immediates, V, number<B, et_on> >(a, b);
+        -:  607:}
+        -:  608:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  609:template <class V, class B>
+        -:  610:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  611:operator*(const V& a, number<B, et_on>&& b)
+        -:  612:{
+        -:  613:   return detail::expression<detail::multiply_immediates, V, number<B, et_on> >(a, b);
+        -:  614:}
+        -:  615:#endif
+        -:  616:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  617:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiplies, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  618:operator*(const number<B, ET>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  619:{
+        -:  620:   return detail::expression<detail::multiplies, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  621:}
+        -:  622:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  623:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  624:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::multiplies, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type
+        -:  625:operator*(number<B, ET>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  626:{
+        -:  627:   return detail::expression<detail::multiplies, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  628:}
+        -:  629:#endif
+        -:  630:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  631:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >
+        -:  632:operator*(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  633:{
+        -:  634:   return detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  635:}
+        -:  636:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  637:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  638:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::result_type
+        -:  639:operator*(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  640:{
+        -:  641:   return detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  642:}
+        -:  643:#endif
+        -:  644:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -:  645:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >
+        -:  646:operator*(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -:  647:{
+        -:  648:   return detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -:  649:}
+        -:  650:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  651:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -:  652:operator*(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  653:{
+        -:  654:   return detail::expression<detail::multiplies, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -:  655:}
+        -:  656:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  657:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::multiplies, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -:  658:operator*(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  659:{
+        -:  660:   return detail::expression<detail::multiplies, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  661:}
+        -:  662://
+        -:  663:// Repeat operator for negated arguments: propagate the negation to the top level to avoid temporaries:
+        -:  664://
+        -:  665:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  666:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >
+        -:  667:operator*(const number<B, ET>& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  668:{
+        -:  669:   return detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >(
+        -:  670:       detail::expression<detail::multiplies, number<B, ET>, Arg1>(a, b.left_ref()));
+        -:  671:}
+        -:  672:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  673:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  674:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >::result_type
+        -:  675:operator*(number<B, ET>&& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  676:{
+        -:  677:   return detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >(
+        -:  678:       detail::expression<detail::multiplies, number<B, ET>, Arg1>(a, b.left_ref()));
+        -:  679:}
+        -:  680:#endif
+        -:  681:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  682:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >
+        -:  683:operator*(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  684:{
+        -:  685:   return detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >(
+        -:  686:       detail::expression<detail::multiplies, number<B, ET>, Arg1>(b, a.left_ref()));
+        -:  687:}
+        -:  688:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  689:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  690:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >::result_type
+        -:  691:operator*(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  692:{
+        -:  693:   return detail::expression<detail::negate, detail::expression<detail::multiplies, number<B, ET>, Arg1> >(
+        -:  694:       detail::expression<detail::multiplies, number<B, ET>, Arg1>(b, a.left_ref()));
+        -:  695:}
+        -:  696:#endif
+        -:  697:template <class B>
+        -:  698:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  699:operator*(const number<B, et_on>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  700:{
+        -:  701:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  702:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref()));
+        -:  703:}
+        -:  704:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  705:template <class B>
+        -:  706:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >::result_type
+        -:  707:operator*(number<B, et_on>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  708:{
+        -:  709:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  710:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref()));
+        -:  711:}
+        -:  712:#endif
+        -:  713:template <class B>
+        -:  714:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  715:operator*(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B, et_on>& b)
+        -:  716:{
+        -:  717:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  718:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref()));
+        -:  719:}
+        -:  720:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  721:template <class B>
+        -:  722:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >::result_type
+        -:  723:operator*(const detail::expression<detail::negate, number<B, et_on> >& a, number<B, et_on>&& b)
+        -:  724:{
+        -:  725:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  726:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B, et_on> >(b, a.left_ref()));
+        -:  727:}
+        -:  728:#endif
+        -:  729:template <class B, class V>
+        -:  730:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, V> > >::type
+        -:  731:operator*(const detail::expression<detail::negate, number<B, et_on> >& a, const V& b)
+        -:  732:{
+        -:  733:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, V> >(
+        -:  734:       detail::expression<detail::multiply_immediates, number<B, et_on>, V>(a.left_ref(), b));
+        -:  735:}
+        -:  736:template <class B, class B2, expression_template_option ET>
+        -:  737:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > > >::type
+        -:  738:operator*(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B2, ET>& b)
+        -:  739:{
+        -:  740:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  741:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  742:}
+        -:  743:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  744:template <class B, class B2, expression_template_option ET>
+        -:  745:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >::result_type >::type
+        -:  746:operator*(const detail::expression<detail::negate, number<B, et_on> >& a, number<B2, ET>&& b)
+        -:  747:{
+        -:  748:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  749:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  750:}
+        -:  751:#endif
+        -:  752:template <class V, class B>
+        -:  753:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, V> > >::type
+        -:  754:operator*(const V& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  755:{
+        -:  756:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, V> >(
+        -:  757:       detail::expression<detail::multiply_immediates, number<B, et_on>, V>(b.left_ref(), a));
+        -:  758:}
+        -:  759:template <class B2, expression_template_option ET, class B>
+        -:  760:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > > >::type
+        -:  761:operator*(const number<B2, ET>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  762:{
+        -:  763:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  764:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> >(b.left_ref(), a));
+        -:  765:}
+        -:  766:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  767:template <class B2, expression_template_option ET, class B>
+        -:  768:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >::result_type>::type
+        -:  769:operator*(number<B2, ET>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  770:{
+        -:  771:   return detail::expression<detail::negate, detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  772:       detail::expression<detail::multiply_immediates, number<B, et_on>, number<B2, ET> >(b.left_ref(), a));
+        -:  773:}
+        -:  774:#endif
+        -:  775://
+        -:  776:// Division:
+        -:  777://
+        -:  778:template <class B>
+        -:  779:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >
+    #####:  780:operator/(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:  781:{
+    #####:  782:   return detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  783:}
+        -:  784:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  785:template <class B>
+        -:  786:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:  787:operator/(number<B, et_on>&& a, const number<B, et_on>& b)
+        -:  788:{
+        -:  789:   return detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  790:}
+        -:  791:template <class B>
+        -:  792:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+    #####:  793:operator/(const number<B, et_on>& a, number<B, et_on>&& b)
+        -:  794:{
+    #####:  795:   return detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  796:}
+        -:  797:template <class B>
+        -:  798:inline BOOST_MP_CXX14_CONSTEXPR number<B, et_on>
+        -:  799:operator/(number<B, et_on>&& a, number<B, et_on>&& b)
+        -:  800:{
+        -:  801:   return detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -:  802:}
+        -:  803:#endif
+        -:  804:template <class B, class V>
+        -:  805:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::divide_immediates, number<B, et_on>, V> >::type
+        -:  806:operator/(const number<B, et_on>& a, const V& b)
+        -:  807:{
+        -:  808:   return detail::expression<detail::divide_immediates, number<B, et_on>, V>(a, b);
+        -:  809:}
+        -:  810:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  811:template <class B, class V>
+        -:  812:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  813:operator/(number<B, et_on>&& a, const V& b)
+        -:  814:{
+        -:  815:   return detail::expression<detail::divide_immediates, number<B, et_on>, V>(a, b);
+        -:  816:}
+        -:  817:#endif
+        -:  818:template <class V, class B>
+        -:  819:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::divide_immediates, V, number<B, et_on> > >::type
+        -:  820:operator/(const V& a, const number<B, et_on>& b)
+        -:  821:{
+        -:  822:   return detail::expression<detail::divide_immediates, V, number<B, et_on> >(a, b);
+        -:  823:}
+        -:  824:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  825:template <class V, class B>
+        -:  826:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, number<B, et_on> >::type
+        -:  827:operator/(const V& a, number<B, et_on>&& b)
+        -:  828:{
+        -:  829:   return detail::expression<detail::divide_immediates, V, number<B, et_on> >(a, b);
+        -:  830:}
+        -:  831:#endif
+        -:  832:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  833:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::divides, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
+        -:  834:operator/(const number<B, ET>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  835:{
+        -:  836:   return detail::expression<detail::divides, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  837:}
+        -:  838:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  839:template <class B, expression_template_option ET, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  840:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::divides, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type
+        -:  841:operator/(number<B, ET>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  842:{
+        -:  843:   return detail::expression<detail::divides, number<B, ET>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  844:}
+        -:  845:#endif
+        -:  846:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  847:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >
+        -:  848:operator/(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  849:{
+        -:  850:   return detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  851:}
+        -:  852:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  853:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  854:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >::result_type
+    #####:  855:operator/(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  856:{
+    #####:  857:   return detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, ET> >(a, b);
+        -:  858:}
+        -:  859:#endif
+        -:  860:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -:  861:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >
+        -:  862:operator/(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -:  863:{
+        -:  864:   return detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -:  865:}
+        -:  866:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -:  867:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -:  868:operator/(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -:  869:{
+        -:  870:   return detail::expression<detail::divides, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -:  871:}
+        -:  872:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  873:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>, detail::expression<detail::divides, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -:  874:operator/(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  875:{
+        -:  876:   return detail::expression<detail::divides, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -:  877:}
+        -:  878://
+        -:  879:// Repeat operator for negated arguments: propagate the negation to the top level to avoid temporaries:
+        -:  880://
+        -:  881:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  882:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::divides, number<B, ET>, Arg1> >
+        -:  883:operator/(const number<B, ET>& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  884:{
+        -:  885:   return detail::expression<detail::negate, detail::expression<detail::divides, number<B, ET>, Arg1> >(
+        -:  886:       detail::expression<detail::divides, number<B, ET>, Arg1>(a, b.left_ref()));
+        -:  887:}
+        -:  888:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  889:template <class B, expression_template_option ET, class Arg1, class Arg2, class Arg3, class Arg4>
+        -:  890:inline typename detail::expression<detail::negate, detail::expression<detail::divides, number<B, ET>, Arg1> >::result_type
+        -:  891:operator/(number<B, ET>&& a, const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& b)
+        -:  892:{
+        -:  893:   return detail::expression<detail::negate, detail::expression<detail::divides, number<B, ET>, Arg1> >(
+        -:  894:       detail::expression<detail::divides, number<B, ET>, Arg1>(a, b.left_ref()));
+        -:  895:}
+        -:  896:#endif
+        -:  897:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  898:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::divides, Arg1, number<B, ET> > >
+        -:  899:operator/(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, const number<B, ET>& b)
+        -:  900:{
+        -:  901:   return detail::expression<detail::negate, detail::expression<detail::divides, Arg1, number<B, ET> > >(
+        -:  902:       detail::expression<detail::divides, Arg1, number<B, ET> >(a.left_ref(), b));
+        -:  903:}
+        -:  904:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  905:template <class Arg1, class Arg2, class Arg3, class Arg4, class B, expression_template_option ET>
+        -:  906:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::divides, Arg1, number<B, ET> > >::result_type
+        -:  907:operator/(const detail::expression<detail::negate, Arg1, Arg2, Arg3, Arg4>& a, number<B, ET>&& b)
+        -:  908:{
+        -:  909:   return detail::expression<detail::negate, detail::expression<detail::divides, Arg1, number<B, ET> > >(
+        -:  910:       detail::expression<detail::divides, Arg1, number<B, ET> >(a.left_ref(), b));
+        -:  911:}
+        -:  912:#endif
+        -:  913:template <class B>
+        -:  914:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  915:operator/(const number<B, et_on>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  916:{
+        -:  917:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  918:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref()));
+        -:  919:}
+        -:  920:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  921:template <class B>
+        -:  922:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >::result_type
+        -:  923:operator/(number<B, et_on>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  924:{
+        -:  925:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  926:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a, b.left_ref()));
+        -:  927:}
+        -:  928:#endif
+        -:  929:template <class B>
+        -:  930:inline BOOST_MP_CXX14_CONSTEXPR detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >
+        -:  931:operator/(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B, et_on>& b)
+        -:  932:{
+        -:  933:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  934:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a.left_ref(), b));
+        -:  935:}
+        -:  936:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  937:template <class B>
+        -:  938:inline BOOST_MP_CXX14_CONSTEXPR typename detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >::result_type
+        -:  939:operator/(const detail::expression<detail::negate, number<B, et_on> >& a, number<B, et_on>&& b)
+        -:  940:{
+        -:  941:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> > >(
+        -:  942:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B, et_on> >(a.left_ref(), b));
+        -:  943:}
+        -:  944:#endif
+        -:  945:template <class B, class V>
+        -:  946:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, V> > >::type
+        -:  947:operator/(const detail::expression<detail::negate, number<B, et_on> >& a, const V& b)
+        -:  948:{
+        -:  949:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, V> >(
+        -:  950:       detail::expression<detail::divide_immediates, number<B, et_on>, V>(a.left_ref(), b));
+        -:  951:}
+        -:  952:template <class B, class B2, expression_template_option ET>
+        -:  953:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> > > >::type
+        -:  954:operator/(const detail::expression<detail::negate, number<B, et_on> >& a, const number<B2, ET>& b)
+        -:  955:{
+        -:  956:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  957:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  958:}
+        -:  959:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  960:template <class B, class B2, expression_template_option ET>
+        -:  961:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, typename detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> > >::result_type>::type
+        -:  962:operator/(const detail::expression<detail::negate, number<B, et_on> >& a, number<B2, ET>&& b)
+        -:  963:{
+        -:  964:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> > >(
+        -:  965:       detail::expression<detail::divide_immediates, number<B, et_on>, number<B2, ET> >(a.left_ref(), b));
+        -:  966:}
+        -:  967:#endif
+        -:  968:template <class V, class B>
+        -:  969:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<V, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::divide_immediates, V, number<B, et_on> > > >::type
+        -:  970:operator/(const V& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  971:{
+        -:  972:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, V, number<B, et_on> > >(
+        -:  973:       detail::expression<detail::divide_immediates, V, number<B, et_on> >(a, b.left_ref()));
+        -:  974:}
+        -:  975:template <class B2, expression_template_option ET, class B>
+        -:  976:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, number<B, et_on> >, detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> > > >::type
+        -:  977:operator/(const number<B2, ET>& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  978:{
+        -:  979:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> > >(
+        -:  980:       detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref()));
+        -:  981:}
+        -:  982:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -:  983:template <class B2, expression_template_option ET, class B>
+        -:  984:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if<is_compatible_arithmetic_type<number<B2, ET>, typename detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> > >::result_type >, number<B, et_on> >::type
+        -:  985:operator/(number<B2, ET>&& a, const detail::expression<detail::negate, number<B, et_on> >& b)
+        -:  986:{
+        -:  987:   return detail::expression<detail::negate, detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> > >(
+        -:  988:       detail::expression<detail::divide_immediates, number<B2, ET>, number<B, et_on> >(a, b.left_ref()));
+        -:  989:}
+        -:  990:#endif
+        -:  991://
+        -:  992:// Modulus:
+        -:  993://
+        -:  994:template <class B>
+        -:  995:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -:  996:                            detail::expression<detail::modulus_immediates, number<B, et_on>, number<B, et_on> > >::type
+        -:  997:operator%(const number<B, et_on>& a, const number<B, et_on>& b)
+        -:  998:{
+        -:  999:   return detail::expression<detail::modulus_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1000:}
+        -: 1001:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1002:template <class B>
+        -: 1003:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1004:   number<B, et_on> >::type
+        -: 1005:operator%(number<B, et_on>&& a, const number<B, et_on>& b)
+        -: 1006:{
+        -: 1007:   return detail::expression<detail::modulus_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1008:}
+        -: 1009:template <class B>
+        -: 1010:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1011:   number<B, et_on> >::type
+    #####: 1012:operator%(const number<B, et_on>& a, number<B, et_on>&& b)
+        -: 1013:{
+    #####: 1014:   return detail::expression<detail::modulus_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1015:}
+        -: 1016:template <class B>
+        -: 1017:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1018:   number<B, et_on> >::type
+        -: 1019:operator%(number<B, et_on>&& a, number<B, et_on>&& b)
+        -: 1020:{
+        -: 1021:   return detail::expression<detail::modulus_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1022:}
+        -: 1023:#endif
+        -: 1024:template <class B, class V>
+        -: 1025:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1026:                            detail::expression<detail::modulus_immediates, number<B, et_on>, V> >::type
+        -: 1027:operator%(const number<B, et_on>& a, const V& b)
+        -: 1028:{
+        -: 1029:   return detail::expression<detail::modulus_immediates, number<B, et_on>, V>(a, b);
+        -: 1030:}
+        -: 1031:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1032:template <class B, class V>
+        -: 1033:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1034:   number<B, et_on> >::type
+        -: 1035:operator%(number<B, et_on>&& a, const V& b)
+        -: 1036:{
+        -: 1037:   return detail::expression<detail::modulus_immediates, number<B, et_on>, V>(a, b);
+        -: 1038:}
+        -: 1039:#endif
+        -: 1040:template <class V, class B>
+        -: 1041:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1042:                            detail::expression<detail::modulus_immediates, V, number<B, et_on> > >::type
+        -: 1043:operator%(const V& a, const number<B, et_on>& b)
+        -: 1044:{
+        -: 1045:   return detail::expression<detail::modulus_immediates, V, number<B, et_on> >(a, b);
+        -: 1046:}
+        -: 1047:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1048:template <class V, class B>
+        -: 1049:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1050:   number<B, et_on> >::type
+        -: 1051:operator%(const V& a, number<B, et_on>&& b)
+        -: 1052:{
+        -: 1053:   return detail::expression<detail::modulus_immediates, V, number<B, et_on> >(a, b);
+        -: 1054:}
+        -: 1055:#endif
+        -: 1056:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1057:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1058:                            detail::expression<detail::modulus, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1059:operator%(const number<B, et_on>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1060:{
+        -: 1061:   return detail::expression<detail::modulus, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1062:}
+        -: 1063:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1064:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1065:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1066:   typename detail::expression<detail::modulus, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type >::type
+        -: 1067:operator%(number<B, et_on>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1068:{
+        -: 1069:   return detail::expression<detail::modulus, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1070:}
+        -: 1071:#endif
+        -: 1072:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1073:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1074:                            detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> > >::type
+        -: 1075:operator%(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, et_on>& b)
+        -: 1076:{
+        -: 1077:   return detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1078:}
+        -: 1079:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1080:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1081:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1082:   typename detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >::result_type >::type
+        -: 1083:operator%(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, et_on>&& b)
+        -: 1084:{
+        -: 1085:   return detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1086:}
+        -: 1087:#endif
+        -: 1088:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -: 1089:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer,
+        -: 1090:                            detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> > >::type
+        -: 1091:operator%(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -: 1092:{
+        -: 1093:   return detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -: 1094:}
+        -: 1095:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -: 1096:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1097:                            detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -: 1098:operator%(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -: 1099:{
+        -: 1100:   return detail::expression<detail::modulus, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -: 1101:}
+        -: 1102:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1103:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1104:                            detail::expression<detail::modulus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1105:operator%(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1106:{
+        -: 1107:   return detail::expression<detail::modulus, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1108:}
+        -: 1109://
+        -: 1110:// Left shift:
+        -: 1111://
+        -: 1112:template <class B, class I>
+        -: 1113:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<B>::value == number_kind_integer), detail::expression<detail::shift_left, number<B, et_on>, I> >::type
+        -: 1114:operator<<(const number<B, et_on>& a, const I& b)
+        -: 1115:{
+        -: 1116:   return detail::expression<detail::shift_left, number<B, et_on>, I>(a, b);
+        -: 1117:}
+        -: 1118:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1119:template <class B, class I>
+        -: 1120:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<B>::value == number_kind_integer), number<B, et_on> >::type
+        -: 1121:operator<<(number<B, et_on>&& a, const I& b)
+        -: 1122:{
+        -: 1123:   return detail::expression<detail::shift_left, number<B, et_on>, I>(a, b);
+        -: 1124:}
+        -: 1125:#endif
+        -: 1126:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class I>
+        -: 1127:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1128:                            detail::expression<detail::shift_left, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, I> >::type
+        -: 1129:operator<<(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const I& b)
+        -: 1130:{
+        -: 1131:   return detail::expression<detail::shift_left, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, I>(a, b);
+        -: 1132:}
+        -: 1133://
+        -: 1134:// Right shift:
+        -: 1135://
+        -: 1136:template <class B, class I>
+        -: 1137:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<B>::value == number_kind_integer),
+        -: 1138:                            detail::expression<detail::shift_right, number<B, et_on>, I> >::type
+        -: 1139:operator>>(const number<B, et_on>& a, const I& b)
+        -: 1140:{
+        -: 1141:   return detail::expression<detail::shift_right, number<B, et_on>, I>(a, b);
+        -: 1142:}
+        -: 1143:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1144:template <class B, class I>
+        -: 1145:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<B>::value == number_kind_integer),
+        -: 1146:   number<B, et_on> >::type
+        -: 1147:operator>>(number<B, et_on>&& a, const I& b)
+        -: 1148:{
+        -: 1149:   return detail::expression<detail::shift_right, number<B, et_on>, I>(a, b);
+        -: 1150:}
+        -: 1151:#endif
+        -: 1152:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class I>
+        -: 1153:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_integral<I>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1154:                            detail::expression<detail::shift_right, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, I> >::type
+        -: 1155:operator>>(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const I& b)
+        -: 1156:{
+        -: 1157:   return detail::expression<detail::shift_right, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, I>(a, b);
+        -: 1158:}
+        -: 1159://
+        -: 1160:// Bitwise AND:
+        -: 1161://
+        -: 1162:template <class B>
+        -: 1163:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1164:                            detail::expression<detail::bitwise_and_immediates, number<B, et_on>, number<B, et_on> > >::type
+        -: 1165:operator&(const number<B, et_on>& a, const number<B, et_on>& b)
+        -: 1166:{
+        -: 1167:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1168:}
+        -: 1169:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1170:template <class B>
+        -: 1171:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1172:   number<B, et_on> >::type
+        -: 1173:operator&(number<B, et_on>&& a, const number<B, et_on>& b)
+        -: 1174:{
+        -: 1175:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1176:}
+        -: 1177:template <class B>
+        -: 1178:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1179:   number<B, et_on> >::type
+        -: 1180:operator&(const number<B, et_on>& a, number<B, et_on>&& b)
+        -: 1181:{
+        -: 1182:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1183:}
+        -: 1184:template <class B>
+        -: 1185:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1186:   number<B, et_on> >::type
+        -: 1187:operator&(number<B, et_on>&& a, number<B, et_on>&& b)
+        -: 1188:{
+        -: 1189:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1190:}
+        -: 1191:#endif
+        -: 1192:template <class B, class V>
+        -: 1193:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1194:                            detail::expression<detail::bitwise_and_immediates, number<B, et_on>, V> >::type
+        -: 1195:operator&(const number<B, et_on>& a, const V& b)
+        -: 1196:{
+        -: 1197:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, V>(a, b);
+        -: 1198:}
+        -: 1199:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1200:template <class B, class V>
+        -: 1201:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1202:   number<B, et_on> >::type
+        -: 1203:operator&(number<B, et_on>&& a, const V& b)
+        -: 1204:{
+        -: 1205:   return detail::expression<detail::bitwise_and_immediates, number<B, et_on>, V>(a, b);
+        -: 1206:}
+        -: 1207:#endif
+        -: 1208:template <class V, class B>
+        -: 1209:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1210:                            detail::expression<detail::bitwise_and_immediates, V, number<B, et_on> > >::type
+        -: 1211:operator&(const V& a, const number<B, et_on>& b)
+        -: 1212:{
+        -: 1213:   return detail::expression<detail::bitwise_and_immediates, V, number<B, et_on> >(a, b);
+        -: 1214:}
+        -: 1215:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1216:template <class V, class B>
+        -: 1217:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1218:   number<B, et_on> >::type
+        -: 1219:operator&(const V& a, number<B, et_on>&& b)
+        -: 1220:{
+        -: 1221:   return detail::expression<detail::bitwise_and_immediates, V, number<B, et_on> >(a, b);
+        -: 1222:}
+        -: 1223:#endif
+        -: 1224:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1225:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1226:                            detail::expression<detail::bitwise_and, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1227:operator&(const number<B, et_on>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1228:{
+        -: 1229:   return detail::expression<detail::bitwise_and, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1230:}
+        -: 1231:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1232:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1233:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1234:   typename detail::expression<detail::bitwise_and, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type >::type
+        -: 1235:operator&(number<B, et_on>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1236:{
+        -: 1237:   return detail::expression<detail::bitwise_and, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1238:}
+        -: 1239:#endif
+        -: 1240:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1241:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1242:                            detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> > >::type
+        -: 1243:operator&(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, et_on>& b)
+        -: 1244:{
+        -: 1245:   return detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1246:}
+        -: 1247:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1248:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1249:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1250:   typename detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >::result_type >::type
+        -: 1251:operator&(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, et_on>&& b)
+        -: 1252:{
+        -: 1253:   return detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1254:}
+        -: 1255:#endif
+        -: 1256:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -: 1257:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer,
+        -: 1258:                            detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> > >::type
+        -: 1259:operator&(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -: 1260:{
+        -: 1261:   return detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -: 1262:}
+        -: 1263:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -: 1264:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1265:                            detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -: 1266:operator&(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -: 1267:{
+        -: 1268:   return detail::expression<detail::bitwise_and, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -: 1269:}
+        -: 1270:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1271:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1272:                            detail::expression<detail::bitwise_and, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1273:operator&(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1274:{
+        -: 1275:   return detail::expression<detail::bitwise_and, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1276:}
+        -: 1277://
+        -: 1278:// Bitwise OR:
+        -: 1279://
+        -: 1280:template <class B>
+        -: 1281:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1282:                            detail::expression<detail::bitwise_or_immediates, number<B, et_on>, number<B, et_on> > >::type
+        -: 1283:operator|(const number<B, et_on>& a, const number<B, et_on>& b)
+        -: 1284:{
+        -: 1285:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1286:}
+        -: 1287:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1288:template <class B>
+        -: 1289:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1290:   number<B, et_on> >::type
+        -: 1291:operator|(number<B, et_on>&& a, const number<B, et_on>& b)
+        -: 1292:{
+        -: 1293:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1294:}
+        -: 1295:template <class B>
+        -: 1296:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1297:   number<B, et_on> >::type
+        -: 1298:operator|(const number<B, et_on>& a, number<B, et_on>&& b)
+        -: 1299:{
+        -: 1300:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1301:}
+        -: 1302:template <class B>
+        -: 1303:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1304:   number<B, et_on> >::type
+        -: 1305:operator|(number<B, et_on>&& a, number<B, et_on>&& b)
+        -: 1306:{
+        -: 1307:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1308:}
+        -: 1309:#endif
+        -: 1310:template <class B, class V>
+        -: 1311:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1312:                            detail::expression<detail::bitwise_or_immediates, number<B, et_on>, V> >::type
+        -: 1313:operator|(const number<B, et_on>& a, const V& b)
+        -: 1314:{
+        -: 1315:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, V>(a, b);
+        -: 1316:}
+        -: 1317:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1318:template <class B, class V>
+        -: 1319:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1320:   number<B, et_on> >::type
+        -: 1321:operator|(number<B, et_on>&& a, const V& b)
+        -: 1322:{
+        -: 1323:   return detail::expression<detail::bitwise_or_immediates, number<B, et_on>, V>(a, b);
+        -: 1324:}
+        -: 1325:#endif
+        -: 1326:template <class V, class B>
+        -: 1327:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1328:                            detail::expression<detail::bitwise_or_immediates, V, number<B, et_on> > >::type
+        -: 1329:operator|(const V& a, const number<B, et_on>& b)
+        -: 1330:{
+        -: 1331:   return detail::expression<detail::bitwise_or_immediates, V, number<B, et_on> >(a, b);
+        -: 1332:}
+        -: 1333:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1334:template <class V, class B>
+        -: 1335:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1336:   number<B, et_on> >::type
+        -: 1337:operator|(const V& a, number<B, et_on>&& b)
+        -: 1338:{
+        -: 1339:   return detail::expression<detail::bitwise_or_immediates, V, number<B, et_on> >(a, b);
+        -: 1340:}
+        -: 1341:#endif
+        -: 1342:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1343:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1344:                            detail::expression<detail::bitwise_or, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1345:operator|(const number<B, et_on>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1346:{
+        -: 1347:   return detail::expression<detail::bitwise_or, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1348:}
+        -: 1349:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1350:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1351:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1352:   typename detail::expression<detail::bitwise_or, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type>::type
+        -: 1353:operator|(number<B, et_on>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1354:{
+        -: 1355:   return detail::expression<detail::bitwise_or, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1356:}
+        -: 1357:#endif
+        -: 1358:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1359:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1360:                            detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> > >::type
+        -: 1361:operator|(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, et_on>& b)
+        -: 1362:{
+        -: 1363:   return detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1364:}
+        -: 1365:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1366:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1367:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1368:   typename detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >::result_type>::type
+        -: 1369:operator|(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, et_on>&& b)
+        -: 1370:{
+        -: 1371:   return detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1372:}
+        -: 1373:#endif
+        -: 1374:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -: 1375:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer,
+        -: 1376:                            detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> > >::type
+        -: 1377:operator|(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -: 1378:{
+        -: 1379:   return detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -: 1380:}
+        -: 1381:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -: 1382:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1383:                            detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -: 1384:operator|(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -: 1385:{
+        -: 1386:   return detail::expression<detail::bitwise_or, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -: 1387:}
+        -: 1388:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1389:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1390:                            detail::expression<detail::bitwise_or, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1391:operator|(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1392:{
+        -: 1393:   return detail::expression<detail::bitwise_or, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1394:}
+        -: 1395://
+        -: 1396:// Bitwise XOR:
+        -: 1397://
+        -: 1398:template <class B>
+        -: 1399:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1400:                            detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, number<B, et_on> > >::type
+        -: 1401:operator^(const number<B, et_on>& a, const number<B, et_on>& b)
+        -: 1402:{
+        -: 1403:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1404:}
+        -: 1405:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1406:template <class B>
+        -: 1407:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1408:   number<B, et_on> >::type
+        -: 1409:operator^(number<B, et_on>&& a, const number<B, et_on>& b)
+        -: 1410:{
+        -: 1411:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1412:}
+        -: 1413:template <class B>
+        -: 1414:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1415:   number<B, et_on> >::type
+        -: 1416:operator^(const number<B, et_on>& a, number<B, et_on>&& b)
+        -: 1417:{
+        -: 1418:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1419:}
+        -: 1420:template <class B>
+        -: 1421:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1422:   number<B, et_on> >::type
+        -: 1423:operator^(number<B, et_on>&& a, number<B, et_on>&& b)
+        -: 1424:{
+        -: 1425:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, number<B, et_on> >(a, b);
+        -: 1426:}
+        -: 1427:#endif
+        -: 1428:template <class B, class V>
+        -: 1429:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1430:                            detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, V> >::type
+        -: 1431:operator^(const number<B, et_on>& a, const V& b)
+        -: 1432:{
+        -: 1433:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, V>(a, b);
+        -: 1434:}
+        -: 1435:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1436:template <class B, class V>
+        -: 1437:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1438:   number<B, et_on> >::type
+        -: 1439:operator^(number<B, et_on>&& a, const V& b)
+        -: 1440:{
+        -: 1441:   return detail::expression<detail::bitwise_xor_immediates, number<B, et_on>, V>(a, b);
+        -: 1442:}
+        -: 1443:#endif
+        -: 1444:template <class V, class B>
+        -: 1445:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1446:                            detail::expression<detail::bitwise_xor_immediates, V, number<B, et_on> > >::type
+        -: 1447:operator^(const V& a, const number<B, et_on>& b)
+        -: 1448:{
+        -: 1449:   return detail::expression<detail::bitwise_xor_immediates, V, number<B, et_on> >(a, b);
+        -: 1450:}
+        -: 1451:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1452:template <class V, class B>
+        -: 1453:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, number<B, et_on> >::value && (number_category<B>::value == number_kind_integer),
+        -: 1454:   number<B, et_on> >::type
+        -: 1455:operator^(const V& a, number<B, et_on>&& b)
+        -: 1456:{
+        -: 1457:   return detail::expression<detail::bitwise_xor_immediates, V, number<B, et_on> >(a, b);
+        -: 1458:}
+        -: 1459:#endif
+        -: 1460:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1461:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1462:                            detail::expression<detail::bitwise_xor, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1463:operator^(const number<B, et_on>& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1464:{
+        -: 1465:   return detail::expression<detail::bitwise_xor, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1466:}
+        -: 1467:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1468:template <class B, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1469:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1470:   typename detail::expression<detail::bitwise_xor, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >::result_type>::type
+        -: 1471:operator^(number<B, et_on>&& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1472:{
+        -: 1473:   return detail::expression<detail::bitwise_xor, number<B, et_on>, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1474:}
+        -: 1475:#endif
+        -: 1476:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1477:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1478:                            detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> > >::type
+        -: 1479:operator^(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const number<B, et_on>& b)
+        -: 1480:{
+        -: 1481:   return detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1482:}
+        -: 1483:#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+        -: 1484:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class B>
+        -: 1485:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<B>::value == number_kind_integer,
+        -: 1486:   typename detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >::result_type>::type
+        -: 1487:operator^(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, number<B, et_on>&& b)
+        -: 1488:{
+        -: 1489:   return detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, number<B, et_on> >(a, b);
+        -: 1490:}
+        -: 1491:#endif
+        -: 1492:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class tag2, class Arg1b, class Arg2b, class Arg3b, class Arg4b>
+        -: 1493:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer,
+        -: 1494:                            detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> > >::type
+        -: 1495:operator^(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b>& b)
+        -: 1496:{
+        -: 1497:   return detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, detail::expression<tag2, Arg1b, Arg2b, Arg3b, Arg4b> >(a, b);
+        -: 1498:}
+        -: 1499:template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class V>
+        -: 1500:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer),
+        -: 1501:                            detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V> >::type
+        -: 1502:operator^(const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& a, const V& b)
+        -: 1503:{
+        -: 1504:   return detail::expression<detail::bitwise_xor, detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, V>(a, b);
+        -: 1505:}
+        -: 1506:template <class V, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+        -: 1507:inline BOOST_MP_CXX14_CONSTEXPR typename enable_if_c<is_compatible_arithmetic_type<V, typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value && (number_category<typename detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>::value == number_kind_integer), detail::expression<detail::bitwise_xor, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > >::type
+        -: 1508:operator^(const V& a, const detail::expression<tag, Arg1, Arg2, Arg3, Arg4>& b)
+        -: 1509:{
+        -: 1510:   return detail::expression<detail::bitwise_xor, V, detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >(a, b);
+        -: 1511:}
+        -: 1512:
+        -: 1513:}} // namespace boost::multiprecision
+        -: 1514:
+        -: 1515:#endif

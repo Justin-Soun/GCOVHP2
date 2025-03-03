@@ -1,0 +1,423 @@
+        -:    0:Source:/usr/include/boost/random/uniform_int_distribution.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:/* boost random/uniform_int_distribution.hpp header file
+        -:    2: *
+        -:    3: * Copyright Jens Maurer 2000-2001
+        -:    4: * Copyright Steven Watanabe 2011
+        -:    5: * Distributed under the Boost Software License, Version 1.0. (See
+        -:    6: * accompanying file LICENSE_1_0.txt or copy at
+        -:    7: * http://www.boost.org/LICENSE_1_0.txt)
+        -:    8: *
+        -:    9: * See http://www.boost.org for most recent version including documentation.
+        -:   10: *
+        -:   11: * $Id$
+        -:   12: *
+        -:   13: * Revision history
+        -:   14: *  2001-04-08  added min<max assertion (N. Becker)
+        -:   15: *  2001-02-18  moved to individual header files
+        -:   16: */
+        -:   17:
+        -:   18:#ifndef BOOST_RANDOM_UNIFORM_INT_DISTRIBUTION_HPP
+        -:   19:#define BOOST_RANDOM_UNIFORM_INT_DISTRIBUTION_HPP
+        -:   20:
+        -:   21:#include <iosfwd>
+        -:   22:#include <ios>
+        -:   23:#include <istream>
+        -:   24:#include <boost/config.hpp>
+        -:   25:#include <boost/limits.hpp>
+        -:   26:#include <boost/assert.hpp>
+        -:   27:#include <boost/random/detail/config.hpp>
+        -:   28:#include <boost/random/detail/operators.hpp>
+        -:   29:#include <boost/random/detail/uniform_int_float.hpp>
+        -:   30:#include <boost/random/detail/signed_unsigned_tools.hpp>
+        -:   31:#include <boost/random/traits.hpp>
+        -:   32:#include <boost/mpl/bool.hpp>
+        -:   33:#ifdef BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -:   34:#include <boost/mpl/if.hpp>
+        -:   35:#endif
+        -:   36:
+        -:   37:namespace boost {
+        -:   38:namespace random {
+        -:   39:namespace detail {
+        -:   40:    
+        -:   41:
+        -:   42:#ifdef BOOST_MSVC
+        -:   43:#pragma warning(push)
+        -:   44:// disable division by zero warning, since we can't
+        -:   45:// actually divide by zero.
+        -:   46:#pragma warning(disable:4723)
+        -:   47:#endif
+        -:   48:
+        -:   49:template<class Engine, class T>
+    #####:   50:T generate_uniform_int(
+        -:   51:    Engine& eng, T min_value, T max_value,
+        -:   52:    boost::mpl::true_ /** is_integral<Engine::result_type> */)
+        -:   53:{
+        -:   54:    typedef T result_type;
+        -:   55:    typedef typename boost::random::traits::make_unsigned_or_unbounded<T>::type range_type;
+        -:   56:    typedef typename Engine::result_type base_result;
+        -:   57:    // ranges are always unsigned or unbounded
+        -:   58:    typedef typename boost::random::traits::make_unsigned_or_unbounded<base_result>::type base_unsigned;
+    #####:   59:    const range_type range = random::detail::subtract<result_type>()(max_value, min_value);
+    #####:   60:    const base_result bmin = (eng.min)();
+    #####:   61:    const base_unsigned brange =
+    #####:   62:      random::detail::subtract<base_result>()((eng.max)(), (eng.min)());
+        -:   63:
+    #####:   64:    if(range == 0) {
+    #####:   65:      return min_value;    
+    #####:   66:    } else if(brange == range) {
+        -:   67:      // this will probably never happen in real life
+        -:   68:      // basically nothing to do; just take care we don't overflow / underflow
+    #####:   69:      base_unsigned v = random::detail::subtract<base_result>()(eng(), bmin);
+    #####:   70:      return random::detail::add<base_unsigned, result_type>()(v, min_value);
+    #####:   71:    } else if(brange < range) {
+        -:   72:      // use rejection method to handle things like 0..3 --> 0..4
+    #####:   73:      for(;;) {
+        -:   74:        // concatenate several invocations of the base RNG
+        -:   75:        // take extra care to avoid overflows
+        -:   76:
+        -:   77:        //  limit == floor((range+1)/(brange+1))
+        -:   78:        //  Therefore limit*(brange+1) <= range+1
+    #####:   79:        range_type limit;
+    #####:   80:        if(range == (std::numeric_limits<range_type>::max)()) {
+    #####:   81:          limit = range/(range_type(brange)+1);
+    #####:   82:          if(range % (range_type(brange)+1) == range_type(brange))
+    #####:   83:            ++limit;
+        -:   84:        } else {
+    #####:   85:          limit = (range+1)/(range_type(brange)+1);
+        -:   86:        }
+        -:   87:
+        -:   88:        // We consider "result" as expressed to base (brange+1):
+        -:   89:        // For every power of (brange+1), we determine a random factor
+    #####:   90:        range_type result = range_type(0);
+    #####:   91:        range_type mult = range_type(1);
+        -:   92:
+        -:   93:        // loop invariants:
+        -:   94:        //  result < mult
+        -:   95:        //  mult <= range
+    #####:   96:        while(mult <= limit) {
+        -:   97:          // Postcondition: result <= range, thus no overflow
+        -:   98:          //
+        -:   99:          // limit*(brange+1)<=range+1                   def. of limit       (1)
+        -:  100:          // eng()-bmin<=brange                          eng() post.         (2)
+        -:  101:          // and mult<=limit.                            loop condition      (3)
+        -:  102:          // Therefore mult*(eng()-bmin+1)<=range+1      by (1),(2),(3)      (4)
+        -:  103:          // Therefore mult*(eng()-bmin)+mult<=range+1   rearranging (4)     (5)
+        -:  104:          // result<mult                                 loop invariant      (6)
+        -:  105:          // Therefore result+mult*(eng()-bmin)<range+1  by (5), (6)         (7)
+        -:  106:          //
+        -:  107:          // Postcondition: result < mult*(brange+1)
+        -:  108:          //
+        -:  109:          // result<mult                                 loop invariant      (1)
+        -:  110:          // eng()-bmin<=brange                          eng() post.         (2)
+        -:  111:          // Therefore result+mult*(eng()-bmin) <
+        -:  112:          //           mult+mult*(eng()-bmin)            by (1)              (3)
+        -:  113:          // Therefore result+(eng()-bmin)*mult <
+        -:  114:          //           mult+mult*brange                  by (2), (3)         (4)
+        -:  115:          // Therefore result+(eng()-bmin)*mult <
+        -:  116:          //           mult*(brange+1)                   by (4)
+    #####:  117:          result += static_cast<range_type>(static_cast<range_type>(random::detail::subtract<base_result>()(eng(), bmin)) * mult);
+        -:  118:
+        -:  119:          // equivalent to (mult * (brange+1)) == range+1, but avoids overflow.
+    #####:  120:          if(mult * range_type(brange) == range - mult + 1) {
+        -:  121:              // The destination range is an integer power of
+        -:  122:              // the generator's range.
+    #####:  123:              return(result);
+        -:  124:          }
+        -:  125:
+        -:  126:          // Postcondition: mult <= range
+        -:  127:          // 
+        -:  128:          // limit*(brange+1)<=range+1                   def. of limit       (1)
+        -:  129:          // mult<=limit                                 loop condition      (2)
+        -:  130:          // Therefore mult*(brange+1)<=range+1          by (1), (2)         (3)
+        -:  131:          // mult*(brange+1)!=range+1                    preceding if        (4)
+        -:  132:          // Therefore mult*(brange+1)<range+1           by (3), (4)         (5)
+        -:  133:          // 
+        -:  134:          // Postcondition: result < mult
+        -:  135:          //
+        -:  136:          // See the second postcondition on the change to result. 
+    #####:  137:          mult *= range_type(brange)+range_type(1);
+        -:  138:        }
+        -:  139:        // loop postcondition: range/mult < brange+1
+        -:  140:        //
+        -:  141:        // mult > limit                                  loop condition      (1)
+        -:  142:        // Suppose range/mult >= brange+1                Assumption          (2)
+        -:  143:        // range >= mult*(brange+1)                      by (2)              (3)
+        -:  144:        // range+1 > mult*(brange+1)                     by (3)              (4)
+        -:  145:        // range+1 > (limit+1)*(brange+1)                by (1), (4)         (5)
+        -:  146:        // (range+1)/(brange+1) > limit+1                by (5)              (6)
+        -:  147:        // limit < floor((range+1)/(brange+1))           by (6)              (7)
+        -:  148:        // limit==floor((range+1)/(brange+1))            def. of limit       (8)
+        -:  149:        // not (2)                                       reductio            (9)
+        -:  150:        //
+        -:  151:        // loop postcondition: (range/mult)*mult+(mult-1) >= range
+        -:  152:        //
+        -:  153:        // (range/mult)*mult + range%mult == range       identity            (1)
+        -:  154:        // range%mult < mult                             def. of %           (2)
+        -:  155:        // (range/mult)*mult+mult > range                by (1), (2)         (3)
+        -:  156:        // (range/mult)*mult+(mult-1) >= range           by (3)              (4)
+        -:  157:        //
+        -:  158:        // Note that the maximum value of result at this point is (mult-1),
+        -:  159:        // so after this final step, we generate numbers that can be
+        -:  160:        // at least as large as range.  We have to really careful to avoid
+        -:  161:        // overflow in this final addition and in the rejection.  Anything
+        -:  162:        // that overflows is larger than range and can thus be rejected.
+        -:  163:
+        -:  164:        // range/mult < brange+1  -> no endless loop
+    #####:  165:        range_type result_increment =
+        -:  166:            generate_uniform_int(
+        -:  167:                eng,
+    #####:  168:                static_cast<range_type>(0),
+    #####:  169:                static_cast<range_type>(range/mult),
+        -:  170:                boost::mpl::true_());
+        -:  171:        if(std::numeric_limits<range_type>::is_bounded && ((std::numeric_limits<range_type>::max)() / mult < result_increment)) {
+        -:  172:          // The multiplcation would overflow.  Reject immediately.
+        -:  173:          continue;
+        -:  174:        }
+    #####:  175:        result_increment *= mult;
+        -:  176:        // unsigned integers are guaranteed to wrap on overflow.
+    #####:  177:        result += result_increment;
+    #####:  178:        if(result < result_increment) {
+        -:  179:          // The addition overflowed.  Reject.
+    #####:  180:          continue;
+        -:  181:        }
+    #####:  182:        if(result > range) {
+        -:  183:          // Too big.  Reject.
+    #####:  184:          continue;
+        -:  185:        }
+    #####:  186:        return random::detail::add<range_type, result_type>()(result, min_value);
+        -:  187:      }
+        -:  188:    } else {                   // brange > range
+        -:  189:#ifdef BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+        -:  190:      typedef typename mpl::if_c<
+        -:  191:         std::numeric_limits<range_type>::is_specialized && std::numeric_limits<base_unsigned>::is_specialized
+        -:  192:         && (std::numeric_limits<range_type>::digits >= std::numeric_limits<base_unsigned>::digits),
+        -:  193:         range_type, base_unsigned>::type mixed_range_type;
+        -:  194:#else
+        -:  195:      typedef base_unsigned mixed_range_type;
+        -:  196:#endif
+        -:  197:
+        -:  198:      mixed_range_type bucket_size;
+        -:  199:      // it's safe to add 1 to range, as long as we cast it first,
+        -:  200:      // because we know that it is less than brange.  However,
+        -:  201:      // we do need to be careful not to cause overflow by adding 1
+        -:  202:      // to brange.  We use mixed_range_type throughout for mixed
+        -:  203:      // arithmetic between base_unsigned and range_type - in the case
+        -:  204:      // that range_type has more bits than base_unsigned it is always
+        -:  205:      // safe to use range_type for this albeit it may be more effient
+        -:  206:      // to use base_unsigned.  The latter is a narrowing conversion though
+        -:  207:      // which may be disallowed if range_type is a multiprecision type
+        -:  208:      // and there are no explicit converison operators.
+        -:  209:
+        -:  210:      if(brange == (std::numeric_limits<base_unsigned>::max)()) {
+    #####:  211:        bucket_size = static_cast<mixed_range_type>(brange) / (static_cast<mixed_range_type>(range)+1);
+    #####:  212:        if(static_cast<mixed_range_type>(brange) % (static_cast<mixed_range_type>(range)+1) == static_cast<mixed_range_type>(range)) {
+    #####:  213:          ++bucket_size;
+        -:  214:        }
+        -:  215:      } else {
+        -:  216:        bucket_size = static_cast<mixed_range_type>(brange + 1) / (static_cast<mixed_range_type>(range)+1);
+        -:  217:      }
+        -:  218:      for(;;) {
+        -:  219:        mixed_range_type result =
+    #####:  220:          random::detail::subtract<base_result>()(eng(), bmin);
+    #####:  221:        result /= bucket_size;
+        -:  222:        // result and range are non-negative, and result is possibly larger
+        -:  223:        // than range, so the cast is safe
+    #####:  224:        if(result <= static_cast<mixed_range_type>(range))
+    #####:  225:          return random::detail::add<mixed_range_type, result_type>()(result, min_value);
+        -:  226:      }
+        -:  227:    }
+    #####:  228:}
+        -:  229:
+        -:  230:#ifdef BOOST_MSVC
+        -:  231:#pragma warning(pop)
+        -:  232:#endif
+        -:  233:
+        -:  234:template<class Engine, class T>
+        -:  235:inline T generate_uniform_int(
+        -:  236:    Engine& eng, T min_value, T max_value,
+        -:  237:    boost::mpl::false_ /** is_integral<Engine::result_type> */)
+        -:  238:{
+        -:  239:    uniform_int_float<Engine> wrapper(eng);
+        -:  240:    return generate_uniform_int(wrapper, min_value, max_value, boost::mpl::true_());
+        -:  241:}
+        -:  242:
+        -:  243:template<class Engine, class T>
+    #####:  244:inline T generate_uniform_int(Engine& eng, T min_value, T max_value)
+        -:  245:{
+        -:  246:    typedef typename Engine::result_type base_result;
+        -:  247:    return generate_uniform_int(eng, min_value, max_value,
+    #####:  248:        boost::random::traits::is_integral<base_result>());
+        -:  249:}
+        -:  250:
+        -:  251:}
+        -:  252:
+        -:  253:/**
+        -:  254: * The class template uniform_int_distribution models a \random_distribution.
+        -:  255: * On each invocation, it returns a random integer value uniformly
+        -:  256: * distributed in the set of integers {min, min+1, min+2, ..., max}.
+        -:  257: *
+        -:  258: * The template parameter IntType shall denote an integer-like value type.
+        -:  259: */
+        -:  260:template<class IntType = int>
+    #####:  261:class uniform_int_distribution
+        -:  262:{
+        -:  263:public:
+        -:  264:    typedef IntType input_type;
+        -:  265:    typedef IntType result_type;
+        -:  266:
+        -:  267:    class param_type
+        -:  268:    {
+        -:  269:    public:
+        -:  270:
+        -:  271:        typedef uniform_int_distribution distribution_type;
+        -:  272:
+        -:  273:        /**
+        -:  274:         * Constructs the parameters of a uniform_int_distribution.
+        -:  275:         *
+        -:  276:         * Requires min <= max
+        -:  277:         */
+        -:  278:        explicit param_type(
+        -:  279:            IntType min_arg = 0,
+        -:  280:            IntType max_arg = (std::numeric_limits<IntType>::max)())
+        -:  281:          : _min(min_arg), _max(max_arg)
+        -:  282:        {
+        -:  283:            BOOST_ASSERT(_min <= _max);
+        -:  284:        }
+        -:  285:
+        -:  286:        /** Returns the minimum value of the distribution. */
+        -:  287:        IntType a() const { return _min; }
+        -:  288:        /** Returns the maximum value of the distribution. */
+        -:  289:        IntType b() const { return _max; }
+        -:  290:
+        -:  291:        /** Writes the parameters to a @c std::ostream. */
+        -:  292:        BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, param_type, parm)
+        -:  293:        {
+        -:  294:            os << parm._min << " " << parm._max;
+        -:  295:            return os;
+        -:  296:        }
+        -:  297:
+        -:  298:        /** Reads the parameters from a @c std::istream. */
+        -:  299:        BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, param_type, parm)
+        -:  300:        {
+        -:  301:            IntType min_in, max_in;
+        -:  302:            if(is >> min_in >> std::ws >> max_in) {
+        -:  303:                if(min_in <= max_in) {
+        -:  304:                    parm._min = min_in;
+        -:  305:                    parm._max = max_in;
+        -:  306:                } else {
+        -:  307:                    is.setstate(std::ios_base::failbit);
+        -:  308:                }
+        -:  309:            }
+        -:  310:            return is;
+        -:  311:        }
+        -:  312:
+        -:  313:        /** Returns true if the two sets of parameters are equal. */
+        -:  314:        BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(param_type, lhs, rhs)
+        -:  315:        { return lhs._min == rhs._min && lhs._max == rhs._max; }
+        -:  316:
+        -:  317:        /** Returns true if the two sets of parameters are different. */
+        -:  318:        BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(param_type)
+        -:  319:
+        -:  320:    private:
+        -:  321:
+        -:  322:        IntType _min;
+        -:  323:        IntType _max;
+        -:  324:    };
+        -:  325:
+        -:  326:    /**
+        -:  327:     * Constructs a uniform_int_distribution. @c min and @c max are
+        -:  328:     * the parameters of the distribution.
+        -:  329:     *
+        -:  330:     * Requires: min <= max
+        -:  331:     */
+    #####:  332:    explicit uniform_int_distribution(
+        -:  333:        IntType min_arg = 0,
+        -:  334:        IntType max_arg = (std::numeric_limits<IntType>::max)())
+    #####:  335:      : _min(min_arg), _max(max_arg)
+        -:  336:    {
+    #####:  337:        BOOST_ASSERT(min_arg <= max_arg);
+    #####:  338:    }
+        -:  339:    /** Constructs a uniform_int_distribution from its parameters. */
+        -:  340:    explicit uniform_int_distribution(const param_type& parm)
+        -:  341:      : _min(parm.a()), _max(parm.b()) {}
+        -:  342:
+        -:  343:    /**  Returns the minimum value of the distribution */
+        -:  344:    IntType min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
+        -:  345:    /**  Returns the maximum value of the distribution */
+        -:  346:    IntType max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
+        -:  347:
+        -:  348:    /**  Returns the minimum value of the distribution */
+        -:  349:    IntType a() const { return _min; }
+        -:  350:    /**  Returns the maximum value of the distribution */
+        -:  351:    IntType b() const { return _max; }
+        -:  352:
+        -:  353:    /** Returns the parameters of the distribution. */
+        -:  354:    param_type param() const { return param_type(_min, _max); }
+        -:  355:    /** Sets the parameters of the distribution. */
+        -:  356:    void param(const param_type& parm)
+        -:  357:    {
+        -:  358:        _min = parm.a();
+        -:  359:        _max = parm.b();
+        -:  360:    }
+        -:  361:
+        -:  362:    /**
+        -:  363:     * Effects: Subsequent uses of the distribution do not depend
+        -:  364:     * on values produced by any engine prior to invoking reset.
+        -:  365:     */
+        -:  366:    void reset() { }
+        -:  367:
+        -:  368:    /** Returns an integer uniformly distributed in the range [min, max]. */
+        -:  369:    template<class Engine>
+    #####:  370:    result_type operator()(Engine& eng) const
+    #####:  371:    { return detail::generate_uniform_int(eng, _min, _max); }
+        -:  372:
+        -:  373:    /**
+        -:  374:     * Returns an integer uniformly distributed in the range
+        -:  375:     * [param.a(), param.b()].
+        -:  376:     */
+        -:  377:    template<class Engine>
+        -:  378:    result_type operator()(Engine& eng, const param_type& parm) const
+        -:  379:    { return detail::generate_uniform_int(eng, parm.a(), parm.b()); }
+        -:  380:
+        -:  381:    /** Writes the distribution to a @c std::ostream. */
+        -:  382:    BOOST_RANDOM_DETAIL_OSTREAM_OPERATOR(os, uniform_int_distribution, ud)
+        -:  383:    {
+        -:  384:        os << ud.param();
+        -:  385:        return os;
+        -:  386:    }
+        -:  387:
+        -:  388:    /** Reads the distribution from a @c std::istream. */
+        -:  389:    BOOST_RANDOM_DETAIL_ISTREAM_OPERATOR(is, uniform_int_distribution, ud)
+        -:  390:    {
+        -:  391:        param_type parm;
+        -:  392:        if(is >> parm) {
+        -:  393:            ud.param(parm);
+        -:  394:        }
+        -:  395:        return is;
+        -:  396:    }
+        -:  397:
+        -:  398:    /**
+        -:  399:     * Returns true if the two distributions will produce identical sequences
+        -:  400:     * of values given equal generators.
+        -:  401:     */
+        -:  402:    BOOST_RANDOM_DETAIL_EQUALITY_OPERATOR(uniform_int_distribution, lhs, rhs)
+        -:  403:    { return lhs._min == rhs._min && lhs._max == rhs._max; }
+        -:  404:    
+        -:  405:    /**
+        -:  406:     * Returns true if the two distributions may produce different sequences
+        -:  407:     * of values given equal generators.
+        -:  408:     */
+        -:  409:    BOOST_RANDOM_DETAIL_INEQUALITY_OPERATOR(uniform_int_distribution)
+        -:  410:
+        -:  411:private:
+        -:  412:    IntType _min;
+        -:  413:    IntType _max;
+        -:  414:};
+        -:  415:
+        -:  416:} // namespace random
+        -:  417:} // namespace boost
+        -:  418:
+        -:  419:#endif // BOOST_RANDOM_UNIFORM_INT_HPP

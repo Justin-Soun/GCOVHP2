@@ -1,0 +1,298 @@
+        -:    0:Source:/usr/include/boost/lexical_cast/detail/lcast_unsigned_converters.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:// Copyright Kevlin Henney, 2000-2005.
+        -:    2:// Copyright Alexander Nasonov, 2006-2010.
+        -:    3:// Copyright Antony Polukhin, 2011-2020.
+        -:    4://
+        -:    5:// Distributed under the Boost Software License, Version 1.0. (See
+        -:    6:// accompanying file LICENSE_1_0.txt or copy at
+        -:    7:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    8://
+        -:    9:// what:  lexical_cast custom keyword cast
+        -:   10:// who:   contributed by Kevlin Henney,
+        -:   11://        enhanced with contributions from Terje Slettebo,
+        -:   12://        with additional fixes and suggestions from Gennaro Prota,
+        -:   13://        Beman Dawes, Dave Abrahams, Daryle Walker, Peter Dimov,
+        -:   14://        Alexander Nasonov, Antony Polukhin, Justin Viiret, Michael Hofmann,
+        -:   15://        Cheng Yang, Matthew Bradbury, David W. Birdsall, Pavel Korzh and other Boosters
+        -:   16:// when:  November 2000, March 2003, June 2005, June 2006, March 2011 - 2014
+        -:   17:
+        -:   18:#ifndef BOOST_LEXICAL_CAST_DETAIL_LCAST_UNSIGNED_CONVERTERS_HPP
+        -:   19:#define BOOST_LEXICAL_CAST_DETAIL_LCAST_UNSIGNED_CONVERTERS_HPP
+        -:   20:
+        -:   21:#include <boost/config.hpp>
+        -:   22:#ifdef BOOST_HAS_PRAGMA_ONCE
+        -:   23:#   pragma once
+        -:   24:#endif
+        -:   25:
+        -:   26:#include <climits>
+        -:   27:#include <cstddef>
+        -:   28:#include <string>
+        -:   29:#include <cstring>
+        -:   30:#include <cstdio>
+        -:   31:#include <boost/limits.hpp>
+        -:   32:#include <boost/type_traits/conditional.hpp>
+        -:   33:#include <boost/static_assert.hpp>
+        -:   34:#include <boost/detail/workaround.hpp>
+        -:   35:
+        -:   36:
+        -:   37:#ifndef BOOST_NO_STD_LOCALE
+        -:   38:#   include <locale>
+        -:   39:#else
+        -:   40:#   ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+        -:   41:        // Getting error at this point means, that your STL library is old/lame/misconfigured.
+        -:   42:        // If nothing can be done with STL library, define BOOST_LEXICAL_CAST_ASSUME_C_LOCALE,
+        -:   43:        // but beware: lexical_cast will understand only 'C' locale delimeters and thousands
+        -:   44:        // separators.
+        -:   45:#       error "Unable to use <locale> header. Define BOOST_LEXICAL_CAST_ASSUME_C_LOCALE to force "
+        -:   46:#       error "boost::lexical_cast to use only 'C' locale during conversions."
+        -:   47:#   endif
+        -:   48:#endif
+        -:   49:
+        -:   50:#include <boost/lexical_cast/detail/lcast_char_constants.hpp>
+        -:   51:#include <boost/type_traits/make_unsigned.hpp>
+        -:   52:#include <boost/type_traits/is_signed.hpp>
+        -:   53:#include <boost/noncopyable.hpp>
+        -:   54:
+        -:   55:namespace boost 
+        -:   56:{
+        -:   57:    namespace detail // lcast_to_unsigned
+        -:   58:    {
+        -:   59:        template<class T>
+        -:   60:        inline
+        -:   61:        BOOST_DEDUCED_TYPENAME boost::make_unsigned<T>::type lcast_to_unsigned(const T value) BOOST_NOEXCEPT {
+        -:   62:            typedef BOOST_DEDUCED_TYPENAME boost::make_unsigned<T>::type result_type;
+        -:   63:            return value < 0 
+        -:   64:                ? static_cast<result_type>(0u - static_cast<result_type>(value)) 
+        -:   65:                : static_cast<result_type>(value);
+        -:   66:        }
+        -:   67:    }
+        -:   68:
+        -:   69:    namespace detail // lcast_put_unsigned
+        -:   70:    {
+        -:   71:        template <class Traits, class T, class CharT>
+        -:   72:        class lcast_put_unsigned: boost::noncopyable {
+        -:   73:            typedef BOOST_DEDUCED_TYPENAME Traits::int_type int_type;
+        -:   74:            BOOST_DEDUCED_TYPENAME boost::conditional<
+        -:   75:                    (sizeof(unsigned) > sizeof(T))
+        -:   76:                    , unsigned
+        -:   77:                    , T
+        -:   78:            >::type         m_value;
+        -:   79:            CharT*          m_finish;
+        -:   80:            CharT    const  m_czero;
+        -:   81:            int_type const  m_zero;
+        -:   82:
+        -:   83:        public:
+        1:   84:            lcast_put_unsigned(const T n_param, CharT* finish) BOOST_NOEXCEPT 
+        1:   85:                : m_value(n_param), m_finish(finish)
+        1:   86:                , m_czero(lcast_char_constants<CharT>::zero), m_zero(Traits::to_int_type(m_czero))
+        -:   87:            {
+        -:   88:#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+        -:   89:                BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+        -:   90:#endif
+        -:   91:            }
+        -:   92:
+        1:   93:            CharT* convert() {
+        -:   94:#ifndef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+        1:   95:                std::locale loc;
+        1:   96:                if (loc == std::locale::classic()) {
+        1:   97:                    return main_convert_loop();
+        -:   98:                }
+        -:   99:
+        -:  100:                typedef std::numpunct<CharT> numpunct;
+    #####:  101:                numpunct const& np = BOOST_USE_FACET(numpunct, loc);
+    #####:  102:                std::string const grouping = np.grouping();
+    #####:  103:                std::string::size_type const grouping_size = grouping.size();
+        -:  104:
+    #####:  105:                if (!grouping_size || grouping[0] <= 0) {
+    #####:  106:                    return main_convert_loop();
+        -:  107:                }
+        -:  108:
+        -:  109:#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+        -:  110:                // Check that ulimited group is unreachable:
+        -:  111:                BOOST_STATIC_ASSERT(std::numeric_limits<T>::digits10 < CHAR_MAX);
+        -:  112:#endif
+    #####:  113:                CharT const thousands_sep = np.thousands_sep();
+    #####:  114:                std::string::size_type group = 0; // current group number
+    #####:  115:                char last_grp_size = grouping[0];
+    #####:  116:                char left = last_grp_size;
+        -:  117:
+        -:  118:                do {
+    #####:  119:                    if (left == 0) {
+    #####:  120:                        ++group;
+    #####:  121:                        if (group < grouping_size) {
+    #####:  122:                            char const grp_size = grouping[group];
+    #####:  123:                            last_grp_size = (grp_size <= 0 ? static_cast<char>(CHAR_MAX) : grp_size);
+        -:  124:                        }
+        -:  125:
+    #####:  126:                        left = last_grp_size;
+    #####:  127:                        --m_finish;
+    #####:  128:                        Traits::assign(*m_finish, thousands_sep);
+        -:  129:                    }
+        -:  130:
+    #####:  131:                    --left;
+    #####:  132:                } while (main_convert_iteration());
+        -:  133:
+    #####:  134:                return m_finish;
+        -:  135:#else
+        -:  136:                return main_convert_loop();
+        -:  137:#endif
+        1:  138:            }
+        -:  139:
+        -:  140:        private:
+       4*:  141:            inline bool main_convert_iteration() BOOST_NOEXCEPT {
+       4*:  142:                --m_finish;
+       4*:  143:                int_type const digit = static_cast<int_type>(m_value % 10U);
+    #####:  144:                Traits::assign(*m_finish, Traits::to_char_type(m_zero + digit));
+       4*:  145:                m_value /= 10;
+        -:  146:                return !!m_value; // suppressing warnings
+        -:  147:            }
+        -:  148:
+        1:  149:            inline CharT* main_convert_loop() BOOST_NOEXCEPT {
+        4:  150:                while (main_convert_iteration());
+        1:  151:                return m_finish;
+        -:  152:            }
+        -:  153:        };
+        -:  154:    }
+        -:  155:
+        -:  156:    namespace detail // lcast_ret_unsigned
+        -:  157:    {
+        -:  158:        template <class Traits, class T, class CharT>
+        -:  159:        class lcast_ret_unsigned: boost::noncopyable {
+        -:  160:            bool m_multiplier_overflowed;
+        -:  161:            T m_multiplier;
+        -:  162:            T& m_value;
+        -:  163:            const CharT* const m_begin;
+        -:  164:            const CharT* m_end;
+        -:  165:    
+        -:  166:        public:
+        -:  167:            lcast_ret_unsigned(T& value, const CharT* const begin, const CharT* end) BOOST_NOEXCEPT
+        -:  168:                : m_multiplier_overflowed(false), m_multiplier(1), m_value(value), m_begin(begin), m_end(end)
+        -:  169:            {
+        -:  170:#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
+        -:  171:                BOOST_STATIC_ASSERT(!std::numeric_limits<T>::is_signed);
+        -:  172:
+        -:  173:                // GCC when used with flag -std=c++0x may not have std::numeric_limits
+        -:  174:                // specializations for __int128 and unsigned __int128 types.
+        -:  175:                // Try compilation with -std=gnu++0x or -std=gnu++11.
+        -:  176:                //
+        -:  177:                // http://gcc.gnu.org/bugzilla/show_bug.cgi?id=40856
+        -:  178:                BOOST_STATIC_ASSERT_MSG(std::numeric_limits<T>::is_specialized,
+        -:  179:                    "std::numeric_limits are not specialized for integral type passed to boost::lexical_cast"
+        -:  180:                );
+        -:  181:#endif
+        -:  182:            }
+        -:  183:
+        -:  184:            inline bool convert() {
+        -:  185:                CharT const czero = lcast_char_constants<CharT>::zero;
+        -:  186:                --m_end;
+        -:  187:                m_value = static_cast<T>(0);
+        -:  188:
+        -:  189:                if (m_begin > m_end || *m_end < czero || *m_end >= czero + 10)
+        -:  190:                    return false;
+        -:  191:                m_value = static_cast<T>(*m_end - czero);
+        -:  192:                --m_end;
+        -:  193:
+        -:  194:#ifdef BOOST_LEXICAL_CAST_ASSUME_C_LOCALE
+        -:  195:                return main_convert_loop();
+        -:  196:#else
+        -:  197:                std::locale loc;
+        -:  198:                if (loc == std::locale::classic()) {
+        -:  199:                    return main_convert_loop();
+        -:  200:                }
+        -:  201:
+        -:  202:                typedef std::numpunct<CharT> numpunct;
+        -:  203:                numpunct const& np = BOOST_USE_FACET(numpunct, loc);
+        -:  204:                std::string const& grouping = np.grouping();
+        -:  205:                std::string::size_type const grouping_size = grouping.size();
+        -:  206:
+        -:  207:                /* According to Programming languages - C++
+        -:  208:                 * we MUST check for correct grouping
+        -:  209:                 */
+        -:  210:                if (!grouping_size || grouping[0] <= 0) {
+        -:  211:                    return main_convert_loop();
+        -:  212:                }
+        -:  213:
+        -:  214:                unsigned char current_grouping = 0;
+        -:  215:                CharT const thousands_sep = np.thousands_sep();
+        -:  216:                char remained = static_cast<char>(grouping[current_grouping] - 1);
+        -:  217:
+        -:  218:                for (;m_end >= m_begin; --m_end)
+        -:  219:                {
+        -:  220:                    if (remained) {
+        -:  221:                        if (!main_convert_iteration()) {
+        -:  222:                            return false;
+        -:  223:                        }
+        -:  224:                        --remained;
+        -:  225:                    } else {
+        -:  226:                        if ( !Traits::eq(*m_end, thousands_sep) ) //|| begin == end ) return false;
+        -:  227:                        {
+        -:  228:                            /*
+        -:  229:                             * According to Programming languages - C++
+        -:  230:                             * Digit grouping is checked. That is, the positions of discarded
+        -:  231:                             * separators is examined for consistency with
+        -:  232:                             * use_facet<numpunct<charT> >(loc ).grouping()
+        -:  233:                             *
+        -:  234:                             * BUT what if there is no separators at all and grouping()
+        -:  235:                             * is not empty? Well, we have no extraced separators, so we
+        -:  236:                             * won`t check them for consistency. This will allow us to
+        -:  237:                             * work with "C" locale from other locales
+        -:  238:                             */
+        -:  239:                            return main_convert_loop();
+        -:  240:                        } else {
+        -:  241:                            if (m_begin == m_end) return false;
+        -:  242:                            if (current_grouping < grouping_size - 1) ++current_grouping;
+        -:  243:                            remained = grouping[current_grouping];
+        -:  244:                        }
+        -:  245:                    }
+        -:  246:                } /*for*/
+        -:  247:
+        -:  248:                return true;
+        -:  249:#endif
+        -:  250:            }
+        -:  251:
+        -:  252:        private:
+        -:  253:            // Iteration that does not care about grouping/separators and assumes that all 
+        -:  254:            // input characters are digits
+        -:  255:            inline bool main_convert_iteration() BOOST_NOEXCEPT {
+        -:  256:                CharT const czero = lcast_char_constants<CharT>::zero;
+        -:  257:                T const maxv = (std::numeric_limits<T>::max)();
+        -:  258:
+        -:  259:                m_multiplier_overflowed = m_multiplier_overflowed || (maxv/10 < m_multiplier);
+        -:  260:                m_multiplier = static_cast<T>(m_multiplier * 10);
+        -:  261:
+        -:  262:                T const dig_value = static_cast<T>(*m_end - czero);
+        -:  263:                T const new_sub_value = static_cast<T>(m_multiplier * dig_value);
+        -:  264:
+        -:  265:                // We must correctly handle situations like `000000000000000000000000000001`.
+        -:  266:                // So we take care of overflow only if `dig_value` is not '0'.
+        -:  267:                if (*m_end < czero || *m_end >= czero + 10  // checking for correct digit
+        -:  268:                    || (dig_value && (                      // checking for overflow of ... 
+        -:  269:                        m_multiplier_overflowed                             // ... multiplier
+        -:  270:                        || static_cast<T>(maxv / dig_value) < m_multiplier  // ... subvalue
+        -:  271:                        || static_cast<T>(maxv - new_sub_value) < m_value   // ... whole expression
+        -:  272:                    ))
+        -:  273:                ) return false;
+        -:  274:
+        -:  275:                m_value = static_cast<T>(m_value + new_sub_value);
+        -:  276:                
+        -:  277:                return true;
+        -:  278:            }
+        -:  279:
+        -:  280:            bool main_convert_loop() BOOST_NOEXCEPT {
+        -:  281:                for ( ; m_end >= m_begin; --m_end) {
+        -:  282:                    if (!main_convert_iteration()) {
+        -:  283:                        return false;
+        -:  284:                    }
+        -:  285:                }
+        -:  286:            
+        -:  287:                return true;
+        -:  288:            }
+        -:  289:        };
+        -:  290:    }
+        -:  291:} // namespace boost
+        -:  292:
+        -:  293:#endif // BOOST_LEXICAL_CAST_DETAIL_LCAST_UNSIGNED_CONVERTERS_HPP
+        -:  294:

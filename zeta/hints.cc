@@ -12,15 +12,41 @@ using namespace std;
 #include "functions.h"
 #include "test.h"
 
-void testIsPrime();
+void testIsPrime1();
+void testIsPrime2();
+void testIsPrime3();
+void testIsPrime4();
+void testCalculateSum();
 
 int main(){
-  testIsPrime();
+  testIsPrime1();
+  testIsPrime2();
+  testIsPrime3();
+  testIsPrime4();
+  testCalculateSum();
 
   return 0;
 }
 
-void testIsPrime(){
-  assertTrue(isPrime(10) == miller_rabin_test(10,1),
-             "isPrime(10)=")
+void testIsPrime1(){
+  assertTrue(isPrime(10) == 0,
+             "isPrime(10) = 0")
 }
+
+void testIsPrime2(){
+  assertTrue(isPrime(97) == 1,
+             "isPrime(97) = 1")
+}
+
+void testIsPrime3(){
+  assertTrue(isPrime(198722) == 0,
+             "isPrime(198722) = 0")
+}
+
+void testIsPrime4(){
+  assertTrue(isPrime(1987) == 1,
+             "isPrime(1987) = 1")
+}
+
+void testCalculateSum(){
+	assertTrue(

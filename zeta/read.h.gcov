@@ -1,0 +1,156 @@
+        -:    0:Source:/public/read.h
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1://read.h - a tiny header-only library to allow input in C++ to be more sensible
+        -:    2://by ShakaUVM
+        -:    3:#ifndef READ_SHAKAUVM_H
+        -:    4:#define READ_SHAKAUVM_H
+        -:    5:#include <iostream> // IWYU pragma: export
+        -:    6:#include <fstream>  // IWYU pragma: export
+        -:    7:#include <string>   // IWYU pragma: export
+        -:    8:
+        -:    9://Read a T from cin, reprompting if they type in something wrong
+        -:   10://Examples:
+        -:   11://int x = read<int>();
+        -:   12://const int x = read<int>("Please enter an int");
+        -:   13://string s = read<string>("What is your name?");
+        -:   14:template<class T>
+        -:   15:inline T read(const std::string prompt = "") {
+        -:   16:	while (true) {
+        -:   17:		if (std::cin.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:   18:			return T(); //Alternatively, we could throw an exception
+        -:   19:		T retval;
+        -:   20:		std::cout << prompt;
+        -:   21:		std::cin >> retval;
+        -:   22:		if (!std::cin) {
+        -:   23:			std::cin.clear(); //Clear error code
+        -:   24:			std::string s;
+        -:   25:			std::cin >> s; //Remove the word that caused the error
+        -:   26:			continue;
+        -:   27:		}
+        -:   28:		return retval;
+        -:   29:	}
+        -:   30:}
+        -:   31:
+        -:   32://Read a T from a file, so no prompt
+        -:   33://Example:
+        -:   34://auto d = read<double>(file);
+        -:   35:template<class T>
+        -:   36:inline T read(std::istream &ins) {
+        -:   37:	while (true) {
+        -:   38:		if (ins.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:   39:			return T();
+        -:   40:		T retval;
+        -:   41:		ins >> retval;
+        -:   42:		if (!ins) {
+        -:   43:			ins.clear(); //Clear error code
+        -:   44:			std::string s;
+        -:   45:			ins >> s; //Remove the word that caused the error
+        -:   46:			continue;
+        -:   47:		}
+        -:   48:		return retval;
+        -:   49:	}
+        -:   50:}
+        -:   51:
+        -:   52://Reads a whole line of text, analogue to getline
+        -:   53:inline std::string readline(const std::string prompt = "", char delimiter = '\n') {
+        -:   54:	//Eliminate a common bug when switching from >> to getline, the >> will leave a newline in the input buffer
+        -:   55:	std::string retval;
+        -:   56:	std::cout << prompt;
+        -:   57:	std::cin >> std::ws;
+        -:   58:	std::getline(std::cin,retval,delimiter);
+        -:   59:	if (std::cin.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:   60:		return retval;
+        -:   61:	//if (!std::cin)
+        -:   62:		//throw std::runtime_error("Error within the readline function.");
+        -:   63:	return retval;
+        -:   64:}
+        -:   65:
+        -:   66://Getline equivalent for reading from a file
+        -:   67:inline std::string readline(std::istream &ins, char delimiter = '\n') {
+        -:   68:	std::string retval;
+        -:   69:	ins >> std::ws;
+        -:   70:	std::getline(ins,retval,delimiter);
+        -:   71:	if (ins.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:   72:		return retval;
+        -:   73:	//if (!ins)
+        -:   74:		//throw std::runtime_error("Error within the readline function.");
+        -:   75:	return retval;
+        -:   76:}
+        -:   77:
+        -:   78://To use read_opt requires C++17 and above
+        -:   79:#if __cplusplus >= 201703L
+        -:   80:#include <optional>
+        -:   81://Returns an optional. So if your specified type is not read, the caller will know this rather than silently discarding the error
+        -:   82://Recommended for more advanced programmers than read()
+        -:   83://If an error occurs, it does not affect the input stream at all and clears the failbit
+        -:   84:// Example:
+        -:   85:// auto a = read_opt<int>(); 
+        -:   86:// if (!a) exit(EXIT_FAILURE);
+        -:   87:// cout << *a << endl;
+        -:   88:template<class T>
+        -:   89:inline std::optional<T> read_opt(const std::string prompt = "") {
+        -:   90:	if (std::cin.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:   91:		return std::nullopt;  //Return that nothing was read
+        -:   92:	T retval{};
+        -:   93:	std::cout << prompt;
+        -:   94:	std::cin >> retval;
+        -:   95:	if (!std::cin) {
+        -:   96:		std::cin.clear(); //Clear error code, so the user can try again when they like
+        -:   97:		return std::nullopt;  //Return that nothing was read
+        -:   98:	}
+        -:   99:	return retval;
+        -:  100:}
+        -:  101:
+        -:  102://This version reads from a file, so no prompt
+        -:  103://Like the other read_opt, returns nullopt if it didn't read what was expected
+        -:  104:template<class T>
+        -:  105:inline std::optional<T> read_opt(std::istream &ins) {
+        -:  106:	if (ins.eof()) //We reached the end of file, or the user hit ctrl-d
+        -:  107:		return std::nullopt;  //Return that nothing was read
+        -:  108:	T retval{};
+        -:  109:	ins >> retval;
+        -:  110:	if (!ins) {
+        -:  111:		ins.clear(); //Clear error code, so the user can try again when they like
+        -:  112:		return std::nullopt;  //Return that nothing was read
+        -:  113:	}
+        -:  114:	return retval;
+        -:  115:}
+        -:  116://End requiring C++17 and above
+        -:  117:#endif
+        -:  118:
+        -:  119://Simplest read possible: int x = read();
+        -:  120://Credit: /u/9cantthinkofgoodname, modified to support C++98 by Mikadore
+        -:  121://However, int x = read(ins) is about 20% slower than using read<int>(ins), though
+        -:  122://There's probably some template tricks we can use to eliminate the while loop when reading from a file
+        2:  123:struct Reader {
+        2:  124:	Reader(std::istream& ins_, const std::string& prompt_) : ins(ins_), prompt(prompt_) {}
+        -:  125:	template<class T>
+        2:  126:		operator T() {
+    #####:  127:			while(true) {
+        2:  128:				if(ins.eof()) //We reached the end of file, or the user hit ctrl-d
+        2:  129:					return T(); //Alternatively, we could throw an exception
+        2:  130:				T retval;
+        2:  131:				std::cout << prompt;
+        2:  132:				ins >> retval; //If this fails, it's because you need a operator>> defined for your type
+        2:  133:				if(!ins) {
+    #####:  134:					ins.clear(); //Clear error code
+    #####:  135:					std::string s;
+    #####:  136:					ins >> s; //Remove the word that caused the error
+        -:  137:					continue;
+    #####:  138:				}
+        2:  139:				return retval;
+        -:  140:			}
+        -:  141:		}
+        -:  142:	std::istream &ins;
+        -:  143:	const std::string prompt;
+        -:  144:};
+        -:  145:
+        2:  146:inline Reader read(const std::string prompt = "") {
+        2:  147:	return Reader(std::cin,prompt);
+        -:  148:}
+        -:  149:inline Reader read(std::istream &ins) {
+        -:  150:	return Reader(ins,"");
+        -:  151:}
+        -:  152:#endif

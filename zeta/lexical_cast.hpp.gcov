@@ -1,0 +1,109 @@
+        -:    0:Source:/usr/include/boost/lexical_cast.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:// Copyright Kevlin Henney, 2000-2005.
+        -:    2:// Copyright Alexander Nasonov, 2006-2010.
+        -:    3:// Copyright Antony Polukhin, 2011-2020.
+        -:    4://
+        -:    5:// Distributed under the Boost Software License, Version 1.0. (See
+        -:    6:// accompanying file LICENSE_1_0.txt or copy at
+        -:    7:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    8://
+        -:    9:// what:  lexical_cast custom keyword cast
+        -:   10:// who:   contributed by Kevlin Henney,
+        -:   11://        enhanced with contributions from Terje Slettebo,
+        -:   12://        with additional fixes and suggestions from Gennaro Prota,
+        -:   13://        Beman Dawes, Dave Abrahams, Daryle Walker, Peter Dimov,
+        -:   14://        Alexander Nasonov, Antony Polukhin, Justin Viiret, Michael Hofmann,
+        -:   15://        Cheng Yang, Matthew Bradbury, David W. Birdsall, Pavel Korzh and other Boosters
+        -:   16:// when:  November 2000, March 2003, June 2005, June 2006, March 2011 - 2014
+        -:   17:
+        -:   18:#ifndef BOOST_LEXICAL_CAST_INCLUDED
+        -:   19:#define BOOST_LEXICAL_CAST_INCLUDED
+        -:   20:
+        -:   21:#include <boost/config.hpp>
+        -:   22:#ifdef BOOST_HAS_PRAGMA_ONCE
+        -:   23:#   pragma once
+        -:   24:#endif
+        -:   25:
+        -:   26:#if defined(BOOST_NO_STRINGSTREAM) || defined(BOOST_NO_STD_WSTRING)
+        -:   27:#define BOOST_LCAST_NO_WCHAR_T
+        -:   28:#endif
+        -:   29:
+        -:   30:#include <boost/range/iterator_range_core.hpp>
+        -:   31:#include <boost/lexical_cast/bad_lexical_cast.hpp>
+        -:   32:#include <boost/lexical_cast/try_lexical_convert.hpp>
+        -:   33:
+        -:   34:namespace boost 
+        -:   35:{
+        -:   36:    template <typename Target, typename Source>
+        1:   37:    inline Target lexical_cast(const Source &arg)
+        -:   38:    {
+        1:   39:        Target result = Target();
+        -:   40:
+        1:   41:        if (!boost::conversion::detail::try_lexical_convert(arg, result)) {
+    #####:   42:            boost::conversion::detail::throw_bad_cast<Source, Target>();
+        -:   43:        }
+        -:   44:
+        1:   45:        return result;
+    =====:   46:    }
+        -:   47:
+        -:   48:    template <typename Target>
+        -:   49:    inline Target lexical_cast(const char* chars, std::size_t count)
+        -:   50:    {
+        -:   51:        return ::boost::lexical_cast<Target>(
+        -:   52:            ::boost::iterator_range<const char*>(chars, chars + count)
+        -:   53:        );
+        -:   54:    }
+        -:   55:
+        -:   56:    template <typename Target>
+        -:   57:    inline Target lexical_cast(const unsigned char* chars, std::size_t count)
+        -:   58:    {
+        -:   59:        return ::boost::lexical_cast<Target>(
+        -:   60:            ::boost::iterator_range<const unsigned char*>(chars, chars + count)
+        -:   61:        );
+        -:   62:    }
+        -:   63:
+        -:   64:    template <typename Target>
+        -:   65:    inline Target lexical_cast(const signed char* chars, std::size_t count)
+        -:   66:    {
+        -:   67:        return ::boost::lexical_cast<Target>(
+        -:   68:            ::boost::iterator_range<const signed char*>(chars, chars + count)
+        -:   69:        );
+        -:   70:    }
+        -:   71:
+        -:   72:#ifndef BOOST_LCAST_NO_WCHAR_T
+        -:   73:    template <typename Target>
+        -:   74:    inline Target lexical_cast(const wchar_t* chars, std::size_t count)
+        -:   75:    {
+        -:   76:        return ::boost::lexical_cast<Target>(
+        -:   77:            ::boost::iterator_range<const wchar_t*>(chars, chars + count)
+        -:   78:        );
+        -:   79:    }
+        -:   80:#endif
+        -:   81:#ifndef BOOST_NO_CXX11_CHAR16_T
+        -:   82:    template <typename Target>
+        -:   83:    inline Target lexical_cast(const char16_t* chars, std::size_t count)
+        -:   84:    {
+        -:   85:        return ::boost::lexical_cast<Target>(
+        -:   86:            ::boost::iterator_range<const char16_t*>(chars, chars + count)
+        -:   87:        );
+        -:   88:    }
+        -:   89:#endif
+        -:   90:#ifndef BOOST_NO_CXX11_CHAR32_T
+        -:   91:    template <typename Target>
+        -:   92:    inline Target lexical_cast(const char32_t* chars, std::size_t count)
+        -:   93:    {
+        -:   94:        return ::boost::lexical_cast<Target>(
+        -:   95:            ::boost::iterator_range<const char32_t*>(chars, chars + count)
+        -:   96:        );
+        -:   97:    }
+        -:   98:#endif
+        -:   99:
+        -:  100:} // namespace boost
+        -:  101:
+        -:  102:#undef BOOST_LCAST_NO_WCHAR_T
+        -:  103:
+        -:  104:#endif // BOOST_LEXICAL_CAST_INCLUDED
+        -:  105:

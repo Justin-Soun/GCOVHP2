@@ -1,0 +1,119 @@
+        -:    0:Source:/usr/include/boost/lexical_cast/bad_lexical_cast.hpp
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    1:// Copyright Kevlin Henney, 2000-2005.
+        -:    2:// Copyright Alexander Nasonov, 2006-2010.
+        -:    3:// Copyright Antony Polukhin, 2011-2020.
+        -:    4://
+        -:    5:// Distributed under the Boost Software License, Version 1.0. (See
+        -:    6:// accompanying file LICENSE_1_0.txt or copy at
+        -:    7:// http://www.boost.org/LICENSE_1_0.txt)
+        -:    8://
+        -:    9:// what:  lexical_cast custom keyword cast
+        -:   10:// who:   contributed by Kevlin Henney,
+        -:   11://        enhanced with contributions from Terje Slettebo,
+        -:   12://        with additional fixes and suggestions from Gennaro Prota,
+        -:   13://        Beman Dawes, Dave Abrahams, Daryle Walker, Peter Dimov,
+        -:   14://        Alexander Nasonov, Antony Polukhin, Justin Viiret, Michael Hofmann,
+        -:   15://        Cheng Yang, Matthew Bradbury, David W. Birdsall, Pavel Korzh and other Boosters
+        -:   16:// when:  November 2000, March 2003, June 2005, June 2006, March 2011 - 2014
+        -:   17:
+        -:   18:#ifndef BOOST_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP
+        -:   19:#define BOOST_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP
+        -:   20:
+        -:   21:#include <boost/config.hpp>
+        -:   22:#ifdef BOOST_HAS_PRAGMA_ONCE
+        -:   23:#   pragma once
+        -:   24:#endif
+        -:   25:
+        -:   26:#include <exception>
+        -:   27:#include <typeinfo>
+        -:   28:#include <boost/throw_exception.hpp>
+        -:   29:
+        -:   30:namespace boost
+        -:   31:{
+        -:   32:    // exception used to indicate runtime lexical_cast failure
+    #####:   33:    class BOOST_SYMBOL_VISIBLE bad_lexical_cast :
+        -:   34:    // workaround MSVC bug with std::bad_cast when _HAS_EXCEPTIONS == 0 
+        -:   35:#if defined(BOOST_MSVC) && defined(_HAS_EXCEPTIONS) && !_HAS_EXCEPTIONS 
+        -:   36:        public std::exception 
+        -:   37:#else 
+        -:   38:        public std::bad_cast 
+        -:   39:#endif 
+        -:   40:
+        -:   41:#if defined(BOOST_BORLANDC) && BOOST_WORKAROUND( BOOST_BORLANDC, < 0x560 )
+        -:   42:        // under bcc32 5.5.1 bad_cast doesn't derive from exception
+        -:   43:        , public std::exception
+        -:   44:#endif
+        -:   45:
+        -:   46:    {
+        -:   47:    public:
+        -:   48:        bad_lexical_cast() BOOST_NOEXCEPT
+        -:   49:#ifndef BOOST_NO_TYPEID
+        -:   50:           : source(&typeid(void)), target(&typeid(void))
+        -:   51:#endif
+        -:   52:        {}
+        -:   53:
+    #####:   54:        const char *what() const BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE {
+    #####:   55:            return "bad lexical cast: "
+    #####:   56:                   "source type value could not be interpreted as target";
+        -:   57:        }
+        -:   58:
+    #####:   59:        ~bad_lexical_cast() BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
+    #####:   60:        {}
+------------------
+_ZN5boost16bad_lexical_castD0Ev:
+    #####:   59:        ~bad_lexical_cast() BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
+    #####:   60:        {}
+------------------
+_ZN5boost16bad_lexical_castD2Ev:
+    #####:   59:        ~bad_lexical_cast() BOOST_NOEXCEPT_OR_NOTHROW BOOST_OVERRIDE
+    #####:   60:        {}
+------------------
+        -:   61:
+        -:   62:#ifndef BOOST_NO_TYPEID
+        -:   63:    private:
+        -:   64:#ifdef BOOST_NO_STD_TYPEINFO
+        -:   65:        typedef ::type_info type_info_t;
+        -:   66:#else
+        -:   67:        typedef ::std::type_info type_info_t;
+        -:   68:#endif
+        -:   69:    public:
+    #####:   70:        bad_lexical_cast(
+        -:   71:                const type_info_t &source_type_arg,
+        -:   72:                const type_info_t &target_type_arg) BOOST_NOEXCEPT
+    #####:   73:            : source(&source_type_arg), target(&target_type_arg)
+        -:   74:        {}
+        -:   75:
+        -:   76:        const type_info_t &source_type() const BOOST_NOEXCEPT {
+        -:   77:            return *source;
+        -:   78:        }
+        -:   79:
+        -:   80:        const type_info_t &target_type() const BOOST_NOEXCEPT {
+        -:   81:            return *target;
+        -:   82:        }
+        -:   83:
+        -:   84:    private:
+        -:   85:        const type_info_t *source;
+        -:   86:        const type_info_t *target;
+        -:   87:#endif
+        -:   88:    };
+        -:   89:
+        -:   90:    namespace conversion { namespace detail {
+        -:   91:#ifdef BOOST_NO_TYPEID
+        -:   92:        template <class S, class T>
+        -:   93:        inline void throw_bad_cast() {
+        -:   94:            boost::throw_exception(bad_lexical_cast());
+        -:   95:        }
+        -:   96:#else
+        -:   97:        template <class S, class T>
+    #####:   98:        inline void throw_bad_cast() {
+    #####:   99:            boost::throw_exception(bad_lexical_cast(typeid(S), typeid(T)));
+        -:  100:        }
+        -:  101:#endif
+        -:  102:    }} // namespace conversion::detail
+        -:  103:
+        -:  104:} // namespace boost
+        -:  105:
+        -:  106:#endif // BOOST_LEXICAL_CAST_BAD_LEXICAL_CAST_HPP
