@@ -16,21 +16,28 @@ void testIsPrime1();
 void testIsPrime2();
 void testIsPrime3();
 void testIsPrime4();
-void testCalculateSum();
+void testCalculateSum1();
+void testCalculateSum2();
+void testCalculateSum3();
+void testCalculateSum4();
 
 int main(){
   testIsPrime1();
   testIsPrime2();
   testIsPrime3();
   testIsPrime4();
-  testCalculateSum();
+
+  testCalculateSum1();
+  testCalculateSum2();
+  testCalculateSum3();
+  testCalculateSum4();
 
   return 0;
 }
 
 void testIsPrime1(){
-  assertTrue(isPrime(10) == 0,
-             "isPrime(10) = 0")
+  assertTrue(isPrime(0) == false,
+             "isPrime(0) = false")
 }
 
 void testIsPrime2(){
@@ -48,5 +55,19 @@ void testIsPrime4(){
              "isPrime(1987) = 1")
 }
 
-void testCalculateSum(){
+void testCalculateSum1(){
 	assertTrue(
+}
+
+void testCalculateSum2(){
+        assertTrue(
+}
+
+void testCalculateSum3(){
+        assertTrue(
+}
+
+void testCalculateSum4(){
+        assertTrue(
+}
+
