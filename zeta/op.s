@@ -1,5 +1,5 @@
-.global oneCheck
-oneCheck:
+.global check_false
+check_false:
   CMP R0, #1
   BLE false
 
