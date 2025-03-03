@@ -56,18 +56,19 @@ void testIsPrime4(){
 }
 
 void testCalculateSum1(){
-	assertTrue(
+
+  assertTrue(
 }
 
 void testCalculateSum2(){
-        assertTrue(
+  assertTrue(
 }
 
 void testCalculateSum3(){
-        assertTrue(
+  assertTrue(
 }
 
 void testCalculateSum4(){
-        assertTrue(
+  assertTrue(
 }
 
