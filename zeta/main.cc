@@ -5,7 +5,7 @@
 #include <cmath>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/multiprecision/miller_rabin.hpp>
-
+#include <time.h>
 using namespace boost::multiprecision;
 using namespace std;
 
@@ -164,12 +164,12 @@ int main(int argc, char** argv) {
 		} else if (max < minOfUser) {
 			die();
 		}
-	
+		clock_t start_time = clock();
 
 
 		int sum = stoi(calculate(minOfUser, max, primeNumbers, min, primeAmount, printOrNot));
 		cout << "The answer is: " << sum << endl;
-		
+		cout << ((clock() - start_time)/1000) << "ms has elapsed\n";
 
 
 	}
