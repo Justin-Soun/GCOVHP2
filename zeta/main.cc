@@ -89,22 +89,30 @@ string calculate(cpp_int minOfUser, cpp_int max, vector<cpp_int> primeNumbers, i
 	return to_string(sum);
 }
 
-/*
 TEST(Calc, GoodTests) {
 	vector<cpp_int> primes;
-	EXPECT_EQ(calculate(2,3,primes,2,1,1), "3");
+	EXPECT_EQ(calculate(2,3,primes,2,0,0), "3");
+	EXPECT_EQ(calculate(2, 13, primes, 2, 0, 0), "43"); 
+	EXPECT_EQ(calculate(52, 235, primes, 2, 0, 0), "6234"); 
+	EXPECT_EQ(calculate(100, 10000, primes, 2, 0, 0), "6553393"); 
+	EXPECT_EQ(calculate(2, 100000, primes, 2, 0, 0), "504813055"); 
 }
-*/
 TEST(Calc, BadTests) {
-	vector<cpp_int> primes = {2, 3, 5, 7}; 
+	vector<cpp_int> primes; 
 	EXPECT_EQ(calculate(1, 10, primes, 2, 0, 0), "Error"); 
 	EXPECT_EQ(calculate(-50, 10, primes, 2, 0, 0), "Error");
-	EXPECT_EQ(calculate(2, 1, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(50, -10, primes, 2, 0, 0), "Error");
 	EXPECT_EQ(calculate(2, -100, primes, 2, 0, 0), "Error");
 	EXPECT_EQ(calculate(50, 10, primes, 2, 0, 0), "Error");
 }
-
-
+TEST(Calc, EdgeTests) {
+	vector<cpp_int> primes;
+	EXPECT_EQ(calculate(2, 2, primes, 2, 0, 0), "1");
+	EXPECT_EQ(calculate(1, 2, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(2, 1, primes, 2, 0, 0), "Error");
+	EXPECT_EQ(calculate(2, 4, primes, 2, 0, 0), "5");
+	EXPECT_EQ(calculate(2, 5, primes, 2, 0, 0), "8");
+}
 TEST(Prime, GoodTests) {
 	EXPECT_EQ(isPrime(2), true);
 	EXPECT_EQ(isPrime(1231), true);
