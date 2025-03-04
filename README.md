@@ -7,7 +7,7 @@
 </p>
 <br>
 <br>
-<p><strong style="font-size: 80px;">Roles:</strong></p>
+<div style="font-size:25px; font-weight:bold;">Roles</div>
 <p> 
 Optimizer Prime: Justin had the vital role of providing us with the HW code and then solving it. After solving it his main job was attempting to optimize the code.
 EdgeLord: Ansh had the task of providing multiple tests within the code to ensure that the code was running correctly and smoothly. 
