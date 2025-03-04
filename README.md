@@ -7,10 +7,13 @@
 </p>
 <br>
 <br>
-<div style="font-size:25px; font-weight:bold;">Roles</div>
+<div style="font-size:25px; font-weight:bold;">Roles:</div>
 <p> 
 Optimizer Prime: Justin had the vital role of providing us with the HW code and then solving it. After solving it his main job was attempting to optimize the code.
 EdgeLord: Ansh had the task of providing multiple tests within the code to ensure that the code was running correctly and smoothly. 
 Glord: Oscar had the job of implementing Gcov so that we could test and benchmark the code.
 GitWizard: Omar had the job of writing the documentation for the project and helping with its organization.
 </p>
+<br>
+<br>
+<div style="font-size:25px; font-weight:bold;">Optimization:</div>
