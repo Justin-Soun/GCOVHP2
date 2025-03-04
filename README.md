@@ -2,5 +2,6 @@
 <div align="center">
   <img src="https://github.com/user-attachments/assets/8d69fa45-cca3-4987-8ca4-d798888290bd" alt="neon-zeta-greek-symbol" width="300"/>
 </div>
-<h2><strong style="font-size: 24px;">Description:</strong></h2>
-<p>The zeta function is a complex function but for this assignment all it does it get the sum of the number of all the prime numbers before the value you give it. so at pi(10) there are 4 prime numbers {2,3,5,7}. so pi(10) = 4 Our objective is to make sure that the function works</p>
+<p><strong style="font-size: 24px;">Description:</strong></p>
+<p>In this project, we worked on the ZETA function homework that Justin provided. In this HW we had to write a function that finds whether a number is prime and then calculates how many prime numbers are smaller than the one given. So if we give a range of prime numbers like 2 and 6 it calculates how many prime numbers exist between them so 5 and 3. The function gets how many prime numbers exist adds gives the total number of prime numbers. So when given big numbers it takes time to find all the prime numbers which takes more than 1 second.
+</p>
