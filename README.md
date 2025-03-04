@@ -17,3 +17,5 @@ GitWizard: Omar had the job of writing the documentation for the project and hel
 <br>
 <br>
 <div style="font-size:25px; font-weight:bold;">Optimization:</div>
+<p> We had a few ideas to increase performance and the first one was to optimize the vectos. Our initial idea was to pass the vector through by reference to increase the compilation speed. Initially, we had a runtime of 46791ms when we ran the vector by value, and after we changed it to run by reference the runtime increased to 53103ms. Clearly this idea did not succeed in optimizing the code, we realized that we had multiple functions that continuously changed the vector so running it by refrence increased the workload of the code. </p>
+<p>The second idea we agreed on was to minimize the code by removing useless functions and loops. We revised the code and came to the conclusion that we had 2 useless arguments within our Calculate function, which were the int min and int primeAmount. After removing these two arguments our runtime changed to 46736ms, which is a slight improvement but an improvement nonetheless.</p>
