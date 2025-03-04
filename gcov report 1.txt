@@ -65,7 +65,7 @@
     54885:   61:                   if (i >= minOfUser and i <= max) {
     20001:   62:                         sum += primeAmount;
     20001:   63:                         if (printOrNot <= 10) {
-   54885*:   64:                           cout << "pi(" << i << ") = " << primeAmount << endl;
+>  54885*:   64:                           cout << "pi(" << i << ") = " << primeAmount << endl;
         -:   65:                         }
         -:   66:                       }
     #####:   67:                 }
